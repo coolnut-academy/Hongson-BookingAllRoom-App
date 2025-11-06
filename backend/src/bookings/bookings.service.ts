@@ -60,7 +60,9 @@ export class BookingsService {
       // getRoomStatus() จะเพิ่ม defaultClosedRooms เข้าไปแล้ว
       for (const selection of selections) {
         if (roomStatus.closedRooms.includes(selection.roomId)) {
-          throw new ConflictException(`ห้อง ${selection.roomId} ถูกปิดการจอง กรุณาติดต่อผู้ดูแลระบบ`);
+          throw new ConflictException(
+            `ห้อง ${selection.roomId} ถูกปิดการจอง กรุณาติดต่อผู้ดูแลระบบ`,
+          );
         }
       }
     }
@@ -90,13 +92,13 @@ export class BookingsService {
       );
     }
 
-        // สร้าง bookings ทั้งหมด
-        const bookings = selections.map((selection) => ({
-          roomId: selection.roomId,
-          date: bookingDate,
-          slot: selection.slot,
-          bookedBy: targetUserId,
-        }));
+    // สร้าง bookings ทั้งหมด
+    const bookings = selections.map((selection) => ({
+      roomId: selection.roomId,
+      date: bookingDate,
+      slot: selection.slot,
+      bookedBy: targetUserId,
+    }));
 
     const created = await this.bookingModel.insertMany(bookings);
     return {
@@ -160,7 +162,8 @@ export class BookingsService {
       bookedBy: booking.bookedBy
         ? {
             username: booking.bookedBy.username,
-            displayName: booking.bookedBy.displayName || booking.bookedBy.username,
+            displayName:
+              booking.bookedBy.displayName || booking.bookedBy.username,
           }
         : null,
     }));
@@ -249,10 +252,10 @@ export class BookingsService {
     // ดึงสถานะห้องที่ปิด
     const roomStatus = await this.getRoomStatus();
     const closedRoomsSet = new Set(roomStatus.closedRooms);
-    
+
     // ดึงห้องพิเศษทั้งหมด
     const customRooms = await this.getAllCustomRooms();
-    
+
     // กำหนดวันที่ 22 และ 23 ธันวาคม 2568
     // Query ทั้งวันที่ 22 และ 23 โดยใช้ range ที่กว้างเพื่อให้ครอบคลุมทุก timezone
     // Query ตั้งแต่ 21 ธันวาคม ถึง 24 ธันวาคม เพื่อให้ครอบคลุมทุก timezone
@@ -276,41 +279,129 @@ export class BookingsService {
     });
 
     // Debug: Log bookings to see if data is being fetched
-    console.log(`[Summary] Found ${bookings.length} bookings for dates 2025-12-22 to 2025-12-23`);
-    if (bookings.length > 0) {
-      console.log(`[Summary] Sample booking:`, {
-        roomId: bookings[0].roomId,
-        date: bookings[0].date,
-        slot: bookings[0].slot,
-        bookedBy: bookings[0].bookedBy,
-      });
-    }
+    // Removed console.log for production
 
     // นับจำนวน slots ทั้งหมดต่ออาคาร (คำนวณจาก availableRoomsByBuilding)
     // จะคำนวณใหม่หลังจากได้ availableRoomsByBuilding แล้ว
 
     // รายชื่อห้องทั้งหมดในแต่ละอาคาร (รวมห้องที่ blocked แต่จะกรองห้องที่ปิดออกทีหลัง)
     const allRooms: Record<string, string[]> = {
-      building1: ['131', '132', '133', '134', '135', '136', '121', '122', '123', '124', '125', '126', '111', '112', '113', '114', '115', '116'],
-      building2: ['231', '232', '233', '234', '235', '236', '211', '212', '213', '214', '215', '216', 'english'],
-      building3: ['331', '332', '333', '334', '335', '336', '337', '338', '321', '322', '323', '324', '325', '326', '327', '328', '311', '312', '317', '318', 'library', 'innovation'],
-      building4: ['441', '442', '443', '444', '445', '446', '447', '448', '431', '432', '433', '434', '435', '436', '437', '438', '421', '422', '423', '424', '425', '426', '427', '428', 'fablab', 'meeting1', 'meeting2', 'hcec'],
+      building1: [
+        '131',
+        '132',
+        '133',
+        '134',
+        '135',
+        '136',
+        '121',
+        '122',
+        '123',
+        '124',
+        '125',
+        '126',
+        '111',
+        '112',
+        '113',
+        '114',
+        '115',
+        '116',
+      ],
+      building2: [
+        '231',
+        '232',
+        '233',
+        '234',
+        '235',
+        '236',
+        '221',
+        'english',
+        '211',
+        '212',
+        '213',
+        '214',
+        '215',
+        '216',
+      ],
+      building3: [
+        '331',
+        '332',
+        '333',
+        '334',
+        '335',
+        '336',
+        '337',
+        '338',
+        '321',
+        '322',
+        '323',
+        '324',
+        '325',
+        '326',
+        '327',
+        '328',
+        '311',
+        '312',
+        '317',
+        '318',
+        'library',
+        'innovation',
+      ],
+      building4: [
+        '441',
+        '442',
+        '443',
+        '444',
+        '445',
+        '446',
+        '447',
+        '448',
+        '431',
+        '432',
+        '433',
+        '434',
+        '435',
+        '436',
+        '437',
+        '438',
+        '421',
+        '422',
+        '423',
+        '424',
+        '425',
+        '426',
+        '427',
+        '428',
+        'fablab',
+        'meeting1',
+        'meeting2',
+        'hcec',
+      ],
       building5: ['A4', 'A3', 'A2', 'A1'],
-      building6: ['music1', 'music2', 'home1', 'home2', 'phet', 'phet-canteen', 'industry1', 'industry2', 'canteen'],
+      building6: [
+        'music1',
+        'music2',
+        'home1',
+        'home2',
+        'phet',
+        'phet-canteen',
+        'industry1',
+        'industry2',
+        'canteen',
+      ],
     };
-    
+
     // เพิ่มห้องพิเศษเข้าไปใน building6 (หรือสร้าง building7 ใหม่)
     // สำหรับความง่าย ให้เพิ่มเข้า building6
-    const customRoomIds = customRooms.map(room => room.roomId);
+    const customRoomIds = customRooms.map((room) => room.roomId);
     if (customRoomIds.length > 0) {
       allRooms.building6 = [...(allRooms.building6 || []), ...customRoomIds];
     }
-    
+
     // กรองห้องที่ปิดออกจาก allRooms
     const availableRoomsByBuilding: Record<string, string[]> = {};
     Object.keys(allRooms).forEach((building) => {
       availableRoomsByBuilding[building] = allRooms[building].filter(
-        roomId => !closedRoomsSet.has(roomId)
+        (roomId) => !closedRoomsSet.has(roomId),
       );
     });
 
@@ -339,7 +430,7 @@ export class BookingsService {
         // คำนวณ availableSlots จากห้องที่เปิด (ไม่รวมห้องที่ปิด)
         const availableRooms = availableRoomsByBuilding[building] || [];
         const availableSlots = availableRooms.length * 2; // แต่ละห้องมี 2 slots (am, pm)
-        
+
         summary[dateStr][building] = {
           bookedSlots: 0,
           availableSlots: availableSlots,
@@ -360,9 +451,8 @@ export class BookingsService {
       const bookingDate = new Date(booking.date);
       const dateStr = bookingDate.toISOString().split('T')[0];
       const building = this.getBuildingKeyFromRoomId(booking.roomId);
-      
-      // Debug: Log each booking
-      console.log(`[Summary] Processing booking: roomId=${booking.roomId}, date=${dateStr}, building=${building}, slot=${booking.slot}`);
+
+      // Debug: Log each booking - Removed console.log for production
 
       if (!bookingsByDateAndBuilding[dateStr]) {
         bookingsByDateAndBuilding[dateStr] = {};
@@ -393,22 +483,24 @@ export class BookingsService {
               summary[dateStr][building].bookedSlots += 1;
               summary[dateStr][building].availableSlots -= 1;
 
-              const booking = bookings.find(
-                (b) => {
-                  const bDateStr = new Date(b.date).toISOString().split('T')[0];
-                  return (
-                    b.roomId === roomId &&
-                    b.slot === 'am' &&
-                    bDateStr === dateStr
-                  );
-                },
-              );
+              const booking = bookings.find((b) => {
+                const bDateStr = new Date(b.date).toISOString().split('T')[0];
+                return (
+                  b.roomId === roomId && b.slot === 'am' && bDateStr === dateStr
+                );
+              });
 
               // Handle populated bookedBy (could be ObjectId or populated object)
               let displayName = 'Unknown';
               if (booking?.bookedBy) {
-                if (typeof booking.bookedBy === 'object' && booking.bookedBy !== null) {
-                  displayName = (booking.bookedBy as any).displayName || (booking.bookedBy as any).username || 'Unknown';
+                if (
+                  typeof booking.bookedBy === 'object' &&
+                  booking.bookedBy !== null
+                ) {
+                  displayName =
+                    (booking.bookedBy as any).displayName ||
+                    (booking.bookedBy as any).username ||
+                    'Unknown';
                 } else {
                   // If it's just an ObjectId, we need to populate it
                   displayName = 'Unknown';
@@ -426,22 +518,24 @@ export class BookingsService {
               summary[dateStr][building].bookedSlots += 1;
               summary[dateStr][building].availableSlots -= 1;
 
-              const booking = bookings.find(
-                (b) => {
-                  const bDateStr = new Date(b.date).toISOString().split('T')[0];
-                  return (
-                    b.roomId === roomId &&
-                    b.slot === 'pm' &&
-                    bDateStr === dateStr
-                  );
-                },
-              );
+              const booking = bookings.find((b) => {
+                const bDateStr = new Date(b.date).toISOString().split('T')[0];
+                return (
+                  b.roomId === roomId && b.slot === 'pm' && bDateStr === dateStr
+                );
+              });
 
               // Handle populated bookedBy (could be ObjectId or populated object)
               let displayName = 'Unknown';
               if (booking?.bookedBy) {
-                if (typeof booking.bookedBy === 'object' && booking.bookedBy !== null) {
-                  displayName = (booking.bookedBy as any).displayName || (booking.bookedBy as any).username || 'Unknown';
+                if (
+                  typeof booking.bookedBy === 'object' &&
+                  booking.bookedBy !== null
+                ) {
+                  displayName =
+                    (booking.bookedBy as any).displayName ||
+                    (booking.bookedBy as any).username ||
+                    'Unknown';
                 } else {
                   // If it's just an ObjectId, we need to populate it
                   displayName = 'Unknown';
@@ -508,16 +602,32 @@ export class BookingsService {
     const endOfDay = new Date(bookingDate);
     endOfDay.setHours(23, 59, 59, 999);
 
-    const result = await this.bookingModel.deleteMany({
-      roomId,
-      date: {
-        $gte: bookingDate,
-        $lte: endOfDay,
-      },
-    }).exec();
+    const result = await this.bookingModel
+      .deleteMany({
+        roomId,
+        date: {
+          $gte: bookingDate,
+          $lte: endOfDay,
+        },
+      })
+      .exec();
 
     return {
       message: `Reset room ${roomId} successfully`,
+      deletedCount: result.deletedCount,
+    };
+  }
+
+  // Reset all: ลบทุกการจองทั้งหมด (สำหรับ admin)
+  async resetAll(isAdmin: boolean) {
+    if (!isAdmin) {
+      throw new ConflictException('Only admin can reset all bookings');
+    }
+
+    const result = await this.bookingModel.deleteMany({}).exec();
+
+    return {
+      message: 'Reset all bookings successfully',
       deletedCount: result.deletedCount,
     };
   }
@@ -533,15 +643,27 @@ export class BookingsService {
   }
 
   // Room Status Management Methods
-  
+
   // รายการห้องที่ตั้งค่าตั้งต้นว่าเต็มแล้ว (isBlocked)
   private readonly defaultClosedRooms: string[] = [
     // Building 1
-    '132', '134', '121', '122', '124', '111', '112', '114',
+    '132',
+    '134',
+    '121',
+    '122',
+    '124',
+    '111',
+    '112',
+    '114',
     // Building 2
-    '211', 'english',
+    '221',
+    'english',
     // Building 3
-    '333', '338', '321', 'library', 'innovation',
+    '333',
+    '338',
+    '321',
+    'library',
+    'innovation',
     // Building 4
     '431',
   ];
@@ -551,29 +673,33 @@ export class BookingsService {
     let status = await this.roomStatusModel.findOne().exec();
     if (!status) {
       // สร้าง default status ถ้ายังไม่มี และเพิ่มห้องที่ตั้งค่าตั้งต้นว่าเต็มแล้ว
-      status = new this.roomStatusModel({ closedRooms: [...this.defaultClosedRooms] });
+      status = new this.roomStatusModel({
+        closedRooms: [...this.defaultClosedRooms],
+      });
       await status.save();
       return status;
     }
-    
-    // ไม่ต้องเพิ่ม defaultClosedRooms กลับเข้าไปอีก 
-    // เพราะถ้า admin เปิดห้องไว้แล้ว (ไม่อยู่ใน closedRooms) 
+
+    // ไม่ต้องเพิ่ม defaultClosedRooms กลับเข้าไปอีก
+    // เพราะถ้า admin เปิดห้องไว้แล้ว (ไม่อยู่ใน closedRooms)
     // ไม่ควรเพิ่มกลับเข้าไปอีก
-    
+
     return status;
   }
 
   // เปิดห้อง (Admin only) - เอา roomId ออกจาก closedRooms
-  async openRoom(roomId: string): Promise<{ message: string; closedRooms: string[] }> {
+  async openRoom(
+    roomId: string,
+  ): Promise<{ message: string; closedRooms: string[] }> {
     let status = await this.roomStatusModel.findOne().exec();
     if (!status) {
       status = new this.roomStatusModel({ closedRooms: [] });
     }
-    
+
     // เอา roomId ออกจาก closedRooms ถ้ามี
-    status.closedRooms = status.closedRooms.filter(id => id !== roomId);
+    status.closedRooms = status.closedRooms.filter((id) => id !== roomId);
     await status.save();
-    
+
     return {
       message: `เปิดห้อง ${roomId} ให้สามารถจองได้แล้ว`,
       closedRooms: status.closedRooms,
@@ -581,18 +707,20 @@ export class BookingsService {
   }
 
   // ปิดห้อง (Admin only) - เพิ่ม roomId เข้า closedRooms
-  async closeRoom(roomId: string): Promise<{ message: string; closedRooms: string[] }> {
+  async closeRoom(
+    roomId: string,
+  ): Promise<{ message: string; closedRooms: string[] }> {
     let status = await this.roomStatusModel.findOne().exec();
     if (!status) {
       status = new this.roomStatusModel({ closedRooms: [] });
     }
-    
+
     // เพิ่ม roomId เข้า closedRooms ถ้ายังไม่มี
     if (!status.closedRooms.includes(roomId)) {
       status.closedRooms.push(roomId);
     }
     await status.save();
-    
+
     return {
       message: `ปิดห้อง ${roomId} ไม่ให้จองแล้ว`,
       closedRooms: status.closedRooms,
@@ -600,17 +728,19 @@ export class BookingsService {
   }
 
   // Toggle ห้อง (Admin only) - สลับสถานะเปิด/ปิด
-  async toggleRoom(roomId: string): Promise<{ message: string; isClosed: boolean; closedRooms: string[] }> {
+  async toggleRoom(
+    roomId: string,
+  ): Promise<{ message: string; isClosed: boolean; closedRooms: string[] }> {
     let status = await this.roomStatusModel.findOne().exec();
     if (!status) {
       status = new this.roomStatusModel({ closedRooms: [] });
     }
-    
+
     const isCurrentlyClosed = status.closedRooms.includes(roomId);
-    
+
     if (isCurrentlyClosed) {
       // เปิดห้อง (เอาออก)
-      status.closedRooms = status.closedRooms.filter(id => id !== roomId);
+      status.closedRooms = status.closedRooms.filter((id) => id !== roomId);
       await status.save();
       return {
         message: `เปิดห้อง ${roomId} ให้สามารถจองได้แล้ว`,
@@ -637,7 +767,10 @@ export class BookingsService {
   }
 
   // สร้างห้องพิเศษใหม่
-  async createCustomRoom(roomName: string, subtitle?: string): Promise<CustomRoom> {
+  async createCustomRoom(
+    roomName: string,
+    subtitle?: string,
+  ): Promise<CustomRoom> {
     // หา roomId ถัดไป (custom-1, custom-2, ...)
     const existingRooms = await this.customRoomModel.find().exec();
     const nextNumber = existingRooms.length + 1;
@@ -682,7 +815,9 @@ export class BookingsService {
     // ลบห้องออกจาก closedRooms ถ้ามี
     const roomStatus = await this.roomStatusModel.findOne().exec();
     if (roomStatus) {
-      roomStatus.closedRooms = roomStatus.closedRooms.filter(id => id !== roomId);
+      roomStatus.closedRooms = roomStatus.closedRooms.filter(
+        (id) => id !== roomId,
+      );
       await roomStatus.save();
     }
 

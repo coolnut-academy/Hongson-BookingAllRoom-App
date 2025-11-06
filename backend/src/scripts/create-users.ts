@@ -53,4 +53,3 @@ createUsers().catch((error) => {
   console.error('❌ Error creating users:', error);
   process.exit(1);
 });
-

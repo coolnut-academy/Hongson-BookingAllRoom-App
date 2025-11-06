@@ -14,4 +14,3 @@ export class CustomRoom extends Document {
 }
 
 export const CustomRoomSchema = SchemaFactory.createForClass(CustomRoom);
-

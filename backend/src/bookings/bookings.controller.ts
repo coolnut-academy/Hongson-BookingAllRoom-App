@@ -131,11 +131,7 @@ export class BookingsController {
     if (!body.roomId || !body.date) {
       throw new BadRequestException('roomId and date are required');
     }
-    return this.bookingsService.resetRoom(
-      body.roomId,
-      body.date,
-      true,
-    );
+    return this.bookingsService.resetRoom(body.roomId, body.date, true);
   }
 
   // GET /bookings/room-status
@@ -199,7 +195,10 @@ export class BookingsController {
     if (!body.roomName || body.roomName.trim() === '') {
       throw new BadRequestException('roomName is required');
     }
-    return this.bookingsService.createCustomRoom(body.roomName.trim(), body.subtitle?.trim());
+    return this.bookingsService.createCustomRoom(
+      body.roomName.trim(),
+      body.subtitle?.trim(),
+    );
   }
 
   // DELETE /bookings/custom-rooms/:roomId
@@ -211,5 +210,16 @@ export class BookingsController {
       throw new ConflictException('Only admin can delete custom rooms');
     }
     return this.bookingsService.deleteCustomRoom(roomId);
+  }
+
+  // POST /bookings/reset-all
+  // Admin only: Reset all bookings (ลบทุกการจองทั้งหมด)
+  @Post('reset-all')
+  @HttpCode(HttpStatus.OK)
+  async resetAll(@Request() req) {
+    if (!req.user.isAdmin) {
+      throw new ConflictException('Only admin can reset all bookings');
+    }
+    return this.bookingsService.resetAll(true);
   }
 }

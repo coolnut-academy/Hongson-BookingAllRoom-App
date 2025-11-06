@@ -20,4 +20,3 @@ export class Booking extends Document {
 }
 
 export const BookingSchema = SchemaFactory.createForClass(Booking);
-

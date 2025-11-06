@@ -72,3 +72,61 @@
   position: relative;
 }
 
+.booking-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.booking-header h1 {
+  margin: 0;
+  flex: 1;
+  min-width: 200px;
+}
+
+.reset-all-button {
+  padding: 12px 24px;
+  font-size: 1rem;
+  font-weight: 600;
+  background-color: #dc3545;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-family: 'Noto Sans Thai', sans-serif;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  white-space: nowrap;
+}
+
+.reset-all-button:hover {
+  background-color: #c82333;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.reset-all-button:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Responsive */
+@media screen and (max-width: 768px) {
+  .booking-header {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .booking-header h1 {
+    text-align: center;
+    margin-bottom: 10px;
+  }
+
+  .reset-all-button {
+    width: 100%;
+  }
+}
+

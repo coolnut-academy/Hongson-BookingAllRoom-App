@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import Building1 from './Building1';
 import Building2 from './Building2';
 import Building3 from './Building3';
@@ -7,6 +7,7 @@ import Building5 from './Building5';
 import Building6 from './Building6';
 import CustomRoomsSection from './CustomRoomsSection';
 import ConfirmBookingModal from './ConfirmBookingModal';
+import ConfirmResetAllModal from './ConfirmResetAllModal';
 import { bookingService } from '../services/booking.service';
 import type { BookingSelection } from '../services/booking.service';
 import { useAuth } from '../contexts/AuthContext';
@@ -49,26 +50,21 @@ const BookingView: React.FC<BookingViewProps> = ({ date }) => {
     slots: BookingSelection[];
   } | null>(null);
 
-  // useEffect: เมื่อ props.date เปลี่ยน
-  useEffect(() => {
-    loadBookings();
-    loadRoomStatus();
-    // เคลียร์ selections ทั้งหมดเมื่อเปลี่ยนวัน
-    setSelections({});
-  }, [date]);
+  // State: Reset All modal
+  const [showResetAllModal, setShowResetAllModal] = useState(false);
 
   // Load room status
-  const loadRoomStatus = async () => {
+  const loadRoomStatus = useCallback(async () => {
     try {
       const status = await bookingService.getRoomStatus();
       setClosedRooms(status.closedRooms || []);
     } catch (error) {
       console.error('Failed to load room status:', error);
     }
-  };
+  }, []);
 
   // เรียก API GET /bookings/details?date={date} เพื่อดึงข้อมูลพร้อมชื่อผู้จอง
-  const loadBookings = async () => {
+  const loadBookings = useCallback(async () => {
     try {
       setLoading(true);
       const data = await bookingService.getBookingsWithDetails(date);
@@ -78,7 +74,15 @@ const BookingView: React.FC<BookingViewProps> = ({ date }) => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [date]);
+
+  // useEffect: เมื่อ props.date เปลี่ยน
+  useEffect(() => {
+    loadBookings();
+    loadRoomStatus();
+    // เคลียร์ selections ทั้งหมดเมื่อเปลี่ยนวัน
+    setSelections({});
+  }, [date, loadBookings, loadRoomStatus]);
 
   // Convert bookings array to map for easy lookup (พร้อมชื่อผู้จอง)
   const bookingsMap: BookingsMap = {};
@@ -250,6 +254,41 @@ const BookingView: React.FC<BookingViewProps> = ({ date }) => {
     }
   };
 
+  // Handler: Reset All (Admin only) - แสดง modal ยืนยัน
+  const handleResetAllClick = () => {
+    if (!isAdmin) {
+      alert('คุณไม่มีสิทธิ์ในการ reset การจองทั้งหมด');
+      return;
+    }
+    setShowResetAllModal(true);
+  };
+
+  // Handler: ยืนยัน Reset All
+  const handleConfirmResetAll = async () => {
+    if (!isAdmin) return;
+
+    try {
+      const result = await bookingService.resetAll();
+      alert(`Reset All สำเร็จ: ลบการจอง ${result.deletedCount} รายการ`);
+      setShowResetAllModal(false);
+      await loadBookings();
+      // Dispatch event เพื่อให้ SummaryView อัปเดต
+      window.dispatchEvent(new Event('roomStatusChanged'));
+    } catch (error) {
+      if (error && typeof error === "object" && 'response' in error && error.response && typeof error.response === "object" && 'data' in error.response && error.response.data && typeof error.response.data === "object" && 'message' in error.response.data) {
+        alert(error.response.data.message);
+      } else {
+        alert('เกิดข้อผิดพลาดในการ Reset All');
+      }
+      setShowResetAllModal(false);
+    }
+  };
+
+  // Handler: ยกเลิก Reset All
+  const handleCancelResetAll = () => {
+    setShowResetAllModal(false);
+  };
+
   const buildingProps = {
     bookings: bookingsMap,
     selections,
@@ -264,7 +303,18 @@ const BookingView: React.FC<BookingViewProps> = ({ date }) => {
   return (
     <>
       <div id="booking-view">
-        <h1>การจองอาคาร ในวันที่ {dateDisplay}</h1>
+        <div className="booking-header">
+          <h1>การจองอาคาร ในวันที่ {dateDisplay}</h1>
+          {isAdmin && (
+            <button
+              className="reset-all-button"
+              onClick={handleResetAllClick}
+              title="Reset การจองทั้งหมด (Admin only)"
+            >
+              🔄 Reset All
+            </button>
+          )}
+        </div>
         {isAdmin && closedRooms.length > 0 && (
           <div className="admin-notice">
             ℹ️ มีห้องที่ปิดอยู่ {closedRooms.length} ห้อง: {closedRooms.join(', ')}
@@ -294,6 +344,11 @@ const BookingView: React.FC<BookingViewProps> = ({ date }) => {
           onCancel={handleCancelBooking}
         />
       )}
+      <ConfirmResetAllModal
+        isOpen={showResetAllModal}
+        onConfirm={handleConfirmResetAll}
+        onCancel={handleCancelResetAll}
+      />
     </>
   );
 };

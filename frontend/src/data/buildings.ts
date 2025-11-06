@@ -52,7 +52,7 @@ export const building2: BuildingData = {
       { roomId: '236', roomName: 'ห้อง 236', subtitle: 'ม.4/6' },
     ],
     [
-      { roomId: '211', roomName: '211', subtitle: 'คณิตศาสตร์', isBlocked: true, blockedType: 'blue', colspan: 3 },
+      { roomId: '221', roomName: 'ห้อง 221', subtitle: 'คณิตศาสตร์', isBlocked: true, blockedType: 'blue', colspan: 3 },
       { roomId: 'english', roomName: 'ภาษาอังกฤษ', isBlocked: true, blockedType: 'red', colspan: 3 },
     ],
     [

@@ -47,7 +47,10 @@ export interface SummaryItem {
   details: Array<{
     roomId: string;
     slot: string;
-    bookedBy: any;
+    bookedBy: {
+      username: string;
+      displayName?: string;
+    };
   }>;
 }
 
@@ -169,6 +172,12 @@ export const bookingService = {
   // Delete custom room (Admin only)
   async deleteCustomRoom(roomId: string): Promise<{ message: string }> {
     const response = await api.delete<{ message: string }>(`/bookings/custom-rooms/${roomId}`);
+    return response.data;
+  },
+
+  // Reset all bookings (Admin only)
+  async resetAll(): Promise<{ message: string; deletedCount: number }> {
+    const response = await api.post<{ message: string; deletedCount: number }>('/bookings/reset-all');
     return response.data;
   },
 };

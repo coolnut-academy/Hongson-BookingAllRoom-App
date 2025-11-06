@@ -9,4 +9,3 @@ export class RoomStatus extends Document {
 }
 
 export const RoomStatusSchema = SchemaFactory.createForClass(RoomStatus);
-
