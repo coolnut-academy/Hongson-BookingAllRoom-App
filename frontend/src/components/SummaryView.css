@@ -1,0 +1,36 @@
+#summary-view {
+  display: block;
+}
+
+.summary-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+  background-color: #fff;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+.summary-table th,
+.summary-table td {
+  border: 1px solid #ddd;
+  padding: 12px 15px;
+  text-align: left;
+}
+
+.summary-table th {
+  background-color: #f8f9fa;
+  font-weight: 600;
+}
+
+.summary-table .status-booked {
+  color: #dc3545;
+  font-weight: bold;
+}
+
+.summary-table .status-available {
+  color: #28a745;
+  font-weight: bold;
+}
+

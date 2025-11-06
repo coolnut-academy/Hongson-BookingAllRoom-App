@@ -1,0 +1,883 @@
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@400;500;600&family=Noto+Sans+Thai:wght@400;500;700&display=swap');
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: 'Noto Sans Thai', 'IBM Plex Sans Thai', sans-serif;
+  background-color: #f0f2f5;
+  padding: 20px;
+  margin: 0;
+}
+
+/* =================================== */
+/* 1. ส่วนของหน้า Login */
+/* =================================== */
+#login-page {
+  max-width: 500px;
+  width: 100%;
+  margin: 60px auto;
+  padding: 40px 35px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-radius: 20px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+
+#login-page::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 20px;
+  z-index: 0;
+}
+
+#login-page > * {
+  position: relative;
+  z-index: 1;
+}
+
+.login-header {
+  margin-bottom: 30px;
+  padding-bottom: 20px;
+  border-bottom: 2px solid #e0e0e0;
+}
+
+#login-page h1 {
+  color: #333;
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 600;
+  line-height: 1.6;
+  word-wrap: break-word;
+  hyphens: auto;
+  overflow-wrap: break-word;
+  text-align: center;
+  display: block;
+  width: 100%;
+}
+
+#login-page form {
+  margin-bottom: 25px;
+}
+
+.form-group {
+  margin-bottom: 20px;
+}
+
+#login-page input {
+  width: 100%;
+  padding: 14px 18px;
+  margin-bottom: 0;
+  border: 2px solid #e0e0e0;
+  border-radius: 10px;
+  font-size: 1rem;
+  font-family: 'Noto Sans Thai', sans-serif;
+  transition: all 0.3s ease;
+  background-color: #fff;
+  box-sizing: border-box;
+}
+
+#login-page input:focus {
+  outline: none;
+  border-color: #667eea;
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+  transform: translateY(-2px);
+}
+
+#login-page input::placeholder {
+  color: #999;
+}
+
+.error-message {
+  color: #dc3545;
+  background-color: #f8d7da;
+  border: 1px solid #f5c6cb;
+  border-radius: 8px;
+  padding: 12px;
+  margin-bottom: 20px;
+  font-size: 0.9rem;
+  text-align: center;
+}
+
+#login-button {
+  width: 100%;
+  padding: 14px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+  font-family: 'Noto Sans Thai', sans-serif;
+}
+
+#login-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(102, 126, 234, 0.5);
+}
+
+#login-button:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 10px rgba(102, 126, 234, 0.4);
+}
+
+.developer-credit {
+  margin-top: 30px;
+  padding-top: 20px;
+  border-top: 1px solid #e0e0e0;
+  color: #666;
+  font-size: 0.85rem;
+}
+
+.developer-credit p {
+  margin: 5px 0;
+  color: #666;
+}
+
+.developer-name {
+  font-weight: 600;
+  color: #667eea !important;
+  font-size: 0.95rem;
+  margin-top: 5px !important;
+}
+
+/* =================================== */
+/* 2. ส่วนของ Main App (Dashboard) */
+/* =================================== */
+#main-app {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+/* ส่วนหัว (Header) และ Tabs */
+#main-app-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: #fff;
+  padding: 15px 25px;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  margin-bottom: 20px;
+  gap: 20px;
+}
+
+.header-logo {
+  height: 50px;
+  width: auto;
+  object-fit: contain;
+  flex-shrink: 0;
+}
+
+#main-app-header .tabs {
+  display: flex;
+  gap: 10px;
+  flex: 1;
+  justify-content: center;
+}
+
+.tab-link {
+  padding: 10px 20px;
+  font-size: 1rem;
+  font-weight: 600;
+  border: 2px solid transparent;
+  background-color: #f0f2f5;
+  color: #555;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.tab-link:hover {
+  background-color: #e0e5eb;
+}
+
+.tab-link.active {
+  background-color: #007bff;
+  color: white;
+  border-color: #007bff;
+}
+
+#logout-button {
+  padding: 10px 15px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  background-color: #dc3545;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+#logout-button:hover {
+  background-color: #c82333;
+}
+
+/* ส่วนเนื้อหา (Views) */
+#booking-view {
+  display: block;
+}
+
+#summary-view {
+  display: block;
+}
+
+/* 3. สไตล์สำหรับหน้า Summary */
+.summary-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+  background-color: #fff;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+.summary-table th,
+.summary-table td {
+  border: 1px solid #ddd;
+  padding: 12px 15px;
+  text-align: left;
+}
+
+.summary-table th {
+  background-color: #f8f9fa;
+  font-weight: 600;
+}
+
+.summary-table .status-booked {
+  color: #dc3545;
+  font-weight: bold;
+}
+
+.summary-table .status-available {
+  color: #28a745;
+  font-weight: bold;
+}
+
+.summary-table .detail-text {
+  font-size: 0.85rem;
+  font-weight: normal;
+  color: #666;
+  margin-top: 5px;
+}
+
+.summary-table .booking-detail {
+  font-size: 0.85rem;
+  margin: 2px 0;
+  color: #666;
+}
+
+.summary-details {
+  font-size: 0.9rem;
+  line-height: 1.6;
+}
+
+.available-detail {
+  margin-bottom: 10px;
+  color: #28a745;
+}
+
+.available-detail strong {
+  color: #155724;
+}
+
+.booked-detail {
+  margin-top: 10px;
+}
+
+.booked-detail strong {
+  color: #721c24;
+  display: block;
+  margin-bottom: 5px;
+}
+
+.booking-item {
+  margin: 3px 0;
+  padding: 4px 8px;
+  background-color: #f8f9fa;
+  border-radius: 4px;
+  font-size: 0.9rem;
+  line-height: 1.4;
+}
+
+.no-bookings {
+  color: #999;
+  font-style: italic;
+}
+
+.booked-by {
+  color: #721c24;
+  font-weight: 600;
+}
+
+/* =================================== */
+/* 4. สไตล์ของผังอาคาร */
+/* =================================== */
+.container {
+  max-width: 1000px;
+  width: 100%;
+  margin: 20px auto;
+  padding: 25px;
+  background-color: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  border: 1px solid #e0e0e0;
+}
+
+h1 {
+  text-align: center;
+  color: #333;
+  font-weight: 600;
+  border-bottom: 2px solid #007bff;
+  padding-bottom: 10px;
+  display: block;
+  width: fit-content;
+  margin: 0 auto 25px auto;
+}
+
+h2 {
+  text-align: center;
+  color: #555;
+  font-weight: 500;
+  font-size: 1.2rem;
+  margin-top: -15px;
+  margin-bottom: 20px;
+}
+
+.room-cell {
+  background-color: #f9f9f9;
+  border: 1px solid #ddd;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  display: flex;
+  flex-direction: column;
+  vertical-align: top;
+  height: 100%;
+}
+
+.room-header {
+  padding: 8px 10px;
+  background-color: #e9ecef;
+  text-align: center;
+  font-weight: 600;
+  color: #495057;
+  border-bottom: 1px solid #ddd;
+}
+
+.room-header small {
+  display: block;
+  font-size: 0.85rem;
+  font-weight: 400;
+  margin-top: 4px;
+}
+
+.room-slots {
+  display: flex;
+  flex-grow: 1;
+}
+
+.slot {
+  flex: 1;
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  font-size: 0.8rem;
+  color: #6c757d;
+  position: relative;
+}
+
+.slot-am {
+  border-right: 1px dashed #ccc;
+}
+
+.slot.available {
+  background-color: #e6f7ff;
+  color: #0056b3;
+  cursor: pointer;
+  transition: background-color 0.2s, transform 0.1s;
+}
+
+.slot.available:hover {
+  background-color: #ccebff;
+}
+
+.slot.available:active {
+  transform: scale(0.95);
+}
+
+.slot.available .status-icon {
+  font-size: 1.2rem;
+  color: #007bff;
+}
+
+.slot.available.selected {
+  background-color: #007bff;
+  color: white;
+  font-weight: 600;
+}
+
+.slot.available.selected .status-icon {
+  color: white;
+}
+
+.slot.booked {
+  background-color: #d4edda;
+  cursor: help;
+}
+
+.slot.booked .status-icon {
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: #155724;
+}
+
+.slot.booked .booked-by-name {
+  display: block;
+  font-size: 0.7rem;
+  color: #155724;
+  margin-top: 4px;
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+}
+
+.room-header.blocked-red {
+  background-color: #f8d7da;
+  color: #721c24;
+}
+
+.room-header.blocked-blue {
+  background-color: #cfe2ff;
+  color: #0a3675;
+}
+
+.room-header.blocked-green {
+  background-color: #d4edda;
+  color: #155724;
+}
+
+.room-cell.blocked .room-slots {
+  background-color: #f8f9fa;
+  filter: grayscale(80%);
+}
+
+.room-cell.blocked .slot {
+  cursor: not-allowed;
+  color: #aaa;
+}
+
+.room-cell.blocked .status-icon {
+  color: #ccc;
+}
+
+.room-footer {
+  padding: 8px;
+  border-top: 1px solid #eee;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.book-button {
+  width: 100%;
+  padding: 10px 5px;
+  font-family: 'Noto Sans Thai', sans-serif;
+  font-size: 0.9rem;
+  font-weight: 600;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  background-color: #28a745;
+  color: white;
+  transition: background-color 0.2s;
+}
+
+.book-button:hover {
+  background-color: #218838;
+}
+
+.book-button:disabled {
+  background-color: #6c757d;
+  color: #ccc;
+  cursor: not-allowed;
+}
+
+.book-button.book-button-blocked:disabled,
+.book-button-blocked:disabled {
+  background-color: #dc3545 !important;
+  color: white !important;
+  cursor: not-allowed;
+  font-weight: 600;
+}
+
+.reset-button {
+  width: 100%;
+  padding: 8px 5px;
+  font-family: 'Noto Sans Thai', sans-serif;
+  font-size: 0.85rem;
+  font-weight: 600;
+  border: 1px solid #dc3545;
+  border-radius: 6px;
+  cursor: pointer;
+  background-color: #fff;
+  color: #dc3545;
+  transition: all 0.2s;
+}
+
+.reset-button:hover {
+  background-color: #dc3545;
+  color: white;
+}
+
+.room-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 12px;
+  margin: -12px 0;
+  table-layout: fixed;
+}
+
+.room-table td {
+  padding: 0;
+  vertical-align: top;
+}
+
+.room-table .room-cell {
+  border-radius: 8px;
+  height: 100%;
+}
+
+.room-table .room-header {
+  border-top-left-radius: 8px;
+  border-top-right-radius: 8px;
+}
+
+.room-table .slot-am {
+  border-bottom-left-radius: 8px;
+}
+
+.room-table .slot-pm {
+  border-bottom-right-radius: 8px;
+}
+
+.room-table .room-cell.colspan {
+  min-height: 100px;
+}
+
+.room-grid {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 12px;
+}
+
+.room-grid .room-cell {
+  border-radius: 8px;
+}
+
+.room-grid .room-header {
+  border-top-left-radius: 8px;
+  border-top-right-radius: 8px;
+}
+
+.room-grid .slot-am {
+  border-bottom-left-radius: 8px;
+}
+
+.room-grid .slot-pm {
+  border-bottom-right-radius: 8px;
+}
+
+/* =================================== */
+/* Responsive Design */
+/* =================================== */
+
+/* Mobile devices (phones, up to 768px) */
+@media screen and (max-width: 768px) {
+  body {
+    padding: 10px;
+  }
+
+  /* Login Page */
+  #login-page {
+    max-width: 100%;
+    margin: 30px auto;
+    padding: 25px 20px;
+    border-radius: 15px;
+  }
+
+  .login-header {
+    margin-bottom: 20px;
+    padding-bottom: 15px;
+  }
+
+  #login-page h1 {
+    font-size: 1.2rem;
+    line-height: 1.5;
+    margin-bottom: 0;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    hyphens: auto;
+  }
+
+  .form-group {
+    margin-bottom: 15px;
+  }
+
+  #login-page input {
+    width: 100%;
+    padding: 12px 15px;
+    font-size: 0.95rem;
+    border-radius: 8px;
+  }
+
+  #login-button {
+    padding: 12px;
+    font-size: 1rem;
+    border-radius: 8px;
+  }
+
+  .developer-credit {
+    margin-top: 20px;
+    padding-top: 15px;
+    font-size: 0.8rem;
+  }
+
+  .developer-name {
+    font-size: 0.85rem !important;
+  }
+
+  /* Main App Header */
+  #main-app {
+    max-width: 100%;
+  }
+
+  #main-app-header {
+    flex-direction: column;
+    gap: 15px;
+    padding: 15px;
+  }
+
+  .header-logo {
+    height: 40px;
+  }
+
+  #main-app-header .tabs {
+    flex-direction: column;
+    width: 100%;
+    gap: 8px;
+  }
+
+  .tab-link {
+    width: 100%;
+    padding: 12px;
+    font-size: 0.9rem;
+  }
+
+  #logout-button {
+    width: 100%;
+    padding: 12px;
+  }
+
+  /* Container */
+  .container {
+    padding: 15px;
+    margin: 10px auto;
+  }
+
+  h1 {
+    font-size: 1.2rem;
+    margin-bottom: 15px;
+  }
+
+  h2 {
+    font-size: 1rem;
+    margin-bottom: 15px;
+  }
+
+  /* Room Grid */
+  .room-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+  }
+
+  /* Room Table */
+  .room-table {
+    border-spacing: 8px;
+    margin: -8px 0;
+  }
+
+  /* Room Cell */
+  .room-cell {
+    min-height: auto;
+  }
+
+  .room-header {
+    padding: 6px 8px;
+    font-size: 0.85rem;
+  }
+
+  .room-header small {
+    font-size: 0.75rem;
+  }
+
+  .slot {
+    padding: 8px 4px;
+    font-size: 0.75rem;
+  }
+
+  .slot .status-icon {
+    font-size: 1rem;
+  }
+
+  .room-footer {
+    padding: 6px;
+    gap: 6px;
+  }
+
+  .book-button,
+  .reset-button {
+    padding: 8px 4px;
+    font-size: 0.8rem;
+  }
+
+  /* Summary Table */
+  .summary-table {
+    font-size: 0.85rem;
+    display: block;
+    overflow-x: auto;
+  }
+
+  .summary-table th,
+  .summary-table td {
+    padding: 8px 10px;
+    font-size: 0.85rem;
+  }
+
+  .summary-table .detail-text {
+    font-size: 0.75rem;
+  }
+
+  .booking-item {
+    font-size: 0.8rem;
+    padding: 3px 6px;
+  }
+}
+
+/* Tablet devices (768px to 1024px) */
+@media screen and (min-width: 769px) and (max-width: 1024px) {
+  body {
+    padding: 15px;
+  }
+
+  /* Login Page */
+  #login-page {
+    max-width: 480px;
+    margin: 50px auto;
+    padding: 35px 30px;
+    border-radius: 18px;
+  }
+
+  #login-page h1 {
+    font-size: 1.35rem;
+    line-height: 1.6;
+  }
+
+  .developer-credit {
+    font-size: 0.82rem;
+  }
+
+  /* Main App */
+  #main-app {
+    max-width: 100%;
+  }
+
+  #main-app-header {
+    padding: 15px 20px;
+  }
+
+  .tab-link {
+    padding: 10px 15px;
+    font-size: 0.95rem;
+  }
+
+  /* Container */
+  .container {
+    padding: 20px;
+  }
+
+  /* Room Grid */
+  .room-grid {
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+  }
+
+  /* Room Table */
+  .room-table {
+    border-spacing: 10px;
+  }
+
+  /* Summary Table */
+  .summary-table th,
+  .summary-table td {
+    padding: 10px 12px;
+    font-size: 0.9rem;
+  }
+}
+
+/* Desktop devices (1025px and up) */
+@media screen and (min-width: 1025px) {
+  /* Already optimized for desktop in base styles */
+  #main-app {
+    max-width: 1400px;
+  }
+
+  .container {
+    max-width: 1200px;
+  }
+
+  .room-grid {
+    grid-template-columns: repeat(6, 1fr);
+  }
+}
+
+/* Large Desktop devices (1440px and up) */
+@media screen and (min-width: 1440px) {
+  #main-app {
+    max-width: 1600px;
+  }
+
+  .container {
+    max-width: 1400px;
+  }
+}
+
+/* Landscape orientation for mobile */
+@media screen and (max-width: 768px) and (orientation: landscape) {
+  #login-page {
+    margin: 20px auto;
+    padding: 20px;
+  }
+
+  .room-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}

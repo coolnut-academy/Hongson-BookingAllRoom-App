@@ -1,0 +1,71 @@
+.container {
+  max-width: 1000px;
+  width: 100%;
+  margin: 20px auto;
+  padding: 25px;
+  background-color: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  border: 1px solid #e0e0e0;
+}
+
+.container h1 {
+  text-align: center;
+  color: #333;
+  font-weight: 600;
+  border-bottom: 2px solid #007bff;
+  padding-bottom: 10px;
+  display: block;
+  width: fit-content;
+  margin: 0 auto 25px auto;
+}
+
+.container h2 {
+  text-align: center;
+  color: #555;
+  font-weight: 500;
+  font-size: 1.2rem;
+  margin-top: -15px;
+  margin-bottom: 20px;
+}
+
+.room-grid {
+  display: grid;
+  gap: 12px;
+}
+
+.room-grid .room-cell {
+  border-radius: 8px;
+}
+
+.room-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 12px;
+  margin: -12px 0;
+  table-layout: fixed;
+}
+
+.room-table td {
+  padding: 0;
+  vertical-align: top;
+}
+
+.room-table .room-cell {
+  border-radius: 8px;
+  height: 100%;
+}
+
+.room-table .room-header {
+  border-top-left-radius: 8px;
+  border-top-right-radius: 8px;
+}
+
+.room-table .slot-am {
+  border-bottom-left-radius: 8px;
+}
+
+.room-table .slot-pm {
+  border-bottom-right-radius: 8px;
+}
+

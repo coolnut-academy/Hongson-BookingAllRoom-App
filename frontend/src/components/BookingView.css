@@ -1,0 +1,74 @@
+#booking-view {
+  display: block;
+}
+
+.loading {
+  text-align: center;
+  padding: 40px;
+  font-size: 1.2rem;
+  color: #666;
+}
+
+.system-closed-notice {
+  background: #fff3cd;
+  border: 2px solid #ffc107;
+  border-radius: 8px;
+  padding: 15px 20px;
+  margin: 20px 0;
+  text-align: center;
+  font-weight: 600;
+  color: #856404;
+  font-size: 1.1rem;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.admin-notice {
+  background: #d1ecf1;
+  border: 2px solid #bee5eb;
+  border-radius: 8px;
+  padding: 12px 20px;
+  margin: 20px 0;
+  font-weight: 500;
+  color: #0c5460;
+  font-size: 0.95rem;
+}
+
+.room-closed {
+  opacity: 0.7;
+  filter: grayscale(30%);
+}
+
+.room-closed-header {
+  background-color: #f8d7da !important;
+  color: #721c24 !important;
+}
+
+.room-toggle-btn {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  background: transparent;
+  border: none;
+  font-size: 1.2rem;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 4px;
+  transition: background-color 0.2s;
+}
+
+.room-toggle-btn:hover {
+  background-color: rgba(0, 0, 0, 0.1);
+}
+
+.room-toggle-btn.closed {
+  color: #dc3545;
+}
+
+.room-toggle-btn.open {
+  color: #28a745;
+}
+
+.room-header {
+  position: relative;
+}
+

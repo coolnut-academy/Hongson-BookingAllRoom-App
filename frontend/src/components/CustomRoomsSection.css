@@ -1,0 +1,341 @@
+.custom-rooms-section {
+  margin: 30px 0;
+  padding: 20px;
+  background: #f8f9fa;
+  border-radius: 8px;
+  border: 2px solid #dee2e6;
+}
+
+.custom-rooms-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.custom-rooms-header h2 {
+  margin: 0;
+  color: #495057;
+  font-size: 1.5rem;
+}
+
+.add-room-btn {
+  padding: 10px 20px;
+  background: #28a745;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.add-room-btn:hover {
+  background: #218838;
+}
+
+.no-custom-rooms {
+  text-align: center;
+  padding: 40px;
+  color: #6c757d;
+  font-style: italic;
+}
+
+.custom-rooms-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 15px;
+  align-items: start;
+}
+
+/* ใช้ CSS จาก Room.css */
+.custom-rooms-grid .room-cell {
+  background-color: #f9f9f9;
+  border: 1px solid #ddd;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  display: flex;
+  flex-direction: column;
+  border-radius: 8px;
+  min-height: 180px;
+  height: auto;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.custom-rooms-grid .room-header {
+  padding: 8px 45px 8px 10px;
+  background-color: #e9ecef;
+  text-align: left;
+  font-weight: 600;
+  color: #495057;
+  border-bottom: 1px solid #ddd;
+  border-top-left-radius: 8px;
+  border-top-right-radius: 8px;
+  position: relative;
+  min-height: auto;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  line-height: 1.4;
+}
+
+.custom-rooms-grid .room-header strong {
+  display: block;
+  word-break: break-word;
+  overflow-wrap: break-word;
+  hyphens: auto;
+}
+
+.custom-rooms-grid .room-header small {
+  display: block;
+  font-size: 0.85rem;
+  font-weight: 400;
+  margin-top: 4px;
+  word-break: break-word;
+  overflow-wrap: break-word;
+  hyphens: auto;
+  color: #6c757d;
+}
+
+.custom-rooms-grid .room-slots {
+  display: flex;
+  flex-grow: 1;
+  min-height: 80px;
+}
+
+.custom-rooms-grid .room-footer {
+  padding: 8px;
+  border-top: 1px solid #eee;
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.custom-rooms-grid .room-footer .book-button {
+  flex: 1;
+  min-width: 60px;
+  padding: 10px 5px;
+  font-family: 'Noto Sans Thai', sans-serif;
+  font-size: 0.9rem;
+  font-weight: 600;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  background-color: #28a745;
+  color: white;
+  transition: background-color 0.2s;
+}
+
+.custom-rooms-grid .room-footer .book-button:hover:not(:disabled) {
+  background-color: #218838;
+}
+
+.custom-rooms-grid .room-footer .book-button:disabled {
+  background-color: #6c757d;
+  color: #ccc;
+  cursor: not-allowed;
+}
+
+.custom-rooms-grid .room-footer .book-button-blocked {
+  background-color: #6c757d;
+  color: #ccc;
+  cursor: not-allowed;
+}
+
+.custom-rooms-grid .reset-button {
+  padding: 8px 12px;
+  background-color: #ffc107;
+  color: #000;
+  border: none;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.custom-rooms-grid .reset-button:hover {
+  background-color: #e0a800;
+}
+
+.custom-rooms-grid .room-toggle-btn {
+  position: absolute;
+  top: 5px;
+  right: 45px;
+  background: transparent;
+  border: none;
+  font-size: 1.2rem;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 4px;
+  transition: background-color 0.2s;
+  z-index: 1;
+}
+
+.custom-rooms-grid .room-toggle-btn:hover {
+  background-color: rgba(0, 0, 0, 0.1);
+}
+
+.custom-rooms-grid .room-toggle-btn.closed {
+  color: #dc3545;
+}
+
+.custom-rooms-grid .room-toggle-btn.open {
+  color: #28a745;
+}
+
+.custom-rooms-grid .delete-room-btn {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  background: transparent;
+  border: none;
+  font-size: 1rem;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 4px;
+  transition: background-color 0.2s;
+  color: #dc3545;
+  z-index: 1;
+}
+
+.custom-rooms-grid .delete-room-btn:hover {
+  background-color: rgba(220, 53, 69, 0.1);
+}
+
+.custom-rooms-grid .room-closed {
+  opacity: 0.7;
+  filter: grayscale(30%);
+}
+
+.custom-rooms-grid .room-closed-header {
+  background-color: #f8d7da !important;
+  color: #721c24 !important;
+}
+
+.custom-rooms-loading {
+  text-align: center;
+  padding: 20px;
+  color: #6c757d;
+}
+
+.delete-room-btn {
+  position: absolute;
+  top: 5px;
+  right: 40px;
+  background: transparent;
+  border: none;
+  font-size: 1rem;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 4px;
+  transition: background-color 0.2s;
+  color: #dc3545;
+}
+
+.delete-room-btn:hover {
+  background-color: rgba(220, 53, 69, 0.1);
+}
+
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  background: white;
+  padding: 30px;
+  border-radius: 8px;
+  min-width: 400px;
+  max-width: 500px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+}
+
+.modal-content h3 {
+  margin: 0 0 20px 0;
+  color: #495057;
+}
+
+.form-group {
+  margin-bottom: 20px;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 600;
+  color: #495057;
+}
+
+.form-group .required {
+  color: #dc3545;
+}
+
+.form-group input {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ced4da;
+  border-radius: 6px;
+  font-size: 1rem;
+  box-sizing: border-box;
+}
+
+.form-group input:focus {
+  outline: none;
+  border-color: #007bff;
+  box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
+}
+
+.modal-actions {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+  margin-top: 20px;
+}
+
+.btn-cancel,
+.btn-confirm {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 6px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-cancel {
+  background: #6c757d;
+  color: white;
+}
+
+.btn-cancel:hover:not(:disabled) {
+  background: #5a6268;
+}
+
+.btn-confirm {
+  background: #007bff;
+  color: white;
+}
+
+.btn-confirm:hover:not(:disabled) {
+  background: #0056b3;
+}
+
+.btn-cancel:disabled,
+.btn-confirm:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+

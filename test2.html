@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ระบบจองห้อง (Full App)</title>
+    
+    <style>
+        /* ฟอนต์และ Body */
+        @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@400;500;600&family=Noto+Sans+Thai:wght@400;500;700&display=swap');
+        body {
+            font-family: 'Noto Sans Thai', 'IBM Plex Sans Thai', sans-serif;
+            background-color: #f0f2f5;
+            padding: 20px;
+            margin: 0;
+        }
+
+        /* =================================== */
+        /* [ใหม่] 1. ส่วนของหน้า Login         */
+        /* =================================== */
+        #login-page {
+            max-width: 400px;
+            margin: 100px auto;
+            padding: 40px;
+            background-color: #fff;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+        #login-page h1 {
+            color: #333;
+            margin-bottom: 25px;
+        }
+        #login-page input {
+            width: calc(100% - 20px);
+            padding: 12px;
+            margin-bottom: 15px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            font-size: 1rem;
+        }
+        #login-page button {
+            width: 100%;
+            padding: 12px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        #login-page button:hover {
+            background-color: #0056b3;
+        }
+
+        /* =================================== */
+        /* [ใหม่] 2. ส่วนของ Main App (Dashboard) */
+        /* =================================== */
+        #main-app {
+            display: none; /* ซ่อนไว้ก่อน จนกว่าจะ Login */
+            max-width: 1200px; /* ขยาย container ให้กว้างขึ้น */
+            margin: 0 auto;
+        }
+        
+        /* ส่วนหัว (Header) และ Tabs */
+        #main-app-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: #fff;
+            padding: 15px 25px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            margin-bottom: 20px;
+        }
+        #main-app-header .tabs {
+            display: flex;
+            gap: 10px;
+        }
+        .tab-link {
+            padding: 10px 20px;
+            font-size: 1rem;
+            font-weight: 600;
+            border: 2px solid transparent;
+            background-color: #f0f2f5;
+            color: #555;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .tab-link:hover {
+            background-color: #e0e5eb;
+        }
+        .tab-link.active {
+            background-color: #007bff;
+            color: white;
+            border-color: #007bff;
+        }
+        
+        #logout-button {
+            padding: 10px 15px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            background-color: #dc3545;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+
+        /* ส่วนเนื้อหา (Views) */
+        #booking-view {
+            display: block; /* ไม่ต้องซ่อนในตอนแรก */
+        }
+        #summary-view {
+            display: none; /* ซ่อนไว้ก่อน */
+        }
+        
+        /* [ใหม่] 3. สไตล์สำหรับหน้า Summary */
+        .summary-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            background-color: #fff;
+            border-radius: 8px;
+            overflow: hidden; /* สำหรับขอบมน */
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        }
+        .summary-table th, .summary-table td {
+            border: 1px solid #ddd;
+            padding: 12px 15px;
+            text-align: left;
+        }
+        .summary-table th {
+            background-color: #f8f9fa;
+            font-weight: 600;
+        }
+        .summary-table .status-booked {
+            color: #dc3545;
+            font-weight: bold;
+        }
+        .summary-table .status-available {
+            color: #28a745;
+            font-weight: bold;
+        }
+
+        /* =================================== */
+        /* 4. สไตล์ของผังอาคาร (เหมือนเดิมทั้งหมด) */
+        /* =================================== */
+        .container {
+            max-width: 1000px; /* แก้ไข: ให้ .container อยู่ภายใต้ #main-app */
+            width: 100%;
+            margin: 20px auto; 
+            padding: 25px;
+            background-color: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            border: 1px solid #e0e0e0;
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+            font-weight: 600;
+            border-bottom: 2px solid #007bff;
+            padding-bottom: 10px;
+            display: block;
+            width: fit-content;
+            margin: 0 auto 25px auto;
+        }
+        h2 { 
+            text-align: center;
+            color: #555;
+            font-weight: 500;
+            font-size: 1.2rem;
+            margin-top: -15px;
+            margin-bottom: 20px;
+        }
+        .room-cell {
+            background-color: #f9f9f9; border: 1px solid #ddd;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            display: flex; flex-direction: column;
+            vertical-align: top; height: 100%;
+        }
+        .room-header {
+            padding: 8px 10px; background-color: #e9ecef;
+            text-align: center; font-weight: 600;
+            color: #495057; border-bottom: 1px solid #ddd;
+        }
+        .room-slots { display: flex; flex-grow: 1; }
+        .slot {
+            flex: 1; padding: 10px; display: flex; flex-direction: column;
+            justify-content: center; align-items: center;
+            text-align: center; font-size: 0.8rem;
+            color: #6c757d; position: relative;
+        }
+        .slot-am { border-right: 1px dashed #ccc; }
+        .slot.available {
+            background-color: #e6f7ff; color: #0056b3; cursor: pointer; transition: background-color 0.2s, transform 0.1s;
+        }
+        .slot.available:hover { background-color: #ccebff; }
+        .slot.available:active { transform: scale(0.95); }
+        .slot.available .status-icon { font-size: 1.2rem; color: #007bff; }
+        .slot.available.selected {
+            background-color: #007bff; color: white; font-weight: 600;
+        }
+        .slot.available.selected .status-icon { color: white; content: '✓'; }
+        .slot.booked { background-color: #d4edda; cursor: help; }
+        .slot.booked .status-icon { font-size: 1.5rem; font-weight: bold; color: #155724; }
+        .room-header.blocked-red { background-color: #f8d7da; color: #721c24; }
+        .room-header.blocked-blue { background-color: #cfe2ff; color: #0a3675; }
+        .room-header.blocked-green { background-color: #d4edda; color: #155724; }
+        .room-cell.blocked .room-slots { background-color: #f8f9fa; filter: grayscale(80%); }
+        .room-cell.blocked .slot { cursor: not-allowed; color: #aaa; }
+        .room-cell.blocked .status-icon { color: #ccc; }
+        .room-footer { padding: 8px; border-top: 1px solid #eee; }
+        .book-button {
+            width: 100%; padding: 10px 5px;
+            font-family: 'Noto Sans Thai', sans-serif;
+            font-size: 0.9rem; font-weight: 600;
+            border: none; border-radius: 6px; cursor: pointer;
+            background-color: #28a745; color: white;
+            transition: background-color 0.2s;
+        }
+        .book-button:hover { background-color: #218838; }
+        .book-button:disabled {
+            background-color: #6c757d; color: #ccc; cursor: not-allowed;
+        }
+        .room-table {
+            width: 100%; border-collapse: separate; 
+            border-spacing: 12px; margin: -12px 0; 
+            table-layout: fixed;
+        }
+        .room-table td { padding: 0; vertical-align: top; }
+        .room-table .room-cell { border-radius: 8px; height: 100%; }
+        .room-table .room-header { border-top-left-radius: 8px; border-top-right-radius: 8px; }
+        .room-table .slot-am { border-bottom-left-radius: 8px; }
+        .room-table .slot-pm { border-bottom-right-radius: 8px; }
+        .room-table .room-cell.colspan { min-height: 100px; }
+        .room-grid {
+            display: grid; grid-template-columns: repeat(6, 1fr); gap: 12px;
+        }
+        .room-grid .room-cell { border-radius: 8px; }
+        .room-grid .room-header { border-top-left-radius: 8px; border-top-right-radius: 8px; }
+        .room-grid .slot-am { border-bottom-left-radius: 8px; }
+        .room-grid .slot-pm { border-bottom-right-radius: 8px; }
+
+    </style>
+</head>
+<body>
+
+    <div id="login-page">
+        <h1>ระบบจองห้อง</h1>
+        <input type="text" id="username" placeholder="ชื่อผู้ใช้งาน">
+        <input type="password" id="password" placeholder="รหัสผ่าน">
+        <button id="login-button">เข้าสู่ระบบ</button>
+    </div>
+
+    <div id="main-app">
+        <header id="main-app-header">
+            <nav class="tabs">
+                <button class="tab-link active" data-view="booking" data-date="2025-12-22" data-title="การจองอาคาร ในวันที่ 22 ธันวาคม 2568">จอง 22 ธ.ค. 68</button>
+                <button class="tab-link" data-view="booking" data-date="2025-12-23" data-title="การจองอาคาร ในวันที่ 23 ธันวาคม 2568">จอง 23 ธ.ค. 68</button>
+                <button class="tab-link" data-view="summary" data-title="สรุปผลการจอง">สรุปผลการจอง</button>
+            </nav>
+            <button id="logout-button">ออกจากระบบ</button>
+        </header>
+
+        <main>
+            <div id="booking-view">
+                <h1 id="current-booking-date">การจองอาคาร ในวันที่ 22 ธันวาคม 2568</h1>
+                
+                <div class="container" id="building-1">... (เนื้อหาอาคาร 1 ทั้งหมด) ...</div>
+                <div class="container" id="building-2">... (เนื้อหาอาคาร 2 ทั้งหมด) ...</div>
+                <div class="container" id="building-3">... (เนื้อหาอาคาร 3 ทั้งหมด) ...</div>
+                <div class="container" id="building-4">... (เนื้อหาอาคาร 4 ทั้งหมด) ...</div>
+                <div class="container" id="building-5">... (เนื้อหาอาคาร 5 ทั้งหมด) ...</div>
+                <div class="container" id="building-6">... (เนื้อหาอาคาร 6 ทั้งหมด) ...</div>
+                </div>
+
+            <div id="summary-view">
+                <div class="container">
+                    <h1>สรุปผลการจอง (22 - 23 ธ.ค. 68)</h1>
+                    <p>นี่คือตัวอย่างตารางสรุปผล (ในแอปจริง ข้อมูลนี้จะถูกดึงมาจาก Backend)</p>
+                    
+                    <table class="summary-table">
+                        <thead>
+                            <tr>
+                                <th>อาคาร</th>
+                                <th>วันที่</th>
+                                <th>ห้องที่ว่าง (ช่อง)</th>
+                                <th>ห้องที่จองแล้ว (ช่อง)</th>
+                                <th>รายละเอียด</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>อาคาร 1</td>
+                                <td>22 ธ.ค. 68</td>
+                                <td class="status-available">18 ช่อง</td>
+                                <td class="status-booked">6 ช่อง</td>
+                                <td>ห้อง 133 (เช้า), 135 (เต็มวัน), ...</td>
+                            </tr>
+                            <tr>
+                                <td>อาคาร 1</td>
+                                <td>23 ธ.ค. 68</td>
+                                <td class="status-available">24 ช่อง</td>
+                                <td class="status-booked">0 ช่อง</td>
+                                <td>-</td>
+                            </tr>
+                            <tr>
+                                <td>อาคาร 2</td>
+                                <td>22 ธ.ค. 68</td>
+                                <td class="status-available">20 ช่อง</td>
+                                <td class="status-booked">4 ช่อง</td>
+                                <td>ห้อง 231 (เต็มวัน)</td>
+                            </tr>
+                             <tr>
+                                <td>อาคาร 2</td>
+                                <td>23 ธ.ค. 68</td>
+                                <td class="status-available">22 ช่อง</td>
+                                <td class="status-booked">2 ช่อง</td>
+                                <td>ห้อง 211 (เช้า)</td>
+                            </tr>
+                            </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            
+            // --- ดึง Element ที่สำคัญ ---
+            const loginPage = document.getElementById('login-page');
+            const mainApp = document.getElementById('main-app');
+            const loginButton = document.getElementById('login-button');
+            const logoutButton = document.getElementById('logout-button');
+            
+            const bookingView = document.getElementById('booking-view');
+            const summaryView = document.getElementById('summary-view');
+            const currentBookingDateTitle = document.getElementById('current-booking-date');
+            
+            const tabLinks = document.querySelectorAll('.tab-link');
+            const allContainers = document.querySelectorAll('.container'); // ทุกอาคาร
+
+            // --- 1. ตรรกะ Login / Logout (จำลอง) ---
+            loginButton.addEventListener('click', () => {
+                // (ในแอปจริง: ต้องส่ง username/password ไปเช็คที่ Backend)
+                loginPage.style.display = 'none';
+                mainApp.style.display = 'block';
+                // ตั้งค่า Tap แรกให้เป็น Active
+                switchTap(document.querySelector('.tab-link.active'));
+            });
+
+            logoutButton.addEventListener('click', () => {
+                mainApp.style.display = 'none';
+                loginPage.style.display = 'block';
+            });
+
+            // --- 2. ตรรกะการสลับ Tap ---
+            tabLinks.forEach(link => {
+                link.addEventListener('click', (event) => {
+                    switchTap(event.target);
+                });
+            });
+
+            function switchTap(clickedTap) {
+                // (1) อัปเดตปุ่ม Tab
+                tabLinks.forEach(link => link.classList.remove('active'));
+                clickedTap.classList.add('active');
+
+                const view = clickedTap.dataset.view;
+                const title = clickedTap.dataset.title;
+
+                // (2) สลับหน้า View ที่แสดง
+                if (view === 'booking') {
+                    bookingView.style.display = 'block';
+                    summaryView.style.display = 'none';
+                    
+                    // (3) อัปเดตหัวข้อและเคลียร์การเลือก
+                    currentBookingDateTitle.textContent = title;
+                    const date = clickedTap.dataset.date;
+                    
+                    // (4) [สำคัญ] เคลียร์การเลือก (สีน้ำเงิน) ทั้งหมด
+                    clearAllSelections();
+                    
+                    // (5) [จำลอง] ในแอปจริง
+                    // นี่คือจุดที่จะเรียก API เพื่อดึงข้อมูลการจองของวันที่เลือก
+                    // fetch(`/api/bookings?date=${date}`)
+                    //   .then(res => res.json())
+                    //   .then(data => {
+                    //       updateBookingStatus(data); // (ฟังก์ชันที่ต้องเขียนเพิ่มเพื่ออัปเดตช่องสีเขียว)
+                    //   });
+                    console.log(`กำลังโหลดข้อมูลของวันที่: ${date}`);
+                    
+                } else if (view === 'summary') {
+                    bookingView.style.display = 'none';
+                    summaryView.style.display = 'block';
+                    // (ในแอปจริง: นี่คือจุดที่จะเรียก API สรุปผล)
+                    // fetch('/api/bookings/summary') ...
+                    console.log('กำลังโหลดหน้าสรุปผล');
+                }
+            }
+            
+            function clearAllSelections() {
+                document.querySelectorAll('.slot.available.selected').forEach(slot => {
+                    slot.classList.remove('selected');
+                });
+            }
+
+            // --- 3. ตรรกะการจอง (เหมือนเดิม) ---
+            // (ใช้ Event Delegation กับ Parent ที่ใหญ่ที่สุดคือ #main-app)
+            
+            mainApp.addEventListener('click', (event) => {
+                
+                // (a) ตรรกะการคลิกเลือกช่อง
+                const clickedSlot = event.target.closest('.slot.available');
+                if (clickedSlot) {
+                    clickedSlot.classList.toggle('selected');
+                }
+
+                // (b) ตรรกะการคลิกปุ่ม "จอง"
+                const clickedButton = event.target.closest('.book-button');
+                if (clickedButton && !clickedButton.disabled) {
+                    
+                    const roomCell = clickedButton.closest('.room-cell, .colspan');
+                    const roomName = roomCell.dataset.roomName;
+                    const selectedSlotsInThisRoom = roomCell.querySelectorAll('.slot.selected');
+                    
+                    // ดึงวันที่จองปัจจุบันจาก Tab ที่ Active
+                    const activeTab = document.querySelector('.tab-link.active');
+                    const bookingDate = activeTab.dataset.date; // เช่น "2025-12-22"
+
+                    if (selectedSlotsInThisRoom.length === 0) {
+                        alert(`กรุณาเลือกช่วงเวลา (เช้า/บ่าย) ของ ${roomName} ที่ต้องการจองก่อน`);
+                    } else {
+                        let selectedTimes = [];
+                        selectedSlotsInThisRoom.forEach(slot => {
+                            selectedTimes.push(slot.dataset.slot);
+                        });
+                        
+                        alert(`(จำลองการส่งข้อมูลไป Backend)\n\nวันที่: ${bookingDate}\nห้อง: ${roomName}\nช่วงเวลา: ${selectedTimes.join(', ')}`);
+                        
+                        // (ในแอปจริง:
+                        // 1. ส่งข้อมูล (bookingDate, roomName, selectedTimes) ไปยัง POST /api/bookings
+                        // 2. เมื่อ Backend ตอบ OK
+                        // 3. เคลียร์ .selected
+                        // 4. เรียก API ดึงข้อมูลใหม่ (หรืออัปเดตช่องเป็น .booked เอง)
+                        // )
+                    }
+                }
+            });
+
+        });
+    </script>
+
+</body>
+</html>

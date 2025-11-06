@@ -1,0 +1,1233 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>หน้าจองห้อง (6 อาคาร)</title>
+    
+    <style>
+        /* ฟอนต์และ Body (เหมือนเดิม) */
+        @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@400;500;600&family=Noto+Sans+Thai:wght@400;500;700&display=swap');
+        body {
+            font-family: 'Noto Sans Thai', 'IBM Plex Sans Thai', sans-serif;
+            background-color: #f0f2f5;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1000px;
+            width: 100%;
+            margin: 20px auto; 
+            padding: 25px;
+            background-color: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            border: 1px solid #e0e0e0;
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+            font-weight: 600;
+            border-bottom: 2px solid #007bff;
+            padding-bottom: 10px;
+            display: block;
+            width: fit-content;
+            margin: 0 auto 25px auto;
+        }
+        h2 { 
+            text-align: center;
+            color: #555;
+            font-weight: 500;
+            font-size: 1.2rem;
+            margin-top: -15px;
+            margin-bottom: 20px;
+        }
+
+        /* --- สไตล์สำหรับห้อง (ใช้ร่วมกัน) --- */
+        .room-cell {
+            background-color: #f9f9f9;
+            border: 1px solid #ddd;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            display: flex;
+            flex-direction: column;
+            vertical-align: top; 
+            height: 100%;
+        }
+        .room-header {
+            padding: 8px 10px;
+            background-color: #e9ecef;
+            text-align: center;
+            font-weight: 600;
+            color: #495057;
+            border-bottom: 1px solid #ddd;
+        }
+        .room-slots { display: flex; flex-grow: 1; }
+        .slot {
+            flex: 1; padding: 10px;
+            display: flex; flex-direction: column;
+            justify-content: center; align-items: center;
+            text-align: center; font-size: 0.8rem;
+            color: #6c757d; position: relative;
+        }
+        .slot-am { border-right: 1px dashed #ccc; }
+
+        /* --- สถานะ Slot (เหมือนเดิม) --- */
+        .slot.available {
+            background-color: #e6f7ff; color: #0056b3; cursor: pointer; transition: background-color 0.2s, transform 0.1s;
+        }
+        .slot.available:hover { background-color: #ccebff; }
+        .slot.available:active { transform: scale(0.95); }
+        .slot.available .status-icon { font-size: 1.2rem; color: #007bff; }
+        
+        .slot.available.selected {
+            background-color: #007bff; color: white; font-weight: 600;
+        }
+        .slot.available.selected .status-icon { color: white; content: '✓'; }
+
+        .slot.booked { background-color: #d4edda; cursor: help; }
+        .slot.booked .status-icon { font-size: 1.5rem; font-weight: bold; color: #155724; }
+
+        /* --- ห้องที่ปิดใช้งาน (Blocked) --- */
+        .room-header.blocked-red { 
+            background-color: #f8d7da; color: #721c24; 
+        }
+        .room-header.blocked-blue { 
+            background-color: #cfe2ff; color: #0a3675;
+        }
+        .room-header.blocked-green { 
+            background-color: #d4edda; color: #155724; 
+        }
+        .room-cell.blocked .room-slots {
+             background-color: #f8f9fa; filter: grayscale(80%);
+        }
+        .room-cell.blocked .slot { cursor: not-allowed; color: #aaa; }
+        .room-cell.blocked .status-icon { color: #ccc; }
+
+        /* --- ปุ่มจอง (เหมือนเดิม) --- */
+        .room-footer { padding: 8px; border-top: 1px solid #eee; }
+        .book-button {
+            width: 100%; padding: 10px 5px;
+            font-family: 'Noto Sans Thai', sans-serif;
+            font-size: 0.9rem; font-weight: 600;
+            border: none; border-radius: 6px; cursor: pointer;
+            background-color: #28a745; color: white;
+            transition: background-color 0.2s;
+        }
+        .book-button:hover { background-color: #218838; }
+        .book-button:disabled {
+            background-color: #6c757d; color: #ccc; cursor: not-allowed;
+        }
+        
+        /* --- Tooltip (เหมือนเดิม) --- */
+        .slot .tooltip {
+            visibility: hidden; width: 160px; background-color: #333;
+            color: #fff; text-align: left; border-radius: 6px;
+            padding: 8px; position: absolute; z-index: 10;
+            bottom: 115%; left: 50%; margin-left: -80px;
+            opacity: 0; transition: opacity 0.3s;
+        }
+        .slot .tooltip::after {
+            content: ""; position: absolute; top: 100%; left: 50%;
+            margin-left: -5px; border-width: 5px; border-style: solid;
+            border-color: #333 transparent transparent transparent;
+        }
+        .slot.booked:hover .tooltip { visibility: visible; opacity: 1; z-index: 999; }
+
+        /* --- สไตล์สำหรับอาคารที่ใช้ CSS Grid (อาคาร 1) --- */
+        .room-grid {
+            display: grid;
+            grid-template-columns: repeat(6, 1fr);
+            gap: 12px;
+        }
+        .room-grid .room-cell { border-radius: 8px; }
+        .room-grid .room-header { border-top-left-radius: 8px; border-top-right-radius: 8px; }
+        .room-grid .slot-am { border-bottom-left-radius: 8px; }
+        .room-grid .slot-pm { border-bottom-right-radius: 8px; }
+
+        /* --- สไตล์สำหรับอาคารที่ใช้ Table (อาคาร 2, 3, 4, 5, 6) --- */
+        .room-table {
+            width: 100%;
+            border-collapse: separate; 
+            border-spacing: 12px; 
+            margin: -12px 0; 
+            table-layout: fixed; /* ทำให้คอลัมน์กว้างเท่ากัน */
+        }
+        .room-table td {
+            padding: 0; 
+            vertical-align: top;
+        }
+        .room-table .room-cell {
+            border-radius: 8px; 
+            height: 100%;
+        }
+        .room-table .room-header { border-top-left-radius: 8px; border-top-right-radius: 8px; }
+        .room-table .slot-am { border-bottom-left-radius: 8px; }
+        .room-table .slot-pm { border-bottom-right-radius: 8px; }
+        
+        .room-table .room-cell.colspan {
+            min-height: 100px; 
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="container" id="building-1">
+        <h1>[ อาคาร 1 ] ผังการจองห้อง</h1>
+        <div class="room-grid">
+            <div class="room-cell" data-room-name="ห้อง 131">
+                <div class="room-header"><strong>ห้อง 131</strong></div>
+                <div class="room-slots">
+                    <div class="slot slot-am available" data-slot="เช้า"><span>เช้า</span><span class="status-icon">+</span></div>
+                    <div class="slot slot-pm available" data-slot="บ่าย"><span>บ่าย</span><span class="status-icon">+</span></div>
+                </div>
+                <div class="room-footer"><button class="book-button">จอง</button></div>
+            </div>
+            <div class="room-cell blocked" data-room-name="ห้อง 132">
+                <div class="room-header blocked-red"><strong>ห้อง 132</strong><small>ห้องพักครู</small></div>
+                <div class="room-slots">
+                    <div class="slot slot-am" data-slot="เช้า"><span>เช้า</span><span class="status-icon">X</span></div>
+                    <div class="slot slot-pm" data-slot="บ่าย"><span>บ่าย</span><span class="status-icon">X</span></div>
+                </div>
+                <div class="room-footer"><button class="book-button" disabled>ห้องเต็ม</button></div>
+            </div>
+            <div class="room-cell" data-room-name="ห้อง 133">
+                <div class="room-header"><strong>ห้อง 133</strong></div>
+                <div class="room-slots">
+                    <div class="slot slot-am available" data-slot="เช้า"><span>เช้า</span><span class="status-icon">+</span></div>
+                    <div class="slot slot-pm available" data-slot="บ่าย"><span>บ่าย</span><span class="status-icon">+</span></div>
+                </div>
+                 <div class="room-footer"><button class="book-button">จอง</button></div>
+            </div>
+            <div class="room-cell blocked" data-room-name="ห้อง 134">
+                <div class="room-header blocked-red"><strong>ห้อง 134</strong><small>ห้องเก็บสารเคมี</small></div>
+                <div class="room-slots">
+                    <div class="slot slot-am" data-slot="เช้า"><span>เช้า</span><span class="status-icon">X</span></div>
+                    <div class="slot slot-pm" data-slot="บ่าย"><span>บ่าย</span><span class="status-icon">X</span></div>
+                </div>
+                <div class="room-footer"><button class="book-button" disabled>ห้องเต็ม</button></div>
+            </div>
+            <div class="room-cell" data-room-name="ห้อง 135">
+                <div class="room-header"><strong>ห้อง 135</strong></div>
+                <div class="room-slots">
+                    <div class="slot slot-am available" data-slot="เช้า"><span>เช้า</span><span class="status-icon">+</span></div>
+                    <div class="slot slot-pm available" data-slot="บ่าย"><span>บ่าย</span><span class="status-icon">+</span></div>
+                </div>
+                <div class="room-footer"><button class="book-button">จอง</button></div>
+            </div>
+            <div class="room-cell" data-room-name="ห้อง 136">
+                <div class="room-header"><strong>ห้อง 136</strong></div>
+                <div class="room-slots">
+                    <div class="slot slot-am available" data-slot="เช้า"><span>เช้า</span><span class="status-icon">+</span></div>
+                    <div class="slot slot-pm available" data-slot="บ่าย"><span>บ่าย</span><span class="status-icon">+</span></div>
+                </div>
+                <div class="room-footer"><button class="book-button">จอง</button></div>
+            </div>
+
+            <div class="room-cell blocked" data-room-name="ห้อง 121">
+                <div class="room-header blocked-red"><strong>ห้อง 121</strong><small>ห้องธุรการ</small></div>
+                <div class="room-slots">
+                    <div class="slot slot-am" data-slot="เช้า"><span>เช้า</span><span class="status-icon">X</span></div>
+                    <div class="slot slot-pm" data-slot="บ่าย"><span>บ่าย</span><span class="status-icon">X</span></div>
+                </div>
+                <div class="room-footer"><button class="book-button" disabled>ห้องเต็ม</button></div>
+            </div>
+            <div class="room-cell blocked" data-room-name="ห้อง 122">
+                <div class="room-header blocked-red"><strong>ห้อง 122</strong><small>ห้องการเงิน</small></div>
+                <div class="room-slots">
+                    <div class="slot slot-am" data-slot="เช้า"><span>เช้า</span><span class="status-icon">X</span></div>
+                    <div class="slot slot-pm" data-slot="บ่าย"><span>บ่าย</span><span class="status-icon">X</span></div>
+                </div>
+                <div class="room-footer"><button class="book-button" disabled>ห้องเต็ม</button></div>
+            </div>
+            <div class="room-cell" data-room-name="ห้อง 123">
+                <div class="room-header"><strong>ห้อง 123</strong></div>
+                <div class="room-slots">
+                    <div class="slot slot-am available" data-slot="เช้า"><span>เช้า</span><span class="status-icon">+</span></div>
+                    <div class="slot slot-pm available" data-slot="บ่าย"><span>บ่าย</span><span class="status-icon">+</span></div>
+                </div>
+                <div class="room-footer"><button class="book-button">จอง</button></div>
+            </div>
+            <div class="room-cell blocked" data-room-name="ห้อง 124">
+                <div class="room-header blocked-red"><strong>ห้อง 124</strong><small>ห้องพักครู</small></div>
+                <div class="room-slots">
+                    <div class="slot slot-am" data-slot="เช้า"><span>เช้า</span><span class="status-icon">X</span></div>
+                    <div class="slot slot-pm" data-slot="บ่าย"><span>บ่าย</span><span class="status-icon">X</span></div>
+                </div>
+                <div class="room-footer"><button class="book-button" disabled>ห้องเต็ม</button></div>
+            </div>
+            <div class="room-cell" data-room-name="ห้อง 125">
+                <div class="room-header"><strong>ห้อง 125</strong></div>
+                <div class="room-slots">
+                    <div class="slot slot-am available" data-slot="เช้า"><span>เช้า</span><span class="status-icon">+</span></div>
+                    <div class="slot slot-pm available" data-slot="บ่าย"><span>บ่าย</span><span class="status-icon">+</span></div>
+                </div>
+                <div class="room-footer"><button class="book-button">จอง</button></div>
+            </div>
+            <div class="room-cell" data-room-name="ห้อง 126">
+                <div class="room-header"><strong>ห้อง 126</strong></div>
+                <div class="room-slots">
+                    <div class="slot slot-am available" data-slot="เช้า"><span>เช้า</span><span class="status-icon">+</span></div>
+                    <div class="slot slot-pm available" data-slot="บ่าย"><span>บ่าย</span><span class="status-icon">+</span></div>
+                </div>
+                <div class="room-footer"><button class="book-button">จอง</button></div>
+            </div>
+
+            <div class="room-cell blocked" data-room-name="ห้อง 111">
+                <div class="room-header blocked-red"><strong>ห้อง 111</strong><small>ห้องแผนผัง</small></div>
+                <div class="room-slots">
+                    <div class="slot slot-am" data-slot="เช้า"><span>เช้า</span><span class="status-icon">X</span></div>
+                    <div class="slot slot-pm" data-slot="บ่าย"><span>บ่าย</span><span class="status-icon">X</span></div>
+                </div>
+                <div class="room-footer"><button class="book-button" disabled>ห้องเต็ม</button></div>
+            </div>
+            <div class="room-cell blocked" data-room-name="ห้อง 112">
+                <div class="room-header blocked-red"><strong>ห้อง 112</strong><small>ห้องพักครู</small></div>
+                <div class="room-slots">
+                    <div class="slot slot-am" data-slot="เช้า"><span>เช้า</span><span class="status-icon">X</span></div>
+                    <div class="slot slot-pm" data-slot="บ่าย"><span>บ่าย</span><span class="status-icon">X</span></div>
+                </div>
+                <div class="room-footer"><button class="book-button" disabled>ห้องเต็ม</button></div>
+            </div>
+            <div class="room-cell" data-room-name="ห้อง 113">
+                <div class="room-header"><strong>ห้อง 113</strong></div>
+                <div class="room-slots">
+                    <div class="slot slot-am available" data-slot="เช้า"><span>เช้า</span><span class="status-icon">+</span></div>
+                    <div class="slot slot-pm available" data-slot="บ่าย"><span>บ่าย</span><span class="status-icon">+</span></div>
+                </div>
+                <div class="room-footer"><button class="book-button">จอง</button></div>
+            </div>
+            <div class="room-cell blocked" data-room-name="ห้อง 114">
+                <div class="room-header blocked-red"><strong>ห้อง 114</strong><small>ห้องเก็บของ</small></div>
+                <div class="room-slots">
+                    <div class="slot slot-am" data-slot="เช้า"><span>เช้า</span><span class="status-icon">X</span></div>
+                    <div class="slot slot-pm" data-slot="บ่าย"><span>บ่าย</span><span class="status-icon">X</span></div>
+                </div>
+                <div class="room-footer"><button class="book-button" disabled>ห้องเต็ม</button></div>
+            </div>
+            <div class="room-cell" data-room-name="ห้อง 115">
+                <div class="room-header"><strong>ห้อง 115</strong></div>
+                <div class="room-slots">
+                    <div class="slot slot-am available" data-slot="เช้า"><span>เช้า</span><span class="status-icon">+</span></div>
+                    <div class="slot slot-pm available" data-slot="บ่าย"><span>บ่าย</span><span class="status-icon">+</span></div>
+                </div>
+                <div class="room-footer"><button class="book-button">จอง</button></div>
+            </div>
+            <div class="room-cell" data-room-name="ห้อง 116">
+                <div class="room-header"><strong>ห้อง 116</strong></div>
+                <div class="room-slots">
+                    <div class="slot slot-am available" data-slot="เช้า"><span>เช้า</span><span class="status-icon">+</span></div>
+                    <div class="slot slot-pm available" data-slot="บ่าย"><span>บ่าย</span><span class="status-icon">+</span></div>
+                </div>
+                <div class="room-footer"><button class="book-button">จอง</button></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container" id="building-2">
+        <h1>[ อาคาร 2 ] ผังการจองห้อง</h1>
+        <table class="room-table">
+            <tbody>
+                <tr>
+                    <td>
+                        <div class="room-cell" data-room-name="ห้อง 231 (ม.4/1)">
+                            <div class="room-header"><strong>ห้อง 231</strong><small>ม.4/1</small></div>
+                            <div class="room-slots">
+                                <div class="slot slot-am available" data-slot="เช้า"><span>เช้า</span><span class="status-icon">+</span></div>
+                                <div class="slot slot-pm available" data-slot="บ่าย"><span>บ่าย</span><span class="status-icon">+</span></div>
+                            </div>
+                            <div class="room-footer"><button class="book-button">จอง</button></div>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="room-cell" data-room-name="ห้อง 232 (ม.4/2)">
+                            <div class="room-header"><strong>ห้อง 232</strong><small>ม.4/2</small></div>
+                            <div class="room-slots">
+                                <div class="slot slot-am available" data-slot="เช้า"><span>เช้า</span><span class="status-icon">+</span></div>
+                                <div class="slot slot-pm available" data-slot="บ่าย"><span>บ่าย</span><span class="status-icon">+</span></div>
+                            </div>
+                            <div class="room-footer"><button class="book-button">จอง</button></div>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="room-cell" data-room-name="ห้อง 233 (ม.4/3)">
+                            <div class="room-header"><strong>ห้อง 233</strong><small>ม.4/3</small></div>
+                            <div class="room-slots">
+                                <div class="slot slot-am available" data-slot="เช้า"><span>เช้า</span><span class="status-icon">+</span></div>
+                                <div class="slot slot-pm available" data-slot="บ่าย"><span>บ่าย</span><span class="status-icon">+</span></div>
+                            </div>
+                            <div class="room-footer"><button class="book-button">จอง</button></div>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="room-cell" data-room-name="ห้อง 234 (ม.4/4)">
+                            <div class="room-header"><strong>ห้อง 234</strong><small>ม.4/4</small></div>
+                            <div class="room-slots">
+                                <div class="slot slot-am available" data-slot="เช้า"><span>เช้า</span><span class="status-icon">+</span></div>
+                                <div class="slot slot-pm available" data-slot="บ่าย"><span>บ่าย</span><span class="status-icon">+</span></div>
+                            </div>
+                            <div class="room-footer"><button class="book-button">จอง</button></div>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="room-cell" data-room-name="ห้อง 235 (ม.4/5)">
+                            <div class="room-header"><strong>ห้อง 235</strong><small>ม.4/5</small></div>
+                            <div class="room-slots">
+                                <div class="slot slot-am available" data-slot="เช้า"><span>เช้า</span><span class="status-icon">+</span></div>
+                                <div class="slot slot-pm available" data-slot="บ่าย"><span>บ่าย</span><span class="status-icon">+</span></div>
+                            </div>
+                            <div class="room-footer"><button class="book-button">จอง</button></div>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="room-cell" data-room-name="ห้อง 236 (ม.4/6)">
+                            <div class="room-header"><strong>ห้อง 236</strong><small>ม.4/6</small></div>
+                            <div class="room-slots">
+                                <div class="slot slot-am available" data-slot="เช้า"><span>เช้า</span><span class="status-icon">+</span></div>
+                                <div class="slot slot-pm available" data-slot="บ่าย"><span>บ่าย</span><span class="status-icon">+</span></div>
+                            </div>
+                            <div class="room-footer"><button class="book-button">จอง</button></div>
+                        </div>
+                    </td>
+                </tr>
+                
+                <tr>
+                    <td colspan="3">
+                        <div class="room-cell blocked colspan" data-room-name="ห้อง 211 คณิตศาสตร์">
+                            <div class="room-header blocked-blue">
+                                <strong style="font-size: 1.2rem;">211</strong><br>
+                                <small style="font-size: 1rem; font-weight: 500;">คณิตศาสตร์</small>
+                            </div>
+                            <div class="room-slots">
+                                <div class="slot slot-am" data-slot="เช้า"><span>เช้า</span><span class="status-icon">X</span></div>
+                                <div class="slot slot-pm" data-slot="บ่าย"><span>บ่าย</span><span class="status-icon">X</span></div>
+                            </div>
+                            <div class="room-footer"><button class="book-button" disabled>ห้องเต็ม</button></div>
+                        </div>
+                    </td>
+                    <td colspan="3">
+                        <div class="room-cell blocked colspan" data-room-name="ห้องภาษาอังกฤษ">
+                             <div class="room-header blocked-red">
+                                <strong style="font-size: 1.2rem; visibility: hidden;">&nbsp;</strong>
+                                <small style="font-size: 1rem; font-weight: 500;">ภาษาอังกฤษ</small>
+                            </div>
+                            <div class="room-slots">
+                                <div class="slot slot-am" data-slot="เช้า"><span>เช้า</span><span class="status-icon">X</span></div>
+                                <div class="slot slot-pm" data-slot="บ่าย"><span>บ่าย</span><span class="status-icon">X</span></div>
+                            </div>
+                            <div class="room-footer"><button class="book-button" disabled>ห้องเต็ม</button></div>
+                        </div>
+                    </td>
+                </tr>
+
+                <tr>
+                    <td>
+                        <div class="room-cell" data-room-name="ห้อง 211 (ม.6/1)">
+                            <div class="room-header"><strong>ห้อง 211</strong><small>ม.6/1</small></div>
+                            <div class="room-slots">
+                                <div class="slot slot-am available" data-slot="เช้า"><span>เช้า</span><span class="status-icon">+</span></div>
+                                <div class="slot slot-pm available" data-slot="บ่าย"><span>บ่าย</span><span class="status-icon">+</span></div>
+                            </div>
+                            <div class="room-footer"><button class="book-button">จอง</button></div>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="room-cell" data-room-name="ห้อง 212 (ม.6/2)">
+                            <div class="room-header"><strong>ห้อง 212</strong><small>ม.6/2</small></div>
+                            <div class="room-slots">
+                                <div class="slot slot-am available" data-slot="เช้า"><span>เช้า</span><span class="status-icon">+</span></div>
+                                <div class="slot slot-pm available" data-slot="บ่าย"><span>บ่าย</span><span class="status-icon">+</span></div>
+                            </div>
+                            <div class="room-footer"><button class="book-button">จอง</button></div>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="room-cell" data-room-name="ห้อง 213 (ม.6/3)">
+                            <div class="room-header"><strong>ห้อง 213</strong><small>ม.6/3</small></div>
+                            <div class="room-slots">
+                                <div class="slot slot-am available" data-slot="เช้า"><span>เช้า</span><span class="status-icon">+</span></div>
+                                <div class="slot slot-pm available" data-slot="บ่าย"><span>บ่าย</span><span class="status-icon">+</span></div>
+                            </div>
+                            <div class="room-footer"><button class="book-button">จอง</button></div>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="room-cell" data-room-name="ห้อง 214 (ม.6/4)">
+                            <div class="room-header"><strong>ห้อง 214</strong><small>ม.6/4</small></div>
+                            <div class="room-slots">
+                                <div class="slot slot-am available" data-slot="เช้า"><span>เช้า</span><span class="status-icon">+</span></div>
+                                <div class="slot slot-pm available" data-slot="บ่าย"><span>บ่าย</span><span class="status-icon">+</span></div>
+                            </div>
+                            <div class="room-footer"><button class="book-button">จอง</button></div>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="room-cell" data-room-name="ห้อง 215 (ม.6/5)">
+                            <div class="room-header"><strong>ห้อง 215</strong><small>ม.6/5</small></div>
+                            <div class="room-slots">
+                                <div class="slot slot-am available" data-slot="เช้า"><span>เช้า</span><span class="status-icon">+</span></div>
+                                <div class="slot slot-pm available" data-slot="บ่าย"><span>บ่าย</span><span class="status-icon">+</span></div>
+                            </div>
+                            <div class="room-footer"><button class="book-button">จอง</button></div>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="room-cell" data-room-name="ห้อง 216 (ม.6/6)">
+                            <div class="room-header"><strong>ห้อง 216</strong><small>ม.6/6</small></div>
+                            <div class="room-slots">
+                                <div class="slot slot-am available" data-slot="เช้า"><span>เช้า</span><span class="status-icon">+</span></div>
+                                <div class="slot slot-pm available" data-slot="บ่าย"><span>บ่าย</span><span class="status-icon">+</span></div>
+                            </div>
+                            <div class="room-footer"><button class="book-button">จอง</button></div>
+                        </div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    
+    <div class="container" id="building-3">
+        <h1>[ อาคาร 3 ] ผังการจองห้อง</h1>
+        <table class="room-table">
+            <tbody>
+                <tr>
+                    <td>
+                        <div class="room-cell" data-room-name="ห้อง 331 (ม.5/1)">
+                            <div class="room-header"><strong>ห้อง 331</strong><small>ม.5/1</small></div>
+                            <div class="room-slots">
+                                <div class="slot slot-am available" data-slot="เช้า"><span>เช้า</span><span class="status-icon">+</span></div>
+                                <div class="slot slot-pm available" data-slot="บ่าย"><span>บ่าย</span><span class="status-icon">+</span></div>
+                            </div>
+                            <div class="room-footer"><button class="book-button">จอง</button></div>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="room-cell" data-room-name="ห้อง 332 (ม.5/2)">
+                            <div class="room-header"><strong>ห้อง 332</strong><small>ม.5/2</small></div>
+                            <div class="room-slots">
+                                <div class="slot slot-am available" data-slot="เช้า"><span>เช้า</span><span class="status-icon">+</span></div>
+                                <div class="slot slot-pm available" data-slot="บ่าย"><span>บ่าย</span><span class="status-icon">+</span></div>
+                            </div>
+                            <div class="room-footer"><button class="book-button">จอง</button></div>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="room-cell blocked" data-room-name="ห้อง 333 สังคม">
+                            <div class="room-header blocked-red"><strong>ห้อง 333</strong><small>สังคม</small></div>
+                            <div class="room-slots">
+                                <div class="slot slot-am" data-slot="เช้า"><span>เช้า</span><span class="status-icon">X</span></div>
+                                <div class="slot slot-pm" data-slot="บ่าย"><span>บ่าย</span><span class="status-icon">X</span></div>
+                            </div>
+                            <div class="room-footer"><button class="book-button" disabled>ห้องเต็ม</button></div>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="room-cell" data-room-name="ห้อง 334 (ม.5/3)">
+                            <div class="room-header"><strong>ห้อง 334</strong><small>ม.5/3</small></div>
+                            <div class="room-slots">
+                                <div class="slot slot-am available" data-slot="เช้า"><span>เช้า</span><span class="status-icon">+</span></div>
+                                <div class="slot slot-pm available" data-slot="บ่าย"><span>บ่าย</span><span class="status-icon">+</span></div>
+                            </div>
+                            <div class="room-footer"><button class="book-button">จอง</button></div>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="room-cell" data-room-name="ห้อง 335 (ม.5/4)">
+                            <div class="room-header"><strong>ห้อง 335</strong><small>ม.5/4</small></div>
+                            <div class="room-slots">
+                                <div class="slot slot-am available" data-slot="เช้า"><span>เช้า</span><span class="status-icon">+</span></div>
+                                <div class="slot slot-pm available" data-slot="บ่าย"><span>บ่าย</span><span class="status-icon">+</span></div>
+                            </div>
+                            <div class="room-footer"><button class="book-button">จอง</button></div>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="room-cell" data-room-name="ห้อง 336 (ม.5/5)">
+                            <div class="room-header"><strong>ห้อง 336</strong><small>ม.5/5</small></div>
+                            <div class="room-slots">
+                                <div class="slot slot-am available" data-slot="เช้า"><span>เช้า</span><span class="status-icon">+</span></div>
+                                <div class="slot slot-pm available" data-slot="บ่าย"><span>บ่าย</span><span class="status-icon">+</span></div>
+                            </div>
+                            <div class="room-footer"><button class="book-button">จอง</button></div>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="room-cell" data-room-name="ห้อง 337 (ม.5/6)">
+                            <div class="room-header"><strong>ห้อง 337</strong><small>ม.5/6</small></div>
+                            <div class="room-slots">
+                                <div class="slot slot-am available" data-slot="เช้า"><span>เช้า</span><span class="status-icon">+</span></div>
+                                <div class="slot slot-pm available" data-slot="บ่าย"><span>บ่าย</span><span class="status-icon">+</span></div>
+                            </div>
+                            <div class="room-footer"><button class="book-button">จอง</button></div>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="room-cell blocked" data-room-name="ห้อง 338 ห้องพระพุทธ">
+                            <div class="room-header blocked-red"><strong>ห้อง 338</strong><small>ห้องพระพุทธ</small></div>
+                            <div class="room-slots">
+                                <div class="slot slot-am" data-slot="เช้า"><span>เช้า</span><span class="status-icon">X</span></div>
+                                <div class="slot slot-pm" data-slot="บ่าย"><span>บ่าย</span><span class="status-icon">X</span></div>
+                            </div>
+                            <div class="room-footer"><button class="book-button" disabled>ห้องเต็ม</button></div>
+                        </div>
+                    </td>
+                </tr>
+                
+                <tr>
+                    <td>
+                        <div class="room-cell blocked" data-room-name="ห้อง 321 ภาษาไทย">
+                            <div class="room-header blocked-red"><strong>ห้อง 321</strong><small>ภาษาไทย</small></div>
+                            <div class="room-slots">
+                                <div class="slot slot-am" data-slot="เช้า"><span>เช้า</span><span class="status-icon">X</span></div>
+                                <div class="slot slot-pm" data-slot="บ่าย"><span>บ่าย</span><span class="status-icon">X</span></div>
+                            </div>
+                            <div class="room-footer"><button class="book-button" disabled>ห้องเต็ม</button></div>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="room-cell" data-room-name="ห้อง 322 (ม.4/7)">
+                            <div class="room-header"><strong>ห้อง 322</strong><small>ม.4/7</small></div>
+                            <div class="room-slots">
+                                <div class="slot slot-am available" data-slot="เช้า"><span>เช้า</span><span class="status-icon">+</span></div>
+                                <div class="slot slot-pm available" data-slot="บ่าย"><span>บ่าย</span><span class="status-icon">+</span></div>
+                            </div>
+                            <div class="room-footer"><button class="book-button">จอง</button></div>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="room-cell" data-room-name="ห้อง 323 (ม.4/8)">
+                            <div class="room-header"><strong>ห้อง 323</strong><small>ม.4/8</small></div>
+                            <div class="room-slots">
+                                <div class="slot slot-am available" data-slot="เช้า"><span>เช้า</span><span class="status-icon">+</span></div>
+                                <div class="slot slot-pm available" data-slot="บ่าย"><span>บ่าย</span><span class="status-icon">+</span></div>
+                            </div>
+                            <div class="room-footer"><button class="book-button">จอง</button></div>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="room-cell" data-room-name="ห้อง 324 (ม.4/9)">
+                            <div class="room-header"><strong>ห้อง 324</strong><small>ม.4/9</small></div>
+                            <div class="room-slots">
+                                <div class="slot slot-am available" data-slot="เช้า"><span>เช้า</span><span class="status-icon">+</span></div>
+                                <div class="slot slot-pm available" data-slot="บ่าย"><span>บ่าย</span><span class="status-icon">+</span></div>
+                            </div>
+                            <div class="room-footer"><button class="book-button">จอง</button></div>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="room-cell" data-room-name="ห้อง 325 (ม.4/10)">
+                            <div class="room-header"><strong>ห้อง 325</strong><small>ม.4/10</small></div>
+                            <div class="room-slots">
+                                <div class="slot slot-am available" data-slot="เช้า"><span>เช้า</span><span class="status-icon">+</span></div>
+                                <div class="slot slot-pm available" data-slot="บ่าย"><span>บ่าย</span><span class="status-icon">+</span></div>
+                            </div>
+                            <div class="room-footer"><button class="book-button">จอง</button></div>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="room-cell" data-room-name="ห้อง 326 (ม.3/6)">
+                            <div class="room-header"><strong>ห้อง 326</strong><small>ม.3/6</small></div>
+                            <div class="room-slots">
+                                <div class="slot slot-am available" data-slot="เช้า"><span>เช้า</span><span class="status-icon">+</span></div>
+                                <div class="slot slot-pm available" data-slot="บ่าย"><span>บ่าย</span><span class="status-icon">+</span></div>
+                            </div>
+                            <div class="room-footer"><button class="book-button">จอง</button></div>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="room-cell" data-room-name="ห้อง 327 (ม.3/7)">
+                            <div class="room-header"><strong>ห้อง 327</strong><small>ม.3/7</small></div>
+                            <div class="room-slots">
+                                <div class="slot slot-am available" data-slot="เช้า"><span>เช้า</span><span class="status-icon">+</span></div>
+                                <div class="slot slot-pm available" data-slot="บ่าย"><span>บ่าย</span><span class="status-icon">+</span></div>
+                            </div>
+                            <div class="room-footer"><button class="book-button">จอง</button></div>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="room-cell" data-room-name="ห้อง 328 (ม.3/8)">
+                            <div class="room-header"><strong>ห้อง 328</strong><small>ม.3/8</small></div>
+                            <div class="room-slots">
+                                <div class="slot slot-am available" data-slot="เช้า"><span>เช้า</span><span class="status-icon">+</span></div>
+                                <div class="slot slot-pm available" data-slot="บ่าย"><span>บ่าย</span><span class="status-icon">+</span></div>
+                            </div>
+                            <div class="room-footer"><button class="book-button">จอง</button></div>
+                        </div>
+                    </td>
+                </tr>
+
+                <tr>
+                    <td>
+                        <div class="room-cell" data-room-name="ห้อง 311 คอมฯ">
+                            <div class="room-header"><strong>311</strong><small>คอมฯ</small></div>
+                            <div class="room-slots">
+                                <div class="slot slot-am available" data-slot="เช้า"><span>เช้า</span><span class="status-icon">+</span></div>
+                                <div class="slot slot-pm available" data-slot="บ่าย"><span>บ่าย</span><span class="status-icon">+</span></div>
+                            </div>
+                            <div class="room-footer"><button class="book-button">จอง</button></div>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="room-cell" data-room-name="ห้อง 312 คอมฯ">
+                            <div class="room-header"><strong>312</strong><small>คอมฯ</small></div>
+                            <div class="room-slots">
+                                <div class="slot slot-am available" data-slot="เช้า"><span>เช้า</span><span class="status-icon">+</span></div>
+                                <div class="slot slot-pm available" data-slot="บ่าย"><span>บ่าย</span><span class="status-icon">+</span></div>
+                            </div>
+                            <div class="room-footer"><button class="book-button">จอง</button></div>
+                        </div>
+                    </td>
+                    <td colspan="2">
+                        <div class="room-cell blocked colspan" data-room-name="ห้องสมุด">
+                             <div class="room-header blocked-green">
+                                <strong style="font-size: 1.2rem; visibility: hidden;">&nbsp;</strong>
+                                <small style="font-size: 1rem; font-weight: 500;">ห้องสมุด</small>
+                            </div>
+                            <div class="room-slots">
+                                <div class="slot slot-am" data-slot="เช้า"><span>เช้า</span><span class="status-icon">X</span></div>
+                                <div class="slot slot-pm" data-slot="บ่าย"><span>บ่าย</span><span class="status-icon">X</span></div>
+                            </div>
+                            <div class="room-footer"><button class="book-button" disabled>ห้องเต็ม</button></div>
+                        </div>
+                    </td>
+                    <td colspan="2">
+                        <div class="room-cell blocked colspan" data-room-name="ห้องนวัตกรรม">
+                             <div class="room-header blocked-green">
+                                <strong style="font-size: 1.2rem; visibility: hidden;">&nbsp;</strong>
+                                <small style="font-size: 1rem; font-weight: 500;">ห้องนวัตกรรม</small>
+                            </div>
+                            <div class="room-slots">
+                                <div class="slot slot-am" data-slot="เช้า"><span>เช้า</span><span class="status-icon">X</span></div>
+                                <div class="slot slot-pm" data-slot="บ่าย"><span>บ่าย</span><span class="status-icon">X</span></div>
+                            </div>
+                            <div class="room-footer"><button class="book-button" disabled>ห้องเต็ม</button></div>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="room-cell" data-room-name="ห้อง 317 คอมฯ">
+                            <div class="room-header"><strong>317</strong><small>คอมฯ</small></div>
+                            <div class="room-slots">
+                                <div class="slot slot-am available" data-slot="เช้า"><span>เช้า</span><span class="status-icon">+</span></div>
+                                <div class="slot slot-pm available" data-slot="บ่าย"><span>บ่าย</span><span class="status-icon">+</span></div>
+                            </div>
+                            <div class="room-footer"><button class="book-button">จอง</button></div>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="room-cell" data-room-name="ห้อง 318 คอมฯ">
+                            <div class="room-header"><strong>318</strong><small>คอมฯ</small></div>
+                            <div class="room-slots">
+                                <div class="slot slot-am available" data-slot="เช้า"><span>เช้า</span><span class="status-icon">+</span></div>
+                                <div class="slot slot-pm available" data-slot="บ่าย"><span>บ่าย</span><span class="status-icon">+</span></div>
+                            </div>
+                            <div class="room-footer"><button class="book-button">จอง</button></div>
+                        </div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    
+    <div class="container" id="building-4">
+        <h1>[ อาคาร 4 ]</h1>
+        <h2>(อาคารนิเสสเวศ)</h2>
+        <table class="room-table">
+            <tbody>
+                <tr>
+                    <td>
+                        <div class="room-cell" data-room-name="ห้อง 441 (ม.3/1)">
+                            <div class="room-header"><strong>ห้อง 441</strong><small>ม.3/1</small></div>
+                            <div class="room-slots">
+                                <div class="slot slot-am available" data-slot="เช้า"><span>เช้า</span><span class="status-icon">+</span></div>
+                                <div class="slot slot-pm available" data-slot="บ่าย"><span>บ่าย</span><span class="status-icon">+</span></div>
+                            </div>
+                            <div class="room-footer"><button class="book-button">จอง</button></div>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="room-cell" data-room-name="ห้อง 442 (ม.3/2)">
+                            <div class="room-header"><strong>ห้อง 442</strong><small>ม.3/2</small></div>
+                            <div class="room-slots">
+                                <div class="slot slot-am available" data-slot="เช้า"><span>เช้า</span><span class="status-icon">+</span></div>
+                                <div class="slot slot-pm available" data-slot="บ่าย"><span>บ่าย</span><span class="status-icon">+</span></div>
+                            </div>
+                            <div class="room-footer"><button class="book-button">จอง</button></div>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="room-cell" data-room-name="ห้อง 443 (ม.3/3)">
+                            <div class="room-header"><strong>ห้อง 443</strong><small>ม.3/3</small></div>
+                            <div class="room-slots">
+                                <div class="slot slot-am available" data-slot="เช้า"><span>เช้า</span><span class="status-icon">+</span></div>
+                                <div class="slot slot-pm available" data-slot="บ่าย"><span>บ่าย</span><span class="status-icon">+</span></div>
+                            </div>
+                            <div class="room-footer"><button class="book-button">จอง</button></div>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="room-cell" data-room-name="ห้อง 444 (ม.3/4)">
+                            <div class="room-header"><strong>ห้อง 444</strong><small>ม.3/4</small></div>
+                            <div class="room-slots">
+                                <div class="slot slot-am available" data-slot="เช้า"><span>เช้า</span><span class="status-icon">+</span></div>
+                                <div class="slot slot-pm available" data-slot="บ่าย"><span>บ่าย</span><span class="status-icon">+</span></div>
+                            </div>
+                            <div class="room-footer"><button class="book-button">จอง</button></div>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="room-cell" data-room-name="ห้อง 445 (ม.3/5)">
+                            <div class="room-header"><strong>ห้อง 445</strong><small>ม.3/5</small></div>
+                            <div class="room-slots">
+                                <div class="slot slot-am available" data-slot="เช้า"><span>เช้า</span><span class="status-icon">+</span></div>
+                                <div class="slot slot-pm available" data-slot="บ่าย"><span>บ่าย</span><span class="status-icon">+</span></div>
+                            </div>
+                            <div class="room-footer"><button class="book-button">จอง</button></div>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="room-cell" data-room-name="ห้อง 446 (ม.2/9)">
+                            <div class="room-header"><strong>ห้อง 446</strong><small>ม.2/9</small></div>
+                            <div class="room-slots">
+                                <div class="slot slot-am available" data-slot="เช้า"><span>เช้า</span><span class="status-icon">+</span></div>
+                                <div class="slot slot-pm available" data-slot="บ่าย"><span>บ่าย</span><span class="status-icon">+</span></div>
+                            </div>
+                            <div class="room-footer"><button class="book-button">จอง</button></div>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="room-cell" data-room-name="ห้อง 447 (ม.2/8)">
+                            <div class="room-header"><strong>ห้อง 447</strong><small>ม.2/8</small></div>
+                            <div class="room-slots">
+                                <div class="slot slot-am available" data-slot="เช้า"><span>เช้า</span><span class="status-icon">+</span></div>
+                                <div class="slot slot-pm available" data-slot="บ่าย"><span>บ่าย</span><span class="status-icon">+</span></div>
+                            </div>
+                            <div class="room-footer"><button class="book-button">จอง</button></div>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="room-cell" data-room-name="ห้อง 448 (ม.2/7)">
+                            <div class="room-header"><strong>ห้อง 448</strong><small>ม.2/7</small></div>
+                            <div class="room-slots">
+                                <div class="slot slot-am available" data-slot="เช้า"><span>เช้า</span><span class="status-icon">+</span></div>
+                                <div class="slot slot-pm available" data-slot="บ่าย"><span>บ่าย</span><span class="status-icon">+</span></div>
+                            </div>
+                            <div class="room-footer"><button class="book-button">จอง</button></div>
+                        </div>
+                    </td>
+                </tr>
+                
+                <tr>
+                    <td>
+                        <div class="room-cell blocked" data-room-name="ห้อง 431 ห้องศูนย์สอบ">
+                            <div class="room-header blocked-red"><strong>ห้อง 431</strong><small>ห้องศูนย์สอบ</small></div>
+                            <div class="room-slots">
+                                <div class="slot slot-am" data-slot="เช้า"><span>เช้า</span><span class="status-icon">X</span></div>
+                                <div class="slot slot-pm" data-slot="บ่าย"><span>บ่าย</span><span class="status-icon">X</span></div>
+                            </div>
+                            <div class="room-footer"><button class="book-button" disabled>ห้องเต็ม</button></div>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="room-cell" data-room-name="ห้อง 432 (ม.1/9)">
+                            <div class="room-header"><strong>ห้อง 432</strong><small>ม.1/9</small></div>
+                            <div class="room-slots">
+                                <div class="slot slot-am available" data-slot="เช้า"><span>เช้า</span><span class="status-icon">+</span></div>
+                                <div class="slot slot-pm available" data-slot="บ่าย"><span>บ่าย</span><span class="status-icon">+</span></div>
+                            </div>
+                            <div class="room-footer"><button class="book-button">จอง</button></div>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="room-cell" data-room-name="ห้อง 433 (ม.2/6)">
+                            <div class="room-header"><strong>ห้อง 433</strong><small>ม.2/6</small></div>
+                            <div class="room-slots">
+                                <div class="slot slot-am available" data-slot="เช้า"><span>เช้า</span><span class="status-icon">+</span></div>
+                                <div class="slot slot-pm available" data-slot="บ่าย"><span>บ่าย</span><span class="status-icon">+</span></div>
+                            </div>
+                            <div class="room-footer"><button class="book-button">จอง</button></div>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="room-cell" data-room-name="ห้อง 434 (ม.2/5)">
+                            <div class="room-header"><strong>ห้อง 434</strong><small>ม.2/5</small></div>
+                            <div class="room-slots">
+                                <div class="slot slot-am available" data-slot="เช้า"><span>เช้า</span><span class="status-icon">+</span></div>
+                                <div class="slot slot-pm available" data-slot="บ่าย"><span>บ่าย</span><span class="status-icon">+</span></div>
+                            </div>
+                            <div class="room-footer"><button class="book-button">จอง</button></div>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="room-cell" data-room-name="ห้อง 435 (ม.2/4)">
+                            <div class="room-header"><strong>ห้อง 435</strong><small>ม.2/4</small></div>
+                            <div class="room-slots">
+                                <div class="slot slot-am available" data-slot="เช้า"><span>เช้า</span><span class="status-icon">+</span></div>
+                                <div class="slot slot-pm available" data-slot="บ่าย"><span>บ่าย</span><span class="status-icon">+</span></div>
+                            </div>
+                            <div class="room-footer"><button class="book-button">จอง</button></div>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="room-cell" data-room-name="ห้อง 436 (ม.2/3)">
+                            <div class="room-header"><strong>ห้อง 436</strong><small>ม.2/3</small></div>
+                            <div class="room-slots">
+                                <div class="slot slot-am available" data-slot="เช้า"><span>เช้า</span><span class="status-icon">+</span></div>
+                                <div class="slot slot-pm available" data-slot="บ่าย"><span>บ่าย</span><span class="status-icon">+</span></div>
+                            </div>
+                            <div class="room-footer"><button class="book-button">จอง</button></div>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="room-cell" data-room-name="ห้อง 437 (ม.2/2)">
+                            <div class="room-header"><strong>ห้อง 437</strong><small>ม.2/2</small></div>
+                            <div class="room-slots">
+                                <div class="slot slot-am available" data-slot="เช้า"><span>เช้า</span><span class="status-icon">+</span></div>
+                                <div class="slot slot-pm available" data-slot="บ่าย"><span>บ่าย</span><span class="status-icon">+</span></div>
+                            </div>
+                            <div class="room-footer"><button class="book-button">จอง</button></div>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="room-cell" data-room-name="ห้อง 438 (ม.2/1)">
+                            <div class="room-header"><strong>ห้อง 438</strong><small>ม.2/1</small></div>
+                            <div class="room-slots">
+                                <div class="slot slot-am available" data-slot="เช้า"><span>เช้า</span><span class="status-icon">+</span></div>
+                                <div class="slot slot-pm available" data-slot="บ่าย"><span>บ่าย</span><span class="status-icon">+</span></div>
+                            </div>
+                            <div class="room-footer"><button class="book-button">จอง</button></div>
+                        </div>
+                    </td>
+                </tr>
+                
+                <tr>
+                    <td>
+                        <div class="room-cell" data-room-name="ห้อง 421 (ม.1/1)">
+                            <div class="room-header"><strong>ห้อง 421</strong><small>ม.1/1</small></div>
+                            <div class="room-slots">
+                                <div class="slot slot-am available" data-slot="เช้า"><span>เช้า</span><span class="status-icon">+</span></div>
+                                <div class="slot slot-pm available" data-slot="บ่าย"><span>บ่าย</span><span class="status-icon">+</span></div>
+                            </div>
+                            <div class="room-footer"><button class="book-button">จอง</button></div>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="room-cell" data-room-name="ห้อง 422 (ม.1/2)">
+                            <div class="room-header"><strong>ห้อง 422</strong><small>ม.1/2</small></div>
+                            <div class="room-slots">
+                                <div class="slot slot-am available" data-slot="เช้า"><span>เช้า</span><span class="status-icon">+</span></div>
+                                <div class="slot slot-pm available" data-slot="บ่าย"><span>บ่าย</span><span class="status-icon">+</span></div>
+                            </div>
+                            <div class="room-footer"><button class="book-button">จอง</button></div>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="room-cell" data-room-name="ห้อง 423 (ม.1/3)">
+                            <div class="room-header"><strong>ห้อง 423</strong><small>ม.1/3</small></div>
+                            <div class="room-slots">
+                                <div class="slot slot-am available" data-slot="เช้า"><span>เช้า</span><span class="status-icon">+</span></div>
+                                <div class="slot slot-pm available" data-slot="บ่าย"><span>บ่าย</span><span class="status-icon">+</span></div>
+                            </div>
+                            <div class="room-footer"><button class="book-button">จอง</button></div>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="room-cell" data-room-name="ห้อง 424 (ม.1/4)">
+                            <div class="room-header"><strong>ห้อง 424</strong><small>ม.1/4</small></div>
+                            <div class="room-slots">
+                                <div class="slot slot-am available" data-slot="เช้า"><span>เช้า</span><span class="status-icon">+</span></div>
+                                <div class="slot slot-pm available" data-slot="บ่าย"><span>บ่าย</span><span class="status-icon">+</span></div>
+                            </div>
+                            <div class="room-footer"><button class="book-button">จอง</button></div>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="room-cell" data-room-name="ห้อง 425 (ม.1/5)">
+                            <div class="room-header"><strong>ห้อง 425</strong><small>ม.1/5</small></div>
+                            <div class="room-slots">
+                                <div class="slot slot-am available" data-slot="เช้า"><span>เช้า</span><span class="status-icon">+</span></div>
+                                <div class="slot slot-pm available" data-slot="บ่าย"><span>บ่าย</span><span class="status-icon">+</span></div>
+                            </div>
+                            <div class="room-footer"><button class="book-button">จอง</button></div>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="room-cell" data-room-name="ห้อง 426 (ม.1/6)">
+                            <div class="room-header"><strong>ห้อง 426</strong><small>ม.1/6</small></div>
+                            <div class="room-slots">
+                                <div class="slot slot-am available" data-slot="เช้า"><span>เช้า</span><span class="status-icon">+</span></div>
+                                <div class="slot slot-pm available" data-slot="บ่าย"><span>บ่าย</span><span class="status-icon">+</span></div>
+                            </div>
+                            <div class="room-footer"><button class="book-button">จอง</button></div>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="room-cell" data-room-name="ห้อง 427 (ม.1/7)">
+                            <div class="room-header"><strong>ห้อง 427</strong><small>ม.1/7</small></div>
+                            <div class="room-slots">
+                                <div class="slot slot-am available" data-slot="เช้า"><span>เช้า</span><span class="status-icon">+</span></div>
+                                <div class="slot slot-pm available" data-slot="บ่าย"><span>บ่าย</span><span class="status-icon">+</span></div>
+                            </div>
+                            <div class="room-footer"><button class="book-button">จอง</button></div>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="room-cell" data-room-name="ห้อง 428 (ม.1/8)">
+                            <div class="room-header"><strong>ห้อง 428</strong><small>ม.1/8</small></div>
+                            <div class="room-slots">
+                                <div class="slot slot-am available" data-slot="เช้า"><span>เช้า</span><span class="status-icon">+</span></div>
+                                <div class="slot slot-pm available" data-slot="บ่าย"><span>บ่าย</span><span class="status-icon">+</span></div>
+                            </div>
+                            <div class="room-footer"><button class="book-button">จอง</button></div>
+                        </div>
+                    </td>
+                </tr>
+
+                <tr>
+                    <td colspan="2">
+                        <div class="room-cell" data-room-name="ห้อง FABLAB">
+                            <div class="room-header"><strong>ห้อง FABLAB</strong></div>
+                            <div class="room-slots">
+                                <div class="slot slot-am available" data-slot="เช้า"><span>เช้า</span><span class="status-icon">+</span></div>
+                                <div class="slot slot-pm available" data-slot="บ่าย"><span>บ่าย</span><span class="status-icon">+</span></div>
+                            </div>
+                            <div class="room-footer"><button class="book-button">จอง</button></div>
+                        </div>
+                    </td>
+                    <td colspan="2">
+                        <div class="room-cell" data-room-name="ห้องประชุมนิเสสเวศ 1">
+                            <div class="room-header"><strong>ห้องประชุมนิเสสเวศ 1</strong></div>
+                            <div class="room-slots">
+                                <div class="slot slot-am available" data-slot="เช้า"><span>เช้า</span><span class="status-icon">+</span></div>
+                                <div class="slot slot-pm available" data-slot="บ่าย"><span>บ่าย</span><span class="status-icon">+</span></div>
+                            </div>
+                            <div class="room-footer"><button class="book-button">จอง</button></div>
+                        </div>
+                    </td>
+                    <td colspan="2">
+                        <div class="room-cell" data-room-name="ห้องประชุมนิเสสเวศ 2">
+                            <div class="room-header"><strong>ห้องประชุมนิเสสเวศ 2</strong></div>
+                            <div class="room-slots">
+                                <div class="slot slot-am available" data-slot="เช้า"><span>เช้า</span><span class="status-icon">+</span></div>
+                                <div class="slot slot-pm available" data-slot="บ่าย"><span>บ่าย</span><span class="status-icon">+</span></div>
+                            </div>
+                            <div class="room-footer"><button class="book-button">จอง</button></div>
+                        </div>
+                    </td>
+                    <td colspan="2">
+                        <div class="room-cell" data-room-name="ห้อง HCEC">
+                            <div class="room-header"><strong>ห้อง HCEC</strong></div>
+                            <div class="room-slots">
+                                <div class="slot slot-am available" data-slot="เช้า"><span>เช้า</span><span class="status-icon">+</span></div>
+                                <div class="slot slot-pm available" data-slot="บ่าย"><span>บ่าย</span><span class="status-icon">+</span></div>
+                            </div>
+                            <div class="room-footer"><button class="book-button">จอง</button></div>
+                        </div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="container" id="building-5">
+        <h1>[ อาคารใหม่ ]</h1>
+        <h2>(ข้างอาคารกิจการนักเรียน (ห้องรหัส A))</h2>
+        <table class="room-table">
+            <tbody>
+                <tr>
+                    <td>
+                        <div class="room-cell" data-room-name="A4 (ม.6/7)">
+                            <div class="room-header"><strong>A4</strong><small>ม.6/7</small></div>
+                            <div class="room-slots">
+                                <div class="slot slot-am available" data-slot="เช้า"><span>เช้า</span><span class="status-icon">+</span></div>
+                                <div class="slot slot-pm available" data-slot="บ่าย"><span>บ่าย</span><span class="status-icon">+</span></div>
+                            </div>
+                            <div class="room-footer"><button class="book-button">จอง</button></div>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="room-cell" data-room-name="A3 (ม.6/8)">
+                            <div class="room-header"><strong>A3</strong><small>ม.6/8</small></div>
+                            <div class="room-slots">
+                                <div class="slot slot-am available" data-slot="เช้า"><span>เช้า</span><span class="status-icon">+</span></div>
+                                <div class="slot slot-pm available" data-slot="บ่าย"><span>บ่าย</span><span class="status-icon">+</span></div>
+                            </div>
+                            <div class="room-footer"><button class="book-button">จอง</button></div>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="room-cell" data-room-name="A2 (ม.6/9)">
+                            <div class="room-header"><strong>A2</strong><small>ม.6/9</small></div>
+                            <div class="room-slots">
+                                <div class="slot slot-am available" data-slot="เช้า"><span>เช้า</span><span class="status-icon">+</span></div>
+                                <div class="slot slot-pm available" data-slot="บ่าย"><span>บ่าย</span><span class="status-icon">+</span></div>
+                            </div>
+                            <div class="room-footer"><button class="book-button">จอง</button></div>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="room-cell" data-room-name="A1 (ม.6/10)">
+                            <div class="room-header"><strong>A1</strong><small>ม.6/10</small></div>
+                            <div class="room-slots">
+                                <div class="slot slot-am available" data-slot="เช้า"><span>เช้า</span><span class="status-icon">+</span></div>
+                                <div class="slot slot-pm available" data-slot="บ่าย"><span>บ่าย</span><span class="status-icon">+</span></div>
+                            </div>
+                            <div class="room-footer"><button class="book-button">จอง</button></div>
+                        </div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="container" id="building-6">
+        <h1>[ อาคารอื่นๆ ]</h1>
+        
+        <table class="room-table">
+            <tbody>
+                <tr>
+                    <td>
+                        <div class="room-cell" data-room-name="ห้องดนตรี 1">
+                            <div class="room-header"><strong>ห้องดนตรี 1</strong></div>
+                            <div class="room-slots">
+                                <div class="slot slot-am available" data-slot="เช้า"><span>เช้า</span><span class="status-icon">+</span></div>
+                                <div class="slot slot-pm available" data-slot="บ่าย"><span>บ่าย</span><span class="status-icon">+</span></div>
+                            </div>
+                            <div class="room-footer"><button class="book-button">จอง</button></div>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="room-cell" data-room-name="ห้องดนตรี 2">
+                            <div class="room-header"><strong>ห้องดนตรี 2</strong></div>
+                            <div class="room-slots">
+                                <div class="slot slot-am available" data-slot="เช้า"><span>เช้า</span><span class="status-icon">+</span></div>
+                                <div class="slot slot-pm available" data-slot="บ่าย"><span>บ่าย</span><span class="status-icon">+</span></div>
+                            </div>
+                            <div class="room-footer"><button class="book-button">จอง</button></div>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="room-cell" data-room-name="ห้องคหกรรม 1">
+                            <div class="room-header"><strong>ห้องคหกรรม 1</strong></div>
+                            <div class="room-slots">
+                                <div class="slot slot-am available" data-slot="เช้า"><span>เช้า</span><span class="status-icon">+</span></div>
+                                <div class="slot slot-pm available" data-slot="บ่าย"><span>บ่าย</span><span class="status-icon">+</span></div>
+                            </div>
+                            <div class="room-footer"><button class="book-button">จอง</button></div>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="room-cell" data-room-name="ห้องคหกรรม 2">
+                            <div class="room-header"><strong>ห้องคหกรรม 2</strong></div>
+                            <div class="room-slots">
+                                <div class="slot slot-am available" data-slot="เช้า"><span>เช้า</span><span class="status-icon">+</span></div>
+                                <div class="slot slot-pm available" data-slot="บ่าย"><span>บ่าย</span><span class="status-icon">+</span></div>
+                            </div>
+                            <div class="room-footer"><button class="book-button">จอง</button></div>
+                        </div>
+                    </td>
+                </tr>
+                
+                <tr>
+                    <td colspan="2">
+                        <div class="room-cell colspan" data-room-name="โรงอาหาร">
+                            <div class="room-header"><strong>โรงอาหาร</strong></div>
+                            <div class="room-slots">
+                                <div class="slot slot-am available" data-slot="เช้า"><span>เช้า</span><span class="status-icon">+</span></div>
+                                <div class="slot slot-pm available" data-slot="บ่าย"><span>บ่าย</span><span class="status-icon">+</span></div>
+                            </div>
+                            <div class="room-footer"><button class="book-button">จอง</button></div>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="room-cell" data-room-name="อาคารเพชรพลบดี">
+                            <div class="room-header"><strong>อาคารเพชรพลบดี</strong></div>
+                            <div class="room-slots">
+                                <div class="slot slot-am available" data-slot="เช้า"><span>เช้า</span><span class="status-icon">+</span></div>
+                                <div class="slot slot-pm available" data-slot="บ่าย"><span>บ่าย</span><span class="status-icon">+</span></div>
+                            </div>
+                            <div class="room-footer"><button class="book-button">จอง</button></div>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="room-cell" data-room-name="โรงอาหารเพชรพลบดี">
+                            <div class="room-header"><strong>โรงอาหารเพชรพลบดี</strong></div>
+                            <div class="room-slots">
+                                <div class="slot slot-am available" data-slot="เช้า"><span>เช้า</span><span class="status-icon">+</span></div>
+                                <div class="slot slot-pm available" data-slot="บ่าย"><span>บ่าย</span><span class="status-icon">+</span></div>
+                            </div>
+                            <div class="room-footer"><button class="book-button">จอง</button></div>
+                        </div>
+                    </td>
+                </tr>
+
+                <tr>
+                    <td colspan="2">
+                        <div class="room-cell colspan" data-room-name="ห้องอุตสาหกรรม 1 (ม.5/9)">
+                            <div class="room-header"><strong>ห้องอุตสาหกรรม 1</strong><small>ม.5/9</small></div>
+                            <div class="room-slots">
+                                <div class="slot slot-am available" data-slot="เช้า"><span>เช้า</span><span class="status-icon">+</span></div>
+                                <div class="slot slot-pm available" data-slot="บ่าย"><span>บ่าย</span><span class="status-icon">+</span></div>
+                            </div>
+                            <div class="room-footer"><button class="book-button">จอง</button></div>
+                        </div>
+                    </td>
+                    <td colspan="2">
+                        <div class="room-cell colspan" data-room-name="ห้องอุตสาหกรรม 1 (ม.5/10)">
+                            <div class="room-header"><strong>ห้องอุตสาหกรรม 1</strong><small>ม.5/10</small></div>
+                            <div class="room-slots">
+                                <div class="slot slot-am available" data-slot="เช้า"><span>เช้า</span><span class="status-icon">+</span></div>
+                                <div class="slot slot-pm available" data-slot="บ่าย"><span>บ่าย</span><span class="status-icon">+</span></div>
+                            </div>
+                            <div class="room-footer"><button class="book-button">จอง</button></div>
+                        </div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            
+            const containers = document.querySelectorAll('.container');
+            
+            containers.forEach(container => {
+                
+                // --- 1. จัดการการคลิก "เลือก" ช่องเวลา ---
+                container.addEventListener('click', (event) => {
+                    const clickedSlot = event.target.closest('.slot.available');
+                    if (clickedSlot) {
+                        clickedSlot.classList.toggle('selected');
+                    }
+                });
+
+                // --- 2. จัดการการคลิก "ปุ่มจอง" ---
+                container.addEventListener('click', (event) => {
+                    const clickedButton = event.target.closest('.book-button');
+                    if (!clickedButton || clickedButton.disabled) {
+                        return;
+                    }
+                    
+                    const roomCell = clickedButton.closest('.room-cell, .colspan');
+                    const roomName = roomCell.dataset.roomName;
+                    const selectedSlotsInThisRoom = roomCell.querySelectorAll('.slot.selected');
+
+                    if (selectedSlotsInThisRoom.length === 0) {
+                        alert(`กรุณาเลือกช่วงเวลา (เช้า/บ่าย) ของ ${roomName} ที่ต้องการจองก่อน`);
+                    } else {
+                        let selectedTimes = [];
+                        selectedSlotsInThisRoom.forEach(slot => {
+                            selectedTimes.push(slot.dataset.slot);
+                        });
+                        
+                        alert(`ยืนยันการจอง: ${roomName}\nช่วงเวลา: ${selectedTimes.join(', ')}`);
+                        
+                        // TODO: ส่งข้อมูลไป Backend
+                    }
+                });
+            });
+
+        });
+    </script>
+
+</body>
+</html>
