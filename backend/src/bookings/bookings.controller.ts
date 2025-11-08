@@ -55,6 +55,18 @@ export class CreateBookingDto {
   userIdForBooking?: string;
 }
 
+// DTO สำหรับเพิ่มวันที่
+export class AddBookingDateDto {
+  @IsString()
+  @IsNotEmpty()
+  @IsDateString()
+  date: string;
+
+  @IsString()
+  @IsNotEmpty()
+  displayName: string;
+}
+
 @Controller('bookings')
 @UseGuards(JwtAuthGuard)
 export class BookingsController {
@@ -221,5 +233,50 @@ export class BookingsController {
       throw new ConflictException('Only admin can reset all bookings');
     }
     return this.bookingsService.resetAll(true);
+  }
+
+  // ============================================
+  // Booking Date Management Endpoints
+  // ============================================
+
+  // GET /bookings/dates - ดึงวันที่ทั้งหมดที่เพิ่มไว้
+  @Get('dates')
+  async getAllBookingDates() {
+    const dates = await this.bookingsService.getAllBookingDates();
+    return dates.map((date) => ({
+      date: date.date,
+      displayName: date.displayName,
+    }));
+  }
+
+  // POST /bookings/dates - เพิ่มวันที่ใหม่ (Admin only)
+  @Post('dates')
+  @HttpCode(HttpStatus.CREATED)
+  async addBookingDate(@Body() body: AddBookingDateDto, @Request() req) {
+    if (!req.user.isAdmin) {
+      throw new ConflictException('Only admin can add booking dates');
+    }
+
+    const bookingDate = await this.bookingsService.addBookingDate(
+      body.date,
+      body.displayName,
+    );
+
+    return {
+      date: bookingDate.date,
+      displayName: bookingDate.displayName,
+    };
+  }
+
+  // DELETE /bookings/dates/:date - ลบวันที่ (Admin only)
+  @Delete('dates/:date')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  async removeBookingDate(@Param('date') date: string, @Request() req) {
+    if (!req.user.isAdmin) {
+      throw new ConflictException('Only admin can remove booking dates');
+    }
+
+    await this.bookingsService.removeBookingDate(date);
+    return { message: 'ลบวันที่สำเร็จ' };
   }
 }

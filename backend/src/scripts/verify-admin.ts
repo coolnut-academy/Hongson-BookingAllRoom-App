@@ -18,7 +18,12 @@ async function verifyAdmin() {
     console.log('❌ Admin user not found!');
     console.log('📝 Creating admin user...');
     const hashedPassword = await bcrypt.hash(adminPassword, 10);
-    await usersService.create('Admin Hongson', adminUsername, hashedPassword, true);
+    await usersService.create(
+      'Admin Hongson',
+      adminUsername,
+      hashedPassword,
+      true,
+    );
     console.log('✅ Admin user created successfully!');
   } else {
     console.log('✅ Admin user found!');

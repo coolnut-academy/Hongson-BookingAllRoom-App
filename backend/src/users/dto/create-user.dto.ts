@@ -4,4 +4,3 @@ export class CreateUserDto {
   password?: string;
   role: 'user' | 'admin' | 'god';
 }
-

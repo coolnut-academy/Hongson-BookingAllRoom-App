@@ -2,12 +2,14 @@ import {
   Injectable,
   ConflictException,
   NotFoundException,
+  BadRequestException,
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Booking } from '../schemas/booking.schema';
 import { RoomStatus } from '../schemas/room-status.schema';
 import { CustomRoom } from '../schemas/custom-room.schema';
+import { BookingDate } from '../schemas/booking-date.schema';
 
 interface BookingSelection {
   roomId: string;
@@ -20,6 +22,7 @@ export class BookingsService {
     @InjectModel(Booking.name) private bookingModel: Model<Booking>,
     @InjectModel(RoomStatus.name) private roomStatusModel: Model<RoomStatus>,
     @InjectModel(CustomRoom.name) private customRoomModel: Model<CustomRoom>,
+    @InjectModel(BookingDate.name) private bookingDateModel: Model<BookingDate>,
   ) {}
 
   // Create single booking (for backward compatibility)
@@ -825,5 +828,66 @@ export class BookingsService {
     await this.customRoomModel.deleteOne({ roomId }).exec();
 
     return { message: `ลบห้อง ${roomId} เรียบร้อยแล้ว` };
+  }
+
+  // ============================================
+  // Booking Date Management Methods
+  // ============================================
+
+  // GET /bookings/dates - ดึงวันที่ทั้งหมดที่เพิ่มไว้
+  async getAllBookingDates(): Promise<BookingDate[]> {
+    return this.bookingDateModel
+      .find({ isActive: true })
+      .sort({ date: 1 })
+      .exec();
+  }
+
+  // POST /bookings/dates - เพิ่มวันที่ใหม่
+  async addBookingDate(
+    date: string,
+    displayName: string,
+  ): Promise<BookingDate> {
+    // ตรวจสอบว่ามีวันที่นี้อยู่แล้วหรือไม่
+    const existing = await this.bookingDateModel.findOne({
+      date,
+      isActive: true,
+    });
+    if (existing) {
+      throw new ConflictException('วันที่นี้มีอยู่แล้วในระบบ');
+    }
+
+    // ตรวจสอบว่าวันที่อยู่ในอนาคตหรือไม่
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const selectedDate = new Date(date);
+    if (selectedDate < today) {
+      throw new BadRequestException('ไม่สามารถเพิ่มวันที่ในอดีตได้');
+    }
+
+    const bookingDate = new this.bookingDateModel({
+      date,
+      displayName,
+      isActive: true,
+    });
+
+    return bookingDate.save();
+  }
+
+  // DELETE /bookings/dates/:date - ลบวันที่
+  async removeBookingDate(date: string): Promise<void> {
+    const bookingDate = await this.bookingDateModel.findOne({
+      date,
+      isActive: true,
+    });
+
+    if (!bookingDate) {
+      throw new NotFoundException('ไม่พบวันที่นี้ในระบบ');
+    }
+
+    // Soft delete
+    bookingDate.isActive = false;
+    await bookingDate.save();
+
+    // ไม่ลบการจองในวันที่นี้ (เก็บไว้เพื่อดูประวัติ)
   }
 }

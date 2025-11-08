@@ -12,7 +12,11 @@ const buildingNames: Record<string, string> = {
   building6: 'อาคารอื่นๆ',
 };
 
-const SummaryView = () => {
+interface SummaryViewProps {
+  customDates?: string[];
+}
+
+const SummaryView: React.FC<SummaryViewProps> = () => {
   const [summary, setSummary] = useState<SummaryResponse>({});
   const [loading, setLoading] = useState(true);
 
@@ -58,6 +62,10 @@ const SummaryView = () => {
     return <div className="loading">กำลังโหลด...</div>;
   }
 
+  // คำนวณสถิติการจองทั้งหมด
+  let totalBookedSlots = 0;
+  let totalAvailableSlots = 0;
+
   // Convert summary data to table rows
   // จัดกลุ่มห้องที่ถูกจอง - รวมห้องที่จองโดยคนเดียวกัน
   const tableRows: Array<{
@@ -72,6 +80,10 @@ const SummaryView = () => {
 
   Object.entries(summary).forEach(([date, buildings]) => {
     Object.entries(buildings).forEach(([building, stats]) => {
+      // สะสมสถิติ
+      totalBookedSlots += stats.bookedSlots || 0;
+      totalAvailableSlots += stats.availableSlots || 0;
+
       // จัดกลุ่มห้องที่ถูกจอง - แสดงเฉพาะห้องและผู้จอง (ไม่แสดง slot)
       // ใช้ Set เพื่อเก็บ unique combinations ของ roomId + bookedBy
       const uniqueBookings = new Set<string>();
@@ -109,11 +121,82 @@ const SummaryView = () => {
     });
   });
 
+  // คำนวณเปอร์เซ็นต์
+  const totalSlots = totalBookedSlots + totalAvailableSlots;
+  const bookingPercentage = totalSlots > 0 
+    ? Math.round((totalBookedSlots / totalSlots) * 100) 
+    : 0;
+
   return (
     <div id="summary-view">
       <div className="container">
         <h1>สรุปผลการจอง (22 - 23 ธ.ค. 68)</h1>
         <p>ข้อมูลสรุปผลการจอง</p>
+
+        {/* Dashboard/Infographic */}
+        <div className="booking-dashboard">
+          <div className="dashboard-card">
+            <div className="dashboard-icon booked">
+              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                <line x1="16" y1="2" x2="16" y2="6"></line>
+                <line x1="8" y1="2" x2="8" y2="6"></line>
+                <line x1="3" y1="10" x2="21" y2="10"></line>
+              </svg>
+            </div>
+            <div className="dashboard-content">
+              <div className="dashboard-label">จองแล้ว</div>
+              <div className="dashboard-value">{totalBookedSlots} ช่อง</div>
+            </div>
+          </div>
+
+          <div className="dashboard-card">
+            <div className="dashboard-icon available">
+              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <circle cx="12" cy="12" r="10"></circle>
+                <line x1="12" y1="8" x2="12" y2="12"></line>
+                <line x1="12" y1="16" x2="12.01" y2="16"></line>
+              </svg>
+            </div>
+            <div className="dashboard-content">
+              <div className="dashboard-label">ว่าง</div>
+              <div className="dashboard-value">{totalAvailableSlots} ช่อง</div>
+            </div>
+          </div>
+
+          <div className="dashboard-card highlight">
+            <div className="dashboard-icon percentage">
+              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <circle cx="12" cy="12" r="10"></circle>
+                <polyline points="12 6 12 12 16 14"></polyline>
+              </svg>
+            </div>
+            <div className="dashboard-content">
+              <div className="dashboard-label">อัตราการจอง</div>
+              <div className="dashboard-value percentage-value">{bookingPercentage}%</div>
+              <div className="dashboard-progress">
+                <div 
+                  className="dashboard-progress-bar" 
+                  style={{ width: `${bookingPercentage}%` }}
+                ></div>
+              </div>
+            </div>
+          </div>
+
+          <div className="dashboard-card">
+            <div className="dashboard-icon total">
+              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                <line x1="9" y1="3" x2="9" y2="21"></line>
+                <line x1="3" y1="9" x2="21" y2="9"></line>
+              </svg>
+            </div>
+            <div className="dashboard-content">
+              <div className="dashboard-label">ทั้งหมด</div>
+              <div className="dashboard-value">{totalSlots} ช่อง</div>
+            </div>
+          </div>
+        </div>
 
         <table className="summary-table">
           <thead>

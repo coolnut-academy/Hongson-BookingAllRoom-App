@@ -37,7 +37,13 @@ async function createUsers() {
         console.log(`✅ Updated user: ${username} (${displayName})`);
       } else {
         // สร้าง user ใหม่
-        await usersService.create(displayName || username, username, hashedPassword, false, displayName);
+        await usersService.create(
+          displayName || username,
+          username,
+          hashedPassword,
+          false,
+          displayName,
+        );
         console.log(`✅ Created user: ${username} (${displayName})`);
       }
     } catch (error: any) {

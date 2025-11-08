@@ -43,15 +43,17 @@ export class UsersController {
     this.checkAdminAccess(req.user);
 
     const users = await this.usersService.findAll();
-    
+
     // แปลง isAdmin เป็น role สำหรับ frontend
     return users.map((user: any) => ({
       _id: user._id,
       name: user.name,
       username: user.username,
       isAdmin: user.isAdmin,
-      role: user.isAdmin 
-        ? (user.username === 'admingod' ? 'god' : 'admin')
+      role: user.isAdmin
+        ? user.username === 'admingod'
+          ? 'god'
+          : 'admin'
         : 'user',
       displayName: user.displayName,
       createdAt: user.createdAt,
@@ -93,8 +95,7 @@ export class UsersController {
     }
 
     // Generate password ใหม่ถ้าไม่ระบุ
-    const newPassword =
-      body.newPassword || this.generateRandomPassword();
+    const newPassword = body.newPassword || this.generateRandomPassword();
 
     // Update password
     const hashedPassword = await bcrypt.hash(newPassword, 10);
@@ -113,9 +114,7 @@ export class UsersController {
       'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
     let password = '';
     for (let i = 0; i < length; i++) {
-      password += charset.charAt(
-        Math.floor(Math.random() * charset.length),
-      );
+      password += charset.charAt(Math.floor(Math.random() * charset.length));
     }
     return password;
   }
@@ -137,7 +136,9 @@ export class UsersController {
       username: user.username,
       isAdmin: user.isAdmin,
       role: user.isAdmin
-        ? (user.username === 'admingod' ? 'god' : 'admin')
+        ? user.username === 'admingod'
+          ? 'god'
+          : 'admin'
         : 'user',
       displayName: user.displayName,
       createdAt: user.createdAt,
@@ -165,7 +166,7 @@ export class UsersController {
 
     try {
       const user = await this.usersService.createFromDto(createUserDto);
-      
+
       // แปลง isAdmin เป็น role สำหรับ frontend
       return {
         _id: user._id,
@@ -173,7 +174,9 @@ export class UsersController {
         username: user.username,
         isAdmin: user.isAdmin,
         role: user.isAdmin
-          ? (user.username === 'admingod' ? 'god' : 'admin')
+          ? user.username === 'admingod'
+            ? 'god'
+            : 'admin'
           : 'user',
         displayName: user.displayName,
         createdAt: user.createdAt,
@@ -205,7 +208,7 @@ export class UsersController {
     // ตรวจสอบสิทธิ์การแก้ไข
     const isGod = this.isGod(req.user);
     const targetIsGod = existingUser.username === 'admingod';
-    
+
     // God เท่านั้นที่แก้ไข god คนอื่นได้
     if (targetIsGod && !isGod) {
       throw new ForbiddenException(
@@ -236,7 +239,10 @@ export class UsersController {
     }
 
     // ตรวจสอบ username ซ้ำ (ถ้ามีการเปลี่ยน username)
-    if (updateUserDto.username && updateUserDto.username !== existingUser.username) {
+    if (
+      updateUserDto.username &&
+      updateUserDto.username !== existingUser.username
+    ) {
       const userWithSameUsername = await this.usersService.findByUsername(
         updateUserDto.username,
       );
@@ -250,7 +256,7 @@ export class UsersController {
 
     try {
       const updatedUser = await this.usersService.update(id, updateUserDto);
-      
+
       if (!updatedUser) {
         throw new NotFoundException('User not found');
       }
@@ -262,7 +268,9 @@ export class UsersController {
         username: updatedUser.username,
         isAdmin: updatedUser.isAdmin,
         role: updatedUser.isAdmin
-          ? (updatedUser.username === 'admingod' ? 'god' : 'admin')
+          ? updatedUser.username === 'admingod'
+            ? 'god'
+            : 'admin'
           : 'user',
         displayName: updatedUser.displayName,
         createdAt: updatedUser.createdAt,
@@ -291,7 +299,7 @@ export class UsersController {
     // ตรวจสอบสิทธิ์การลบ
     const isGod = this.isGod(req.user);
     const targetIsGod = existingUser.username === 'admingod';
-    
+
     // God เท่านั้นที่ลบ god คนอื่นได้
     if (targetIsGod && !isGod) {
       throw new ForbiddenException(
@@ -319,4 +327,3 @@ export class UsersController {
     return { message: 'User deleted successfully' };
   }
 }
-

@@ -46,7 +46,11 @@ export class AuthService {
       throw new UnauthorizedException('Username already exists');
     }
     const hashedPassword = await bcrypt.hash(password, 10);
-    const user = await this.usersService.create(name || username, username, hashedPassword);
+    const user = await this.usersService.create(
+      name || username,
+      username,
+      hashedPassword,
+    );
     const payload = {
       username: user.username,
       sub: user._id,

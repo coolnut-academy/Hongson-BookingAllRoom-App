@@ -1,0 +1,103 @@
+.add-date-modal {
+  width: 450px;
+}
+
+.add-date-modal .form-group {
+  margin-bottom: 20px;
+}
+
+.add-date-modal .form-group label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 600;
+  color: #333;
+}
+
+.add-date-modal .form-group input[type="date"] {
+  width: 100%;
+  padding: 10px;
+  border: 2px solid #e0e0e0;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-family: 'Noto Sans Thai', sans-serif;
+  transition: border-color 0.2s;
+}
+
+.add-date-modal .form-group input[type="date"]:focus {
+  outline: none;
+  border-color: #667eea;
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.add-date-modal .form-group input[type="text"] {
+  width: 100%;
+  padding: 10px;
+  border: 2px solid #e0e0e0;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-family: 'Noto Sans Thai', sans-serif;
+  transition: border-color 0.2s;
+}
+
+.add-date-modal .form-group input[type="text"]:focus {
+  outline: none;
+  border-color: #667eea;
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.add-date-modal .form-group small {
+  display: block;
+  margin-top: 5px;
+  color: #6c757d;
+  font-size: 0.85rem;
+}
+
+.add-date-modal .error-message {
+  color: #dc3545;
+  font-size: 0.9rem;
+  margin-top: 10px;
+  padding: 10px;
+  background-color: #f8d7da;
+  border: 1px solid #f5c6cb;
+  border-radius: 6px;
+}
+
+.add-date-modal .modal-actions {
+  margin-top: 25px;
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.add-date-modal .btn-primary {
+  background-color: #667eea;
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.add-date-modal .btn-primary:hover {
+  background-color: #5568d3;
+}
+
+.add-date-modal .btn-secondary {
+  background-color: #6c757d;
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.add-date-modal .btn-secondary:hover {
+  background-color: #5a6268;
+}
+

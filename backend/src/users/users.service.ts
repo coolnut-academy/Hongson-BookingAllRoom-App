@@ -32,7 +32,9 @@ export class UsersService implements OnModuleInit {
     }
 
     // 2. สร้าง Admin ทั่วไป
-    const adminUser = await this.userModel.findOne({ username: 'adminhongson' });
+    const adminUser = await this.userModel.findOne({
+      username: 'adminhongson',
+    });
     if (!adminUser) {
       this.logger.log('Admin (adminhongson) not found. Creating...');
       const hashedPassword = await bcrypt.hash('admin3141', 10);
@@ -81,10 +83,11 @@ export class UsersService implements OnModuleInit {
     if (updateData.password) {
       updateData.password = await bcrypt.hash(updateData.password, 10);
     }
-    
+
     // แปลง role เป็น isAdmin ถ้ามี
     if (updateData.role !== undefined) {
-      updateData.isAdmin = updateData.role === 'admin' || updateData.role === 'god';
+      updateData.isAdmin =
+        updateData.role === 'admin' || updateData.role === 'god';
       delete updateData.role; // ลบ role ออกเพราะ schema ไม่มี
     }
 
@@ -102,7 +105,7 @@ export class UsersService implements OnModuleInit {
   // Helper method สำหรับสร้าง user จาก DTO
   async createFromDto(createUserDto: any): Promise<User> {
     const { name, username, password, role } = createUserDto;
-    
+
     // ตรวจสอบว่า username ซ้ำหรือไม่
     const existingUser = await this.findByUsername(username);
     if (existingUser) {
@@ -111,7 +114,7 @@ export class UsersService implements OnModuleInit {
 
     // แปลง role เป็น isAdmin
     const isAdmin = role === 'admin' || role === 'god';
-    
+
     // Hash password
     const hashedPassword = password
       ? await bcrypt.hash(password, 10)

@@ -24,7 +24,12 @@ async function createAdmin() {
   } else {
     // สร้าง admin ใหม่
     const hashedPassword = await bcrypt.hash(adminPassword, 10);
-    await usersService.create('Admin Hongson', adminUsername, hashedPassword, true);
+    await usersService.create(
+      'Admin Hongson',
+      adminUsername,
+      hashedPassword,
+      true,
+    );
     console.log(`✅ Created admin user: ${adminUsername}`);
   }
 

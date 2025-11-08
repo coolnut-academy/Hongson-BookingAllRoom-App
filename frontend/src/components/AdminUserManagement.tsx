@@ -34,7 +34,7 @@ export const AdminUserManagement = () => {
   const [confirmAction, setConfirmAction] = useState<{
     type: 'edit' | 'delete' | 'generate' | null;
     userId?: string;
-    userData?: any;
+    userData?: Partial<User>;
   }>({ type: null });
 
   async function fetchUsers() {
@@ -42,7 +42,7 @@ export const AdminUserManagement = () => {
       setLoading(true);
       const response = await userService.getAllUsers();
       // แปลง role จาก isAdmin boolean เป็น role string
-      const usersWithRole = response.data.map((user: any) => ({
+      const usersWithRole = response.data.map((user: { _id: string; name?: string; username: string; isAdmin?: boolean; password?: string }) => ({
         _id: user._id,
         name: user.name || user.username,
         username: user.username,
@@ -54,7 +54,7 @@ export const AdminUserManagement = () => {
         password: user.password || undefined, // เก็บ password ที่ generate ใหม่
       }));
       setUsers(usersWithRole);
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Failed to fetch users', error);
       alert('ไม่สามารถโหลดข้อมูลผู้ใช้ได้');
     } finally {
@@ -128,12 +128,14 @@ export const AdminUserManagement = () => {
         setShowConfirmModal(false);
         setConfirmAction({ type: null });
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Failed to execute action', error);
-      alert(
-        'เกิดข้อผิดพลาด: ' +
-          (error.response?.data?.message || error.message)
-      );
+      const errorMessage = error && typeof error === 'object' && 'response' in error && error.response && typeof error.response === 'object' && 'data' in error.response && error.response.data && typeof error.response.data === 'object' && 'message' in error.response.data
+        ? String(error.response.data.message)
+        : error && typeof error === 'object' && 'message' in error
+        ? String(error.message)
+        : 'เกิดข้อผิดพลาด';
+      alert('เกิดข้อผิดพลาด: ' + errorMessage);
       setShowConfirmModal(false);
       setConfirmAction({ type: null });
     }
@@ -151,11 +153,14 @@ export const AdminUserManagement = () => {
         setIsModalOpen(false);
         setFormData(emptyFormState);
         fetchUsers();
-      } catch (error: any) {
+      } catch (error: unknown) {
         console.error('Failed to save user', error);
-        setError(
-          error.response?.data?.message || error.message || 'เกิดข้อผิดพลาด'
-        );
+        const errorMessage = error && typeof error === 'object' && 'response' in error && error.response && typeof error.response === 'object' && 'data' in error.response && error.response.data && typeof error.response.data === 'object' && 'message' in error.response.data
+          ? String(error.response.data.message)
+          : error && typeof error === 'object' && 'message' in error
+          ? String(error.message)
+          : 'เกิดข้อผิดพลาด';
+        setError(errorMessage);
       }
     }
     // สำหรับแก้ไข จะแสดง confirmation modal ใน handleEditClick
@@ -176,11 +181,14 @@ export const AdminUserManagement = () => {
         setShowConfirmModal(false);
         setConfirmAction({ type: null });
         fetchUsers();
-      } catch (error: any) {
+      } catch (error: unknown) {
         console.error('Failed to update user', error);
-        setError(
-          error.response?.data?.message || error.message || 'เกิดข้อผิดพลาด'
-        );
+        const errorMessage = error && typeof error === 'object' && 'response' in error && error.response && typeof error.response === 'object' && 'data' in error.response && error.response.data && typeof error.response.data === 'object' && 'message' in error.response.data
+          ? String(error.response.data.message)
+          : error && typeof error === 'object' && 'message' in error
+          ? String(error.message)
+          : 'เกิดข้อผิดพลาด';
+        setError(errorMessage);
         setShowConfirmModal(false);
         setConfirmAction({ type: null });
       }

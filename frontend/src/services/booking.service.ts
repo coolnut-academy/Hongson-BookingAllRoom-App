@@ -180,5 +180,30 @@ export const bookingService = {
     const response = await api.post<{ message: string; deletedCount: number }>('/bookings/reset-all');
     return response.data;
   },
+
+  // ============================================
+  // Booking Date Management
+  // ============================================
+
+  // Get all booking dates
+  async getBookingDates(): Promise<Array<{ date: string; displayName: string }>> {
+    const response = await api.get<Array<{ date: string; displayName: string }>>('/bookings/dates');
+    return response.data;
+  },
+
+  // Add booking date (Admin only)
+  async addBookingDate(date: string, displayName: string): Promise<{ date: string; displayName: string }> {
+    const response = await api.post<{ date: string; displayName: string }>('/bookings/dates', {
+      date,
+      displayName,
+    });
+    return response.data;
+  },
+
+  // Remove booking date (Admin only)
+  async removeBookingDate(date: string): Promise<{ message: string }> {
+    const response = await api.delete<{ message: string }>(`/bookings/dates/${date}`);
+    return response.data;
+  },
 };
 
