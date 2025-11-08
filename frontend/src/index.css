@@ -6,6 +6,12 @@
   padding: 0;
 }
 
+/* ตรวจสอบให้แน่ใจว่า body และ html รองรับ horizontal scroll */
+html, body {
+  overflow-x: auto;
+  max-width: 100vw;
+}
+
 body {
   font-family: 'Noto Sans Thai', 'IBM Plex Sans Thai', sans-serif;
   background-color: #f0f2f5;
@@ -375,7 +381,7 @@ body {
 /* 4. สไตล์ของผังอาคาร */
 /* =================================== */
 .container {
-  max-width: 100%; /* ใช้ 100% แทน none เพื่อป้องกันการขยายเกินหน้าจอ */
+  max-width: 100%; /* ใช้ 100% เพื่อป้องกันการขยายเกินหน้าจอ */
   width: 100%;
   min-width: 0; /* อนุญาตให้ย่อได้บนหน้าจอเล็ก */
   margin: 20px auto;
@@ -384,8 +390,11 @@ body {
   border-radius: 12px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
   border: 1px solid #e0e0e0;
-  overflow-x: auto; /* ใช้ auto เพื่อให้ scroll ได้ถ้าจำเป็น แต่ยังขยายได้ */
+  overflow-x: auto; /* ให้ scroll ได้เมื่อเนื้อหาเกิน */
   overflow-y: visible; /* แนวตั้งให้ขยายได้ตามปกติ */
+  -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
+  /* ตรวจสอบให้แน่ใจว่า container ไม่ซ่อนเนื้อหา */
+  position: relative;
 }
 
 h1 {
@@ -615,18 +624,23 @@ h2 {
 
 .room-table {
   width: 100%; /* ใช้ 100% เพื่อให้พอดีกับ container */
-  min-width: max-content; /* ขยายตามเนื้อหาขั้นต่ำ แต่ไม่บีบ */
+  min-width: 100%; /* ขยายอย่างน้อยเท่ากับ container */
   border-collapse: separate;
   border-spacing: 12px;
   margin: -12px 0;
-  table-layout: auto; /* Changed from fixed to auto for better flexibility */
+  table-layout: auto; /* ใช้ auto เพื่อให้ขยายตามเนื้อหา */
+  /* ตรวจสอบให้แน่ใจว่า table ไม่ถูกตัด */
+  display: table;
 }
 
 .room-table td {
   padding: 0;
   vertical-align: top;
-  min-width: 0; /* Allows table cells to shrink below their content size */
+  min-width: 120px; /* Minimum width เพื่อป้องกันการบีบเล็กเกินไป */
   width: auto; /* Allows cells to size based on content */
+  /* ตรวจสอบให้แน่ใจว่า cell ไม่ถูกตัด */
+  white-space: normal;
+  word-wrap: break-word;
 }
 
 .room-table .room-cell {
@@ -809,9 +823,12 @@ h2 {
   .container {
     padding: 15px;
     margin: 10px auto;
-    overflow-x: auto; /* ใช้ auto เพื่อให้ scroll ได้ถ้าจำเป็น */
+    overflow-x: auto; /* ให้ scroll ได้เมื่อเนื้อหาเกิน */
     -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
     max-width: 100vw; /* จำกัดไม่ให้เกินความกว้างหน้าจอ */
+    /* ตรวจสอบให้แน่ใจว่า scroll ทำงานได้ดี */
+    position: relative;
+    box-sizing: border-box;
   }
 
   h1 {
@@ -834,32 +851,31 @@ h2 {
     min-width: 140px; /* Minimum width to prevent rooms from being too small */
   }
 
-  /* Room Table - Convert to flexbox on mobile for better wrapping */
+  /* Room Table - Keep table layout but ensure scroll works */
   .room-table {
-    display: block;
+    display: table;
     width: 100%;
+    min-width: 100%;
+    /* ตรวจสอบให้แน่ใจว่า table ไม่ถูกตัด */
+    table-layout: auto;
   }
 
   .room-table tbody {
-    display: block;
-    width: 100%;
+    display: table-row-group;
   }
 
   .room-table tr {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-    margin-bottom: 8px;
-    width: 100%;
+    display: table-row;
   }
 
   .room-table td {
-    display: block;
-    flex: 0 1 auto;
-    min-width: calc(50% - 4px); /* Minimum 2 columns per row */
-    max-width: calc(50% - 4px);
+    display: table-cell;
+    min-width: 140px; /* Minimum width เพื่อป้องกันการบีบเล็กเกินไป */
+    width: auto;
     padding: 0;
     vertical-align: top;
+    /* ตรวจสอบให้แน่ใจว่า cell ไม่ถูกตัด */
+    white-space: normal;
   }
 
   /* For rooms with colspan, make them full width on mobile */
@@ -986,8 +1002,11 @@ h2 {
   /* Container */
   .container {
     padding: 20px;
-    overflow-x: auto; /* ให้ scroll ได้ถ้าจำเป็น */
+    overflow-x: auto; /* ให้ scroll ได้เมื่อเนื้อหาเกิน */
+    -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
     max-width: 100vw; /* จำกัดไม่ให้เกินความกว้างหน้าจอ */
+    position: relative;
+    box-sizing: border-box;
   }
 
   /* Room Grid */

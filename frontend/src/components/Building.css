@@ -8,8 +8,11 @@
   border-radius: 12px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
   border: 1px solid #e0e0e0;
-  overflow-x: auto; /* ให้ scroll ได้ถ้าจำเป็น */
+  overflow-x: auto; /* ให้ scroll ได้เมื่อเนื้อหาเกิน */
   overflow-y: visible; /* แนวตั้งให้ขยายได้ตามปกติ */
+  -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
+  position: relative;
+  box-sizing: border-box;
 }
 
 .container h1 {
@@ -43,15 +46,21 @@
 
 .room-table {
   width: 100%;
+  min-width: 100%; /* ขยายอย่างน้อยเท่ากับ container */
   border-collapse: separate;
   border-spacing: 12px;
   margin: -12px 0;
-  table-layout: fixed;
+  table-layout: auto; /* ใช้ auto เพื่อให้ขยายตามเนื้อหา */
+  display: table; /* ตรวจสอบให้แน่ใจว่าเป็น table */
 }
 
 .room-table td {
   padding: 0;
   vertical-align: top;
+  min-width: 120px; /* Minimum width เพื่อป้องกันการบีบเล็กเกินไป */
+  width: auto;
+  white-space: normal;
+  word-wrap: break-word;
 }
 
 .room-table .room-cell {
