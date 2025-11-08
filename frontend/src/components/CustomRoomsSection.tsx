@@ -139,6 +139,8 @@ const CustomRoomsSection: React.FC<CustomRoomsSectionProps> = ({
               const amBookedBy = bookedSlots.amBookedBy;
               const pmBookedBy = bookedSlots.pmBookedBy;
               const isRoomClosed = closedRooms.includes(room.roomId);
+              // ตรวจสอบว่าห้องจองเต็มแล้วหรือไม่ (ทั้ง AM และ PM)
+              const isRoomFull = amBooked && pmBooked;
 
               return (
                 <div
@@ -190,11 +192,11 @@ const CustomRoomsSection: React.FC<CustomRoomsSectionProps> = ({
                   </div>
                   <div className="room-footer">
                     <button
-                      className={`book-button ${isRoomClosed ? 'book-button-blocked' : ''}`}
+                      className={`book-button ${isRoomClosed ? 'book-button-blocked' : ''} ${isRoomFull ? 'book-button-full' : ''}`}
                       onClick={() => onBook(room.roomId)}
-                      disabled={isRoomClosed || (!amSelected && !pmSelected)}
+                      disabled={isRoomClosed || isRoomFull || (!amSelected && !pmSelected)}
                     >
-                      {isRoomClosed ? 'ห้องปิด' : 'จอง'}
+                      {isRoomClosed ? 'ห้องปิด' : isRoomFull ? 'ห้องเต็ม' : 'จอง'}
                     </button>
                     {isAdmin && (amBooked || pmBooked) && onResetRoom && (
                       <button

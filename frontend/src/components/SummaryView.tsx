@@ -167,7 +167,7 @@ const SummaryView: React.FC<SummaryViewProps> = () => {
     : 0;
 
   return (
-    <div id="summary-view">
+    <div id="summary-view" style={{ width: '100%', overflowX: 'auto' }}>
       <div className="container" ref={containerRef}>
         <h1>สรุปผลการจอง (22 - 23 ธ.ค. 68)</h1>
         <p>ข้อมูลสรุปผลการจอง</p>

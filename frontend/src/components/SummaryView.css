@@ -126,8 +126,9 @@
   margin-top: 20px;
   background-color: #fff;
   border-radius: 8px;
-  overflow: hidden;
+  overflow: visible; /* เปลี่ยนจาก hidden เป็น visible เพื่อให้เห็นเนื้อหาทั้งหมด */
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  min-width: fit-content; /* ให้ table ขยายตามเนื้อหา */
 }
 
 .summary-table th,
@@ -193,11 +194,10 @@
   -webkit-overflow-scrolling: touch;
   position: relative;
   box-sizing: border-box;
-  max-width: 100vw; /* ป้องกันการเลยขอบบนมือถือ */
-  padding-left: 15px; /* เพิ่ม padding ซ้าย */
-  padding-right: 15px; /* เพิ่ม padding ขวา */
-  margin-left: auto;
-  margin-right: auto;
+  max-width: 100%;
+  width: 100%;
+  padding: 25px 0; /* ใช้ padding แนวตั้งเท่านั้น */
+  margin: 20px auto;
 }
 
 /* Custom Scrollbar Styling สำหรับ Summary View */
@@ -299,14 +299,19 @@
 /* สำหรับ Mobile - ป้องกันการเลยขอบ */
 @media screen and (max-width: 768px) {
   #summary-view .container {
-    max-width: 100vw;
-    padding: 15px 10px;
+    max-width: 100%;
+    width: 100%;
+    padding: 15px 0; /* ใช้ padding แนวตั้งเท่านั้น */
     margin: 10px auto;
   }
 
   #summary-view .summary-table {
-    min-width: 600px; /* กำหนด min-width เพื่อให้ scroll ได้ */
-    width: 100%;
+    min-width: 800px !important; /* เพิ่ม min-width เพื่อให้ scroll ได้ */
+    width: auto !important; /* ให้ขยายตามเนื้อหา */
+    margin-left: 15px; /* เพิ่ม margin ซ้ายเพื่อให้มีพื้นที่ */
+    margin-right: 15px; /* เพิ่ม margin ขวาเพื่อให้มีพื้นที่ */
+    padding-left: 0; /* ลบ padding ซ้าย */
+    padding-right: 0; /* ลบ padding ขวา */
   }
 
   #summary-view .summary-table th,
@@ -320,16 +325,19 @@
 /* สำหรับ Tablet/iPad (769px - 1024px) - ใช้ scrollbar และไม่เลยขอบ */
 @media screen and (min-width: 769px) and (max-width: 1024px) {
   #summary-view .container {
-    max-width: 100vw;
-    padding: 20px 15px;
+    max-width: 100%;
+    width: 100%;
+    padding: 20px 0; /* ใช้ padding แนวตั้งเท่านั้น */
     margin: 15px auto;
     overflow-x: auto !important; /* บังคับให้มี scrollbar */
     overflow-y: visible;
   }
 
   #summary-view .summary-table {
-    min-width: 700px; /* กำหนด min-width เพื่อให้ scroll ได้ */
-    width: 100%;
+    min-width: 900px !important; /* เพิ่ม min-width เพื่อให้ scroll ได้ */
+    width: auto !important; /* ให้ขยายตามเนื้อหา */
+    margin-left: 20px; /* เพิ่ม margin ซ้ายเพื่อให้มีพื้นที่ */
+    margin-right: 20px; /* เพิ่ม margin ขวาเพื่อให้มีพื้นที่ */
   }
 
   #summary-view .summary-table th,
@@ -343,8 +351,9 @@
 /* สำหรับ Desktop (PC) - ใช้ scrollbar เมื่อบีบ และไม่เลยขอบ */
 @media screen and (min-width: 1025px) {
   #summary-view .container {
-    max-width: 100vw; /* ไม่เลยขอบ */
-    padding: 25px 20px; /* ลด padding ด้านข้างเล็กน้อย */
+    max-width: 100%;
+    width: 100%;
+    padding: 25px 0; /* ใช้ padding แนวตั้งเท่านั้น */
     margin: 20px auto;
     overflow-x: auto !important; /* ใช้ scrollbar เมื่อบีบ */
     overflow-y: visible;
@@ -368,8 +377,10 @@
 
   /* ปรับ table ให้มี min-width เพื่อให้ scroll ได้เมื่อบีบ */
   #summary-view .summary-table {
-    min-width: 800px; /* กำหนด min-width เพื่อให้ scroll ได้ */
-    width: 100%;
+    min-width: 1000px !important; /* เพิ่ม min-width เพื่อให้ scroll ได้ */
+    width: auto !important; /* ให้ขยายตามเนื้อหา */
+    margin-left: 25px; /* เพิ่ม margin ซ้ายเพื่อให้มีพื้นที่ */
+    margin-right: 25px; /* เพิ่ม margin ขวาเพื่อให้มีพื้นที่ */
   }
 
   #summary-view .summary-table th,

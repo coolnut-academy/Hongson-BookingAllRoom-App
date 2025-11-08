@@ -159,11 +159,15 @@ const Building1: React.FC<Building1Props> = ({
     };
   }, []);
 
-  // แปลง rooms array เป็น table rows (จัดเรียงเป็นแถวละ 6 ห้อง)
-  const roomsPerRow = 6;
+  // แปลง rooms array เป็น table rows (จัดเรียงเป็นแถวละ 6 ห้อง - 3 แถวเท่านั้น)
+  const roomsPerRow = 6; // 6 ห้องต่อแถว = 3 แถว (18 ห้อง)
   const roomRows: (typeof rooms)[] = [];
   for (let i = 0; i < rooms.length; i += roomsPerRow) {
     roomRows.push(rooms.slice(i, i + roomsPerRow));
+  }
+  // ตรวจสอบให้แน่ใจว่ามีเพียง 3 แถวเท่านั้น
+  if (roomRows.length > 3) {
+    roomRows.splice(3); // ตัดแถวที่เกินออก
   }
 
   const renderRoom = (room: (typeof rooms)[number]) => {
@@ -178,6 +182,8 @@ const Building1: React.FC<Building1Props> = ({
     // เช็คเฉพาะ closedRooms จาก API (ไม่เช็ค isBlocked เพราะ Admin สามารถเปิดได้)
     // ถ้า roomId ไม่อยู่ใน closedRooms แสดงว่าห้องเปิด แม้ isBlocked จะเป็น true
     const isRoomClosed = closedRooms.includes(room.roomId);
+    // ตรวจสอบว่าห้องจองเต็มแล้วหรือไม่ (ทั้ง AM และ PM)
+    const isRoomFull = amBooked && pmBooked;
 
     return (
       <div
@@ -220,11 +226,11 @@ const Building1: React.FC<Building1Props> = ({
         </div>
         <div className="room-footer">
           <button
-            className={`book-button ${isRoomClosed ? 'book-button-blocked' : ''}`}
+            className={`book-button ${isRoomClosed ? 'book-button-blocked' : ''} ${isRoomFull ? 'book-button-full' : ''}`}
             onClick={() => onBook(room.roomId)}
-            disabled={isRoomClosed || (!amSelected && !pmSelected)}
+            disabled={isRoomClosed || isRoomFull || (!amSelected && !pmSelected)}
           >
-            {isRoomClosed ? 'ห้องปิด' : 'จอง'}
+            {isRoomClosed ? 'ห้องปิด' : isRoomFull ? 'ห้องเต็ม' : 'จอง'}
           </button>
           {isAdmin && (amBooked || pmBooked) && onResetRoom && (
             <button
@@ -256,16 +262,16 @@ const Building1: React.FC<Building1Props> = ({
     );
   }
 
-  // Desktop View - Table Layout
+  // Desktop View - Table Layout (3 แถวเท่านั้น)
   return (
     <div className="container" ref={containerRef} id="building-1">
       <h1>[ อาคาร 1 ] ผังการจองห้อง</h1>
-      <table className="room-table">
+      <table className="room-table building-1-table">
         <tbody>
           {roomRows.map((row, rowIndex) => (
             <tr key={rowIndex}>
               {row.map((room) => (
-                <td key={room.roomId}>
+                <td key={room.roomId} className="building-1-td">
                   {renderRoom(room)}
                 </td>
               ))}

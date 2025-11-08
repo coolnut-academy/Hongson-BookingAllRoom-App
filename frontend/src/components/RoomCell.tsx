@@ -21,23 +21,36 @@ const RoomCell: React.FC<RoomCellProps> = ({
   const slotLabel = slot === 'am' ? 'เช้า' : 'บ่าย';
   const slotClass = slot === 'am' ? 'slot-am' : 'slot-pm';
 
-  // Get display name for tooltip
-  const displayName = bookedBy
-    ? bookedBy.displayName || getUserDisplayName(bookedBy.username)
-    : null;
+  // Get display name for tooltip and display
+  // แสดง username + displayName เช่น "hs-sci กลุ่มสาระวิทยาศาสตร์และเทคโนโลยี"
+  let displayText = null;
+  let tooltipText = 'จองแล้ว';
+  
+  if (bookedBy) {
+    const displayName = bookedBy.displayName || getUserDisplayName(bookedBy.username);
+    // ถ้ามี displayName และไม่ใช่แค่ username ให้แสดง username + displayName
+    if (displayName && displayName !== bookedBy.username) {
+      displayText = `${bookedBy.username} ${displayName}`;
+      tooltipText = `จองโดย: ${displayText}`;
+    } else {
+      // ถ้าไม่มี displayName หรือ displayName = username ให้แสดงแค่ username
+      displayText = bookedBy.username;
+      tooltipText = `จองโดย: ${displayText}`;
+    }
+  }
 
   if (isBooked) {
     return (
       <div
         className={`slot ${slotClass} booked`}
         data-slot={slotLabel}
-        title={displayName ? `จองโดย: ${displayName}` : 'จองแล้ว'}
+        title={tooltipText}
       >
         <span>{slotLabel}</span>
         <span className="status-icon">✓</span>
-        {displayName && (
-          <span className="booked-by-name" title={displayName}>
-            {displayName}
+        {displayText && (
+          <span className="booked-by-name" title={tooltipText}>
+            {displayText}
           </span>
         )}
       </div>

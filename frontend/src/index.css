@@ -857,6 +857,14 @@ h2 {
   font-weight: 600;
 }
 
+.book-button.book-button-full:disabled,
+.book-button-full:disabled {
+  background-color: #ffc107 !important;
+  color: #000 !important;
+  cursor: not-allowed;
+  font-weight: 600;
+}
+
 .reset-button {
   width: 100%;
   padding: 8px 5px;
