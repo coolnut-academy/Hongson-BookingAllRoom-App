@@ -17,6 +17,10 @@ export class User extends Document {
 
   @Prop()
   displayName?: string; // ชื่อที่แสดงผล (ภาษาไทย)
+
+  // Timestamps are automatically added by Mongoose when timestamps: true
+  createdAt?: Date;
+  updatedAt?: Date;
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);

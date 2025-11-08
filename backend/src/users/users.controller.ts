@@ -178,7 +178,10 @@ export class UsersController {
       const userWithSameUsername = await this.usersService.findByUsername(
         updateUserDto.username,
       );
-      if (userWithSameUsername && userWithSameUsername._id.toString() !== id) {
+      if (
+        userWithSameUsername &&
+        (userWithSameUsername as any)._id.toString() !== id
+      ) {
         throw new BadRequestException('Username already exists');
       }
     }
@@ -242,7 +245,7 @@ export class UsersController {
     }
 
     // ห้ามลบตัวเอง
-    if (existingUser._id.toString() === req.user.userId) {
+    if ((existingUser as any)._id.toString() === req.user.userId) {
       throw new ForbiddenException('Cannot delete yourself');
     }
 
