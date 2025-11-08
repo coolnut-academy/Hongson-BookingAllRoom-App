@@ -1,3 +1,4 @@
+import { useEffect, useRef, useState } from 'react';
 import RoomCell from './RoomCell';
 import { building2 } from '../data/buildings';
 import type { RoomData } from './Room';
@@ -111,8 +112,45 @@ const Building2: React.FC<Building2Props> = ({
     );
   };
 
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [showScrollHint, setShowScrollHint] = useState(false);
+
+  useEffect(() => {
+    const checkScrollable = () => {
+      if (containerRef.current) {
+        const hasHorizontalScroll = 
+          containerRef.current.scrollWidth > containerRef.current.clientWidth;
+        setShowScrollHint(hasHorizontalScroll);
+      }
+    };
+
+    checkScrollable();
+    window.addEventListener('resize', checkScrollable);
+    
+    const handleScroll = () => {
+      if (containerRef.current) {
+        const scrolled = containerRef.current.scrollLeft > 0;
+        if (scrolled) {
+          setShowScrollHint(false);
+        }
+      }
+    };
+
+    const containerElement = containerRef.current;
+    if (containerElement) {
+      containerElement.addEventListener('scroll', handleScroll);
+    }
+
+    return () => {
+      window.removeEventListener('resize', checkScrollable);
+      if (containerElement) {
+        containerElement.removeEventListener('scroll', handleScroll);
+      }
+    };
+  }, []);
+
   return (
-    <div className="container" id={building2.id}>
+    <div className="container" ref={containerRef} id={building2.id}>
       <h1>{building2.title}</h1>
       <table className="room-table">
         <tbody>
@@ -127,6 +165,11 @@ const Building2: React.FC<Building2Props> = ({
           ))}
         </tbody>
       </table>
+      {showScrollHint && (
+        <div className="scroll-hint">
+          เลื่อนเพื่อดูห้องเพิ่มเติม
+        </div>
+      )}
     </div>
   );
 };

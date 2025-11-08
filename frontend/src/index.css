@@ -397,6 +397,102 @@ body {
   position: relative;
 }
 
+/* Custom Scrollbar Styling - ทำให้เด่นและเห็นชัดเจน */
+.container::-webkit-scrollbar {
+  height: 16px; /* เพิ่มความสูงของ scrollbar */
+  background-color: #f0f0f0;
+  border-radius: 8px;
+}
+
+.container::-webkit-scrollbar-track {
+  background-color: #e0e0e0;
+  border-radius: 8px;
+  border: 2px solid #ffffff;
+}
+
+.container::-webkit-scrollbar-thumb {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-radius: 8px;
+  border: 2px solid #ffffff;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.container::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(135deg, #5568d3 0%, #6a3d8f 100%);
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.3);
+}
+
+/* สำหรับ Firefox */
+.container {
+  scrollbar-width: thick; /* auto | thin | none | thick */
+  scrollbar-color: #667eea #e0e0e0; /* thumb color | track color */
+}
+
+/* Scroll Hint Indicator - แสดงที่ด้านล่างของ container */
+.scroll-hint {
+  position: sticky;
+  bottom: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  padding: 10px 24px;
+  border-radius: 25px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  white-space: nowrap;
+  box-shadow: 0 4px 16px rgba(102, 126, 234, 0.5);
+  z-index: 100;
+  pointer-events: none;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 15px;
+  width: fit-content;
+  animation: pulse-hint 2s ease-in-out infinite;
+}
+
+.scroll-hint::before {
+  content: '←';
+  font-size: 1.2rem;
+  animation: slide-left 1.5s ease-in-out infinite;
+}
+
+.scroll-hint::after {
+  content: '→';
+  font-size: 1.2rem;
+  animation: slide-right 1.5s ease-in-out infinite;
+}
+
+@keyframes pulse-hint {
+  0%, 100% {
+    opacity: 0.9;
+    transform: translateX(-50%) scale(1);
+  }
+  50% {
+    opacity: 1;
+    transform: translateX(-50%) scale(1.05);
+  }
+}
+
+@keyframes slide-left {
+  0%, 100% {
+    transform: translateX(0);
+  }
+  50% {
+    transform: translateX(-5px);
+  }
+}
+
+@keyframes slide-right {
+  0%, 100% {
+    transform: translateX(0);
+  }
+  50% {
+    transform: translateX(5px);
+  }
+}
+
 h1 {
   text-align: center;
   color: #333;
@@ -425,9 +521,10 @@ h2 {
   flex-direction: column;
   vertical-align: top;
   height: 100%;
-  min-width: 0; /* Allows flex items to shrink below their content size */
-  overflow: hidden; /* Prevents content from overflowing */
+  min-width: 180px; /* เพิ่ม minimum width เพื่อป้องกันการบีบ */
+  overflow: hidden; /* เก็บ hidden เพื่อป้องกัน layout แตก */
   width: 100%; /* Ensures room cells take full width of their container */
+  box-sizing: border-box;
 }
 
 .room-header {
@@ -470,8 +567,9 @@ h2 {
   font-size: 0.8rem;
   color: #6c757d;
   position: relative;
-  min-width: 0; /* Allows flex items to shrink below their content size */
-  overflow: hidden; /* Prevents content from overflowing */
+  min-width: 80px; /* เพิ่ม minimum width เพื่อป้องกันการบีบ */
+  overflow: hidden; /* เก็บ hidden เพื่อป้องกัน layout แตก */
+  box-sizing: border-box;
 }
 
 .slot-am {
@@ -531,7 +629,79 @@ h2 {
   max-width: 100%;
   line-height: 1.3;
   text-align: center;
-  padding: 0 2px;
+  padding: 0 6px; /* เพิ่ม padding เพื่อให้ข้อความไม่ชิดขอบ */
+  /* ตรวจสอบให้แน่ใจว่าข้อความแสดงครบ */
+  white-space: normal;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  /* อนุญาตให้แสดงหลายบรรทัด */
+  display: -webkit-box;
+  -webkit-line-clamp: 3; /* เพิ่มเป็น 3 บรรทัด */
+  -webkit-box-orient: vertical;
+}
+
+/* สำหรับ Desktop (PC) - ยกเลิก scrollbar และให้ขยายตามเนื้อหา */
+@media screen and (min-width: 1025px) {
+  .container {
+    overflow-x: visible !important; /* ยกเลิก scrollbar สำหรับ PC */
+    overflow-y: visible;
+    max-width: none; /* อนุญาตให้ขยายตามเนื้อหา */
+    width: auto; /* ขยายตามเนื้อหา */
+    min-width: 100%; /* แต่ยังคงมีขนาดขั้นต่ำเท่ากับ viewport */
+  }
+
+  /* ซ่อน scrollbar styling สำหรับ PC */
+  .container::-webkit-scrollbar {
+    display: none;
+  }
+
+  .container {
+    scrollbar-width: none; /* Firefox */
+  }
+
+  /* ซ่อน scroll hint สำหรับ PC */
+  .scroll-hint {
+    display: none !important;
+  }
+
+  /* ปรับ table ให้ขยายตามเนื้อหา */
+  .room-table {
+    width: auto; /* ขยายตามเนื้อหา */
+    min-width: 100%; /* แต่ยังคงมีขนาดขั้นต่ำ */
+    max-width: none;
+  }
+
+  /* ปรับ cells ให้ขยายตามเนื้อหา */
+  .room-table td {
+    min-width: 180px; /* Minimum width */
+    width: auto; /* ขยายตามเนื้อหา */
+    max-width: none;
+  }
+
+  /* ปรับ room-cell ให้ขยายตามเนื้อหา */
+  .room-cell {
+    min-width: 180px; /* Minimum width */
+    width: auto; /* ขยายตามเนื้อหา */
+    max-width: none;
+  }
+
+  /* ปรับ slot ให้ขยายตามเนื้อหา */
+  .slot {
+    min-width: 100px; /* Minimum width */
+    width: auto; /* ขยายตามเนื้อหา */
+    max-width: none;
+  }
+
+  /* ชื่อ user ไม่ต้องขึ้นบรรทัดใหม่ - แสดงในบรรทัดเดียว */
+  .slot.booked .booked-by-name {
+    white-space: nowrap !important; /* ไม่ให้ขึ้นบรรทัดใหม่ */
+    overflow: visible !important; /* แสดงครบ */
+    text-overflow: clip !important; /* ไม่ตัดด้วย ellipsis */
+    display: block !important; /* ใช้ block แทน -webkit-box */
+    -webkit-line-clamp: unset !important;
+    -webkit-box-orient: unset !important;
+    max-width: none !important;
+  }
 }
 
 .room-header.blocked-red {
@@ -631,16 +801,20 @@ h2 {
   table-layout: auto; /* ใช้ auto เพื่อให้ขยายตามเนื้อหา */
   /* ตรวจสอบให้แน่ใจว่า table ไม่ถูกตัด */
   display: table;
+  /* ตรวจสอบให้แน่ใจว่า table ขยายตามเนื้อหาทั้งหมด */
+  max-width: none;
 }
 
 .room-table td {
   padding: 0;
   vertical-align: top;
-  min-width: 120px; /* Minimum width เพื่อป้องกันการบีบเล็กเกินไป */
+  min-width: 180px; /* เพิ่ม minimum width เพื่อป้องกันการบีบห้องท้ายๆ */
   width: auto; /* Allows cells to size based on content */
   /* ตรวจสอบให้แน่ใจว่า cell ไม่ถูกตัด */
   white-space: normal;
   word-wrap: break-word;
+  /* ตรวจสอบให้แน่ใจว่า cell ขยายตามเนื้อหา */
+  max-width: none;
 }
 
 .room-table .room-cell {
@@ -1058,12 +1232,8 @@ h2 {
 @media screen and (min-width: 1025px) {
   /* Already optimized for desktop in base styles */
   #main-app {
-    max-width: 1400px;
-  }
-
-  .container {
-    max-width: 1200px;
-    overflow-x: auto; /* ให้ scroll ได้ถ้าจำเป็น */
+    max-width: none !important; /* เปลี่ยนเป็น none เพื่อให้ขยายตามเนื้อหา */
+    width: 100%;
   }
 
   .room-grid {
@@ -1074,32 +1244,17 @@ h2 {
   .room-table {
     table-layout: auto;
   }
-
-  .room-table td {
-    min-width: 100px; /* Minimum width on desktop เพื่อป้องกันการบีบเล็กเกินไป */
-    width: auto;
-  }
-
-  .slot.booked .booked-by-name {
-    font-size: 0.7rem;
-    line-height: 1.3;
-    max-height: 2.6em; /* Limit to 2 lines */
-    overflow: hidden;
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
-  }
 }
 
 /* Large Desktop devices (1440px and up) */
 @media screen and (min-width: 1440px) {
   #main-app {
-    max-width: 1600px;
+    max-width: none; /* เปลี่ยนเป็น none เพื่อให้ขยายตามเนื้อหา */
   }
 
   .container {
-    max-width: 1400px;
-    overflow-x: auto; /* ให้ scroll ได้ถ้าจำเป็น */
+    max-width: none; /* เปลี่ยนเป็น none เพื่อให้ขยายตามเนื้อหา */
+    overflow-x: visible !important; /* ยกเลิก scrollbar */
   }
 }
 

@@ -1,3 +1,4 @@
+import { useEffect, useRef, useState } from 'react';
 import RoomCell from './RoomCell';
 import './Building1.css';
 
@@ -95,8 +96,45 @@ const Building1: React.FC<Building1Props> = ({
     { roomId: '116', roomName: 'ห้อง 116' },
   ];
 
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [showScrollHint, setShowScrollHint] = useState(false);
+
+  useEffect(() => {
+    const checkScrollable = () => {
+      if (containerRef.current) {
+        const hasHorizontalScroll = 
+          containerRef.current.scrollWidth > containerRef.current.clientWidth;
+        setShowScrollHint(hasHorizontalScroll);
+      }
+    };
+
+    checkScrollable();
+    window.addEventListener('resize', checkScrollable);
+    
+    const handleScroll = () => {
+      if (containerRef.current) {
+        const scrolled = containerRef.current.scrollLeft > 0;
+        if (scrolled) {
+          setShowScrollHint(false);
+        }
+      }
+    };
+
+    const containerElement = containerRef.current;
+    if (containerElement) {
+      containerElement.addEventListener('scroll', handleScroll);
+    }
+
+    return () => {
+      window.removeEventListener('resize', checkScrollable);
+      if (containerElement) {
+        containerElement.removeEventListener('scroll', handleScroll);
+      }
+    };
+  }, []);
+
   return (
-    <div className="container" id="building-1">
+    <div className="container" ref={containerRef} id="building-1">
       <h1>[ อาคาร 1 ] ผังการจองห้อง</h1>
       <div className="room-grid">
         {rooms.map((room) => {
@@ -173,6 +211,11 @@ const Building1: React.FC<Building1Props> = ({
           );
         })}
       </div>
+      {showScrollHint && (
+        <div className="scroll-hint">
+          เลื่อนเพื่อดูห้องเพิ่มเติม
+        </div>
+      )}
     </div>
   );
 };

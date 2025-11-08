@@ -15,6 +15,31 @@
   box-sizing: border-box;
 }
 
+/* สำหรับ Desktop (PC) - ยกเลิก scrollbar และให้ขยายตามเนื้อหา */
+@media screen and (min-width: 1025px) {
+  .container {
+    overflow-x: visible !important; /* ยกเลิก scrollbar สำหรับ PC */
+    overflow-y: visible;
+    max-width: none; /* อนุญาตให้ขยายตามเนื้อหา */
+    width: auto; /* ขยายตามเนื้อหา */
+    min-width: 100%; /* แต่ยังคงมีขนาดขั้นต่ำเท่ากับ viewport */
+  }
+
+  /* ปรับ table ให้ขยายตามเนื้อหา */
+  .room-table {
+    width: auto; /* ขยายตามเนื้อหา */
+    min-width: 100%; /* แต่ยังคงมีขนาดขั้นต่ำ */
+    max-width: none;
+  }
+
+  /* ปรับ cells ให้ขยายตามเนื้อหา */
+  .room-table td {
+    min-width: 180px; /* Minimum width */
+    width: auto; /* ขยายตามเนื้อหา */
+    max-width: none;
+  }
+}
+
 .container h1 {
   text-align: center;
   color: #333;
@@ -57,8 +82,9 @@
 .room-table td {
   padding: 0;
   vertical-align: top;
-  min-width: 120px; /* Minimum width เพื่อป้องกันการบีบเล็กเกินไป */
+  min-width: 180px; /* เพิ่ม minimum width เพื่อป้องกันการบีบห้องท้ายๆ */
   width: auto;
+  max-width: none; /* อนุญาตให้ขยายตามเนื้อหา */
   white-space: normal;
   word-wrap: break-word;
 }
