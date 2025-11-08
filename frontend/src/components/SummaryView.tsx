@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { bookingService } from '../services/booking.service';
 import type { SummaryResponse } from '../services/booking.service';
 import './SummaryView.css';
@@ -19,6 +19,8 @@ interface SummaryViewProps {
 const SummaryView: React.FC<SummaryViewProps> = () => {
   const [summary, setSummary] = useState<SummaryResponse>({});
   const [loading, setLoading] = useState(true);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [showScrollHint, setShowScrollHint] = useState(false);
 
   useEffect(() => {
     // Load summary when component mounts or becomes visible
@@ -45,6 +47,43 @@ const SummaryView: React.FC<SummaryViewProps> = () => {
       window.removeEventListener('roomStatusChanged', handleRoomStatusChange);
     };
   }, []);
+
+  // ตรวจสอบว่ามี horizontal scroll หรือไม่
+  useEffect(() => {
+    const checkScrollable = () => {
+      if (containerRef.current) {
+        const hasHorizontalScroll = 
+          containerRef.current.scrollWidth > containerRef.current.clientWidth;
+        setShowScrollHint(hasHorizontalScroll);
+      }
+    };
+
+    // ตรวจสอบเมื่อ component mount และเมื่อ summary เปลี่ยน
+    checkScrollable();
+    window.addEventListener('resize', checkScrollable);
+    
+    // ตรวจสอบเมื่อ scroll (ซ่อน hint เมื่อ scroll แล้ว)
+    const handleScroll = () => {
+      if (containerRef.current) {
+        const scrolled = containerRef.current.scrollLeft > 0;
+        if (scrolled) {
+          setShowScrollHint(false);
+        }
+      }
+    };
+
+    const containerElement = containerRef.current;
+    if (containerElement) {
+      containerElement.addEventListener('scroll', handleScroll);
+    }
+
+    return () => {
+      window.removeEventListener('resize', checkScrollable);
+      if (containerElement) {
+        containerElement.removeEventListener('scroll', handleScroll);
+      }
+    };
+  }, [summary]); // ตรวจสอบเมื่อ summary เปลี่ยน
 
   const loadSummary = async () => {
     try {
@@ -129,7 +168,7 @@ const SummaryView: React.FC<SummaryViewProps> = () => {
 
   return (
     <div id="summary-view">
-      <div className="container">
+      <div className="container" ref={containerRef}>
         <h1>สรุปผลการจอง (22 - 23 ธ.ค. 68)</h1>
         <p>ข้อมูลสรุปผลการจอง</p>
 
@@ -259,6 +298,11 @@ const SummaryView: React.FC<SummaryViewProps> = () => {
             )}
           </tbody>
         </table>
+        {showScrollHint && (
+          <div className="scroll-hint">
+            เลื่อนเพื่อดูข้อมูลเพิ่มเติม
+          </div>
+        )}
       </div>
     </div>
   );

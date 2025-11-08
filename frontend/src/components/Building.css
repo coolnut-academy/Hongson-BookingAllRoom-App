@@ -63,10 +63,15 @@
 .room-grid {
   display: grid;
   gap: 12px;
+  width: 100%;
+  min-width: 100%; /* ตรวจสอบให้แน่ใจว่า grid ขยายเต็ม container */
 }
 
 .room-grid .room-cell {
   border-radius: 8px;
+  min-width: 0; /* อนุญาตให้ย่อได้ */
+  width: 100%;
+  overflow: hidden;
 }
 
 .room-table {
@@ -105,5 +110,123 @@
 
 .room-table .slot-pm {
   border-bottom-right-radius: 8px;
+}
+
+/* Custom Scrollbar Styling สำหรับ Building containers (mobile/tablet only) */
+.container::-webkit-scrollbar {
+  height: 16px;
+  background-color: #f0f0f0;
+  border-radius: 8px;
+}
+
+.container::-webkit-scrollbar-track {
+  background-color: #e0e0e0;
+  border-radius: 8px;
+  border: 2px solid #ffffff;
+}
+
+.container::-webkit-scrollbar-thumb {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-radius: 8px;
+  border: 2px solid #ffffff;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.container::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(135deg, #5568d3 0%, #6a3d8f 100%);
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.3);
+}
+
+/* For Firefox */
+.container {
+  scrollbar-width: thick;
+  scrollbar-color: #667eea #e0e0e0;
+}
+
+/* Scroll Hint Indicator สำหรับ Building containers */
+.scroll-hint {
+  position: sticky;
+  bottom: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  padding: 10px 24px;
+  border-radius: 25px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  white-space: nowrap;
+  box-shadow: 0 4px 16px rgba(102, 126, 234, 0.5);
+  z-index: 100;
+  pointer-events: none;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 15px;
+  width: fit-content;
+  animation: pulse-hint 2s ease-in-out infinite;
+}
+
+.scroll-hint::before {
+  content: '←';
+  font-size: 1.2rem;
+  animation: slide-left 1.5s ease-in-out infinite;
+}
+
+.scroll-hint::after {
+  content: '→';
+  font-size: 1.2rem;
+  animation: slide-right 1.5s ease-in-out infinite;
+}
+
+@keyframes pulse-hint {
+  0%, 100% {
+    opacity: 1;
+    transform: translateX(-50%) scale(1);
+  }
+  50% {
+    opacity: 0.8;
+    transform: translateX(-50%) scale(0.98);
+  }
+}
+
+@keyframes slide-left {
+  0%, 100% {
+    transform: translateX(0);
+  }
+  50% {
+    transform: translateX(-5px);
+  }
+}
+
+@keyframes slide-right {
+  0%, 100% {
+    transform: translateX(0);
+  }
+  50% {
+    transform: translateX(5px);
+  }
+}
+
+/* สำหรับ Desktop (PC) - ซ่อน scroll hint */
+@media screen and (min-width: 1025px) {
+  .container::-webkit-scrollbar {
+    display: none;
+  }
+
+  .container {
+    scrollbar-width: none;
+  }
+
+  .scroll-hint {
+    display: none !important;
+  }
+
+  /* ปรับ grid ให้ขยายตามเนื้อหา */
+  .room-grid {
+    width: auto;
+    min-width: 100%;
+    max-width: none;
+  }
 }
 
