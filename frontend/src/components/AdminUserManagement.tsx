@@ -10,6 +10,7 @@ interface User {
   username: string;
   role: 'user' | 'admin' | 'god';
   password?: string; // สำหรับแสดง password ที่ generate ใหม่
+  displayName?: string;
 }
 
 // State สำหรับ Form
@@ -19,6 +20,7 @@ const emptyFormState = {
   username: '',
   password: '',
   role: 'user' as 'user' | 'admin' | 'god',
+  displayName: '',
 };
 
 export const AdminUserManagement = () => {
@@ -51,7 +53,7 @@ export const AdminUserManagement = () => {
       setLoading(true);
       const response = await userService.getAllUsers();
       // แปลง role จาก isAdmin boolean เป็น role string
-      const usersWithRole = response.data.map((user: { _id: string; name?: string; username: string; isAdmin?: boolean; password?: string }) => ({
+      const usersWithRole = response.data.map((user: { _id: string; name?: string; username: string; isAdmin?: boolean; password?: string; displayName?: string }) => ({
         _id: user._id,
         name: user.name || user.username,
         username: user.username,
@@ -61,6 +63,7 @@ export const AdminUserManagement = () => {
             : 'admin'
           : 'user',
         password: user.password || undefined, // เก็บ password ที่ generate ใหม่
+        displayName: user.displayName,
       }));
       setUsers(usersWithRole);
     } catch (error: unknown) {
@@ -164,7 +167,11 @@ export const AdminUserManagement = () => {
 
   const openEditModal = (user: User) => {
     setIsEditing(true);
-    setFormData({ ...user, password: '' }); // ใส่ password เป็นค่าว่าง
+    setFormData({ 
+      ...user, 
+      password: '',
+      displayName: user.displayName || '', // ใช้ empty string ถ้าไม่มี displayName
+    }); // ใส่ password เป็นค่าว่าง
     setError(null);
     setIsModalOpen(true);
   };
@@ -378,7 +385,7 @@ export const AdminUserManagement = () => {
       <table className="summary-table admin-users-table">
         <thead>
           <tr>
-            <th>Name (ชื่อ)</th>
+            <th>Display Name (ชื่อที่แสดง)</th>
             <th>Username</th>
             <th>Password</th>
             <th>Role</th>
@@ -403,7 +410,7 @@ export const AdminUserManagement = () => {
 
             return (
               <tr key={user._id}>
-                <td>{user.name}</td>
+                <td>{user.displayName || user.name || user.username}</td>
                 <td>{user.username}</td>
                 <td>
                   {user.password ? (
@@ -499,6 +506,17 @@ export const AdminUserManagement = () => {
                   value={formData.name}
                   onChange={handleInputChange}
                   required
+                />
+              </div>
+              <div className="form-group">
+                <label htmlFor="displayName">Display Name (ชื่อที่แสดง):</label>
+                <input
+                  type="text"
+                  id="displayName"
+                  name="displayName"
+                  value={formData.displayName}
+                  onChange={handleInputChange}
+                  placeholder="ชื่อที่แสดงในระบบ (ภาษาไทย)"
                 />
               </div>
               <div className="form-group">
@@ -608,6 +626,11 @@ export const AdminUserManagement = () => {
                     <p>
                       <strong>ชื่อ:</strong> {confirmAction.userData?.name}
                     </p>
+                    {confirmAction.userData?.displayName && (
+                      <p>
+                        <strong>Display Name:</strong> {confirmAction.userData?.displayName}
+                      </p>
+                    )}
                     <p>
                       <strong>Username:</strong>{' '}
                       {confirmAction.userData?.username}

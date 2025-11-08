@@ -9,6 +9,7 @@ interface UserData {
   username: string;
   password?: string;
   role: 'user' | 'admin' | 'god';
+  displayName?: string;
 }
 
 const getAuthHeaders = () => {

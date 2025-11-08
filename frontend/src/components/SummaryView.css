@@ -129,6 +129,7 @@
   overflow: visible; /* เปลี่ยนจาก hidden เป็น visible เพื่อให้เห็นเนื้อหาทั้งหมด */
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
   min-width: fit-content; /* ให้ table ขยายตามเนื้อหา */
+  table-layout: auto; /* ให้คอลัมน์ขยายตามเนื้อหาและความกว้างหน้าต่าง */
 }
 
 .summary-table th,
@@ -399,12 +400,14 @@
     display: flex !important; /* แสดง scroll hint */
   }
 
-  /* ปรับ table ให้มี min-width เพื่อให้ scroll ได้เมื่อบีบ */
+  /* ปรับ table ให้ยืดหยุ่นตามความกว้างหน้าต่าง */
   #summary-view .summary-table {
-    min-width: 1000px !important; /* เพิ่ม min-width เพื่อให้ scroll ได้ */
-    width: auto !important; /* ให้ขยายตามเนื้อหา */
-    margin-left: 25px; /* เพิ่ม margin ซ้ายเพื่อให้มีพื้นที่ */
-    margin-right: 25px; /* เพิ่ม margin ขวาเพื่อให้มีพื้นที่ */
+    min-width: 1000px !important; /* min-width เพื่อให้ scroll ได้เมื่อหน้าต่างย่อเล็ก */
+    width: 100% !important; /* ให้ยืดเต็มความกว้างของ container */
+    max-width: 100%; /* ไม่ให้เกินความกว้าง container */
+    margin-left: 0; /* ลบ margin เพื่อให้ยืดเต็ม */
+    margin-right: 0; /* ลบ margin เพื่อให้ยืดเต็ม */
+    table-layout: auto; /* ให้คอลัมน์ขยายตามเนื้อหา */
   }
 
   #summary-view .summary-table th,

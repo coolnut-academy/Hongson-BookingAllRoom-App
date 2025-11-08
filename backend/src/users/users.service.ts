@@ -104,7 +104,7 @@ export class UsersService implements OnModuleInit {
 
   // Helper method สำหรับสร้าง user จาก DTO
   async createFromDto(createUserDto: any): Promise<User> {
-    const { name, username, password, role } = createUserDto;
+    const { name, username, password, role, displayName } = createUserDto;
 
     // ตรวจสอบว่า username ซ้ำหรือไม่
     const existingUser = await this.findByUsername(username);
@@ -120,6 +120,6 @@ export class UsersService implements OnModuleInit {
       ? await bcrypt.hash(password, 10)
       : await bcrypt.hash('defaultPassword123', 10); // ถ้าไม่มี password ให้ใช้ default
 
-    return this.create(name, username, hashedPassword, isAdmin);
+    return this.create(name, username, hashedPassword, isAdmin, displayName);
   }
 }
