@@ -711,7 +711,13 @@ h2 {
   }
 
   .room-table {
-    min-width: 800px; /* กำหนด min-width เพื่อให้ scroll ได้ */
+    min-width: 1200px !important; /* บังคับให้ scroll (6 ห้อง x 180px + spacing) */
+    width: auto !important;
+  }
+
+  .room-table td {
+    white-space: nowrap !important; /* ป้องกันการ wrap */
+    min-width: 180px !important; /* บังคับ min-width */
   }
 }
 
@@ -881,6 +887,20 @@ h2 {
   display: table;
   /* ตรวจสอบให้แน่ใจว่า table ขยายตามเนื้อหาทั้งหมด */
   max-width: none;
+}
+
+/* สำหรับ Mobile/Tablet - บังคับให้ scroll แทนการ wrap */
+@media screen and (max-width: 1024px) {
+  .room-table {
+    min-width: 1200px !important; /* บังคับให้ scroll (6 ห้อง x 180px + spacing) */
+    width: auto !important;
+    table-layout: auto;
+  }
+
+  .room-table td {
+    white-space: nowrap !important; /* ป้องกันการ wrap */
+    min-width: 180px !important; /* บังคับ min-width */
+  }
 }
 
 .room-table td {
@@ -1106,8 +1126,8 @@ h2 {
   /* Room Table - Keep table layout but ensure scroll works */
   .room-table {
     display: table;
-    width: 100%;
-    min-width: 100%;
+    width: auto !important; /* ให้ขยายตามเนื้อหา */
+    min-width: 1200px !important; /* บังคับให้ scroll (6 ห้อง x 180px + spacing) */
     /* ตรวจสอบให้แน่ใจว่า table ไม่ถูกตัด */
     table-layout: auto;
   }
@@ -1122,12 +1142,12 @@ h2 {
 
   .room-table td {
     display: table-cell;
-    min-width: 140px; /* Minimum width เพื่อป้องกันการบีบเล็กเกินไป */
+    min-width: 180px !important; /* บังคับ min-width เพื่อป้องกันการบีบ */
     width: auto;
     padding: 0;
     vertical-align: top;
     /* ตรวจสอบให้แน่ใจว่า cell ไม่ถูกตัด */
-    white-space: normal;
+    white-space: nowrap !important; /* ป้องกันการ wrap */
   }
 
   /* For rooms with colspan, make them full width on mobile */
@@ -1285,7 +1305,13 @@ h2 {
   .room-table td {
     display: table-cell;
     width: auto;
-    min-width: 120px; /* Minimum width on tablet เพื่อป้องกันการบีบเล็กเกินไป */
+    min-width: 180px !important; /* บังคับ min-width เพื่อป้องกันการบีบ */
+    white-space: nowrap !important; /* ป้องกันการ wrap */
+  }
+
+  .room-table {
+    min-width: 1200px !important; /* บังคับให้ scroll */
+    width: auto !important;
   }
 
   .slot.booked .booked-by-name {
@@ -1348,8 +1374,14 @@ h2 {
   }
 
   .room-table td {
-    min-width: calc(33.333% - 6px); /* 3 columns per row in landscape */
-    max-width: calc(33.333% - 6px);
+    min-width: 180px !important; /* บังคับ min-width เพื่อป้องกันการบีบ */
+    max-width: none !important;
+    white-space: nowrap !important; /* ป้องกันการ wrap */
+  }
+
+  .room-table {
+    min-width: 1200px !important; /* บังคับให้ scroll */
+    width: auto !important;
   }
 
   .room-table td[colspan] {
