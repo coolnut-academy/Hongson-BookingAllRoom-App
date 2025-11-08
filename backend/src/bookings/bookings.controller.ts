@@ -12,7 +12,9 @@ import {
   HttpStatus,
   BadRequestException,
   ConflictException,
+  Res,
 } from '@nestjs/common';
+import type { Response } from 'express';
 import {
   IsString,
   IsNotEmpty,
@@ -278,5 +280,28 @@ export class BookingsController {
 
     await this.bookingsService.removeBookingDate(date);
     return { message: 'ลบวันที่สำเร็จ' };
+  }
+
+  // GET /bookings/export/excel - Export all bookings to Excel (Admin only)
+  @Get('export/excel')
+  async exportToExcel(@Res() res: Response, @Request() req) {
+    if (!req.user.isAdmin) {
+      throw new ConflictException('Only admin can export bookings');
+    }
+
+    const buffer = await this.bookingsService.exportToExcel();
+
+    // ตั้งค่า Headers
+    res.setHeader(
+      'Content-Type',
+      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+    );
+    res.setHeader(
+      'Content-Disposition',
+      'attachment; filename="bookings-export.xlsx"',
+    );
+
+    // ส่งไฟล์กลับไป
+    res.send(buffer);
   }
 }

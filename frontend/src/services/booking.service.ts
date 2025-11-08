@@ -205,5 +205,13 @@ export const bookingService = {
     const response = await api.delete<{ message: string }>(`/bookings/dates/${date}`);
     return response.data;
   },
+
+  // Download Excel report (Admin only)
+  async downloadExcelReport(): Promise<Blob> {
+    const response = await api.get('/bookings/export/excel', {
+      responseType: 'blob', // Important: tell axios to receive file as Blob
+    });
+    return response.data;
+  },
 };
 

@@ -3,6 +3,7 @@ import {
   ConflictException,
   NotFoundException,
   BadRequestException,
+  Logger,
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
@@ -10,6 +11,8 @@ import { Booking } from '../schemas/booking.schema';
 import { RoomStatus } from '../schemas/room-status.schema';
 import { CustomRoom } from '../schemas/custom-room.schema';
 import { BookingDate } from '../schemas/booking-date.schema';
+import { User } from '../schemas/user.schema';
+import * as ExcelJS from 'exceljs';
 
 interface BookingSelection {
   roomId: string;
@@ -889,5 +892,64 @@ export class BookingsService {
     await bookingDate.save();
 
     // ไม่ลบการจองในวันที่นี้ (เก็บไว้เพื่อดูประวัติ)
+  }
+
+  // Export bookings to Excel
+  async exportToExcel(): Promise<Buffer> {
+    const logger = new Logger(BookingsService.name);
+    logger.log('Starting Excel export...');
+
+    const bookings = await this.bookingModel
+      .find()
+      .populate<{ bookedBy: User }>('bookedBy', 'name username displayName')
+      .sort({ date: 1, roomId: 1 })
+      .exec();
+
+    const workbook = new ExcelJS.Workbook();
+    workbook.creator = 'Booking System';
+    workbook.created = new Date();
+
+    const worksheet = workbook.addWorksheet('สรุปการจองทั้งหมด');
+
+    // กำหนด Columns (หัวตาราง)
+    worksheet.columns = [
+      { header: 'รหัสห้อง (RoomID)', key: 'roomId', width: 25 },
+      {
+        header: 'วันที่จอง',
+        key: 'date',
+        width: 15,
+        style: { numFmt: 'yyyy-mm-dd' },
+      },
+      { header: 'ช่วงเวลา (Slot)', key: 'slot', width: 10 },
+      { header: 'จองโดย (Username)', key: 'username', width: 20 },
+      { header: 'ชื่อผู้จอง', key: 'name', width: 30 },
+      {
+        header: 'จองเมื่อ (Timestamp)',
+        key: 'createdAt',
+        width: 20,
+        style: { numFmt: 'yyyy-mm-dd hh:mm:ss' },
+      },
+    ];
+
+    // (ปรับแต่งหัวตารางให้เป็นตัวหนา)
+    worksheet.getRow(1).font = { bold: true };
+
+    // เพิ่มข้อมูล (Rows)
+    for (const booking of bookings) {
+      const user = booking.bookedBy as User;
+      const bookingDoc = booking as any; // Type assertion for timestamps
+      worksheet.addRow({
+        roomId: booking.roomId,
+        date: booking.date,
+        slot: booking.slot === 'am' ? 'ช่วงเช้า' : 'ช่วงบ่าย',
+        username: user?.username || 'N/A',
+        name: user?.name || user?.displayName || 'N/A',
+        createdAt: bookingDoc.createdAt || new Date(),
+      });
+    }
+
+    logger.log('Excel file generated, writing to buffer...');
+    const buffer = await workbook.xlsx.writeBuffer();
+    return Buffer.from(buffer);
   }
 }
