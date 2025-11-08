@@ -9,7 +9,7 @@ import './DashboardPage.css';
 type ActiveTap = 'tap1' | 'tap2' | 'tap3' | 'tap4';
 
 const DashboardPage = () => {
-  const { logout, user, isAdmin } = useAuth();
+  const { logout, isAdmin } = useAuth();
   const navigate = useNavigate();
   const [activeTap, setActiveTap] = useState<ActiveTap>('tap1');
 

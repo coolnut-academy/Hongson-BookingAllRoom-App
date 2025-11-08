@@ -36,7 +36,6 @@ export const AdminUserManagement = () => {
     userId?: string;
     userData?: any;
   }>({ type: null });
-  const [generatedPassword, setGeneratedPassword] = useState<string | null>(null);
 
   async function fetchUsers() {
     try {
@@ -78,7 +77,6 @@ export const AdminUserManagement = () => {
     setIsEditing(false);
     setFormData(emptyFormState);
     setError(null);
-    setGeneratedPassword(null);
     setIsModalOpen(true);
   };
 
@@ -86,7 +84,6 @@ export const AdminUserManagement = () => {
     setIsEditing(true);
     setFormData({ ...user, password: '' }); // ใส่ password เป็นค่าว่าง
     setError(null);
-    setGeneratedPassword(null);
     setIsModalOpen(true);
   };
 
@@ -117,7 +114,6 @@ export const AdminUserManagement = () => {
       } else if (confirmAction.type === 'generate') {
         const response = await userService.resetPassword(confirmAction.userId!);
         const newPassword = response.data.newPassword;
-        setGeneratedPassword(newPassword);
         
         // อัปเดต password ใน users list
         setUsers((prevUsers) =>
