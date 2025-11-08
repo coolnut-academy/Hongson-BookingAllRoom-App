@@ -4,7 +4,7 @@ import { authService } from '../services/auth.service';
 import type { AuthResponse } from '../services/auth.service';
 
 interface AuthContextType {
-  user: { id: string; username: string; isAdmin?: boolean } | null;
+  user: { id: string; name: string; username: string; isAdmin?: boolean } | null;
   isAuthenticated: boolean;
   isAdmin: boolean;
   login: (username: string, password: string) => Promise<AuthResponse>;
@@ -16,6 +16,7 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<{
     id: string;
+    name: string;
     username: string;
     isAdmin?: boolean;
   } | null>(null);

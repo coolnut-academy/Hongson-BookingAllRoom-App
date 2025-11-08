@@ -16,12 +16,15 @@ async function createAdmin() {
     // อัพเดทให้เป็น admin
     existingAdmin.isAdmin = true;
     existingAdmin.password = await bcrypt.hash(adminPassword, 10);
+    if (!existingAdmin.name) {
+      existingAdmin.name = 'Admin Hongson';
+    }
     await existingAdmin.save();
     console.log(`✅ Updated admin user: ${adminUsername}`);
   } else {
     // สร้าง admin ใหม่
     const hashedPassword = await bcrypt.hash(adminPassword, 10);
-    await usersService.create(adminUsername, hashedPassword, true);
+    await usersService.create('Admin Hongson', adminUsername, hashedPassword, true);
     console.log(`✅ Created admin user: ${adminUsername}`);
   }
 

@@ -18,7 +18,7 @@ async function verifyAdmin() {
     console.log('❌ Admin user not found!');
     console.log('📝 Creating admin user...');
     const hashedPassword = await bcrypt.hash(adminPassword, 10);
-    await usersService.create(adminUsername, hashedPassword, true);
+    await usersService.create('Admin Hongson', adminUsername, hashedPassword, true);
     console.log('✅ Admin user created successfully!');
   } else {
     console.log('✅ Admin user found!');
@@ -34,6 +34,9 @@ async function verifyAdmin() {
       console.log('\n⚠️  Password mismatch! Updating password...');
       user.password = await bcrypt.hash(adminPassword, 10);
       user.isAdmin = true;
+      if (!user.name) {
+        user.name = 'Admin Hongson';
+      }
       await user.save();
       console.log('✅ Password updated successfully!');
     }
@@ -41,6 +44,9 @@ async function verifyAdmin() {
     if (!user.isAdmin) {
       console.log('\n⚠️  User is not admin! Updating...');
       user.isAdmin = true;
+      if (!user.name) {
+        user.name = 'Admin Hongson';
+      }
       await user.save();
       console.log('✅ User is now admin!');
     }

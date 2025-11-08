@@ -29,14 +29,15 @@ async function createUsers() {
       // ตรวจสอบว่ามี user อยู่แล้วหรือไม่
       const existingUser = await usersService.findByUsername(username);
       if (existingUser) {
-        // อัพเดท password และ displayName
+        // อัพเดท password, name และ displayName
         existingUser.password = hashedPassword;
+        existingUser.name = displayName || username;
         existingUser.displayName = displayName;
         await existingUser.save();
         console.log(`✅ Updated user: ${username} (${displayName})`);
       } else {
         // สร้าง user ใหม่
-        await usersService.create(username, hashedPassword, false, displayName);
+        await usersService.create(displayName || username, username, hashedPassword, false, displayName);
         console.log(`✅ Created user: ${username} (${displayName})`);
       }
     } catch (error: any) {

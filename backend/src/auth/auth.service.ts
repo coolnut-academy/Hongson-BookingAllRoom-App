@@ -33,19 +33,20 @@ export class AuthService {
       access_token: this.jwtService.sign(payload),
       user: {
         id: user._id,
+        name: user.name,
         username: user.username,
         isAdmin: user.isAdmin || false,
       },
     };
   }
 
-  async register(username: string, password: string) {
+  async register(username: string, password: string, name?: string) {
     const existingUser = await this.usersService.findByUsername(username);
     if (existingUser) {
       throw new UnauthorizedException('Username already exists');
     }
     const hashedPassword = await bcrypt.hash(password, 10);
-    const user = await this.usersService.create(username, hashedPassword);
+    const user = await this.usersService.create(name || username, username, hashedPassword);
     const payload = {
       username: user.username,
       sub: user._id,
@@ -55,6 +56,7 @@ export class AuthService {
       access_token: this.jwtService.sign(payload),
       user: {
         id: user._id,
+        name: user.name,
         username: user.username,
         isAdmin: user.isAdmin || false,
       },
