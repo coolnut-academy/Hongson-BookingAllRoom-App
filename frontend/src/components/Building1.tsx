@@ -16,7 +16,6 @@
 
 import { useEffect, useRef, useState } from 'react';
 import RoomCell from './RoomCell';
-import Building1Mobile from './Building1Mobile';
 
 type BookingsMap = Record<
   string,
@@ -114,15 +113,6 @@ const Building1: React.FC<Building1Props> = ({
 
   const containerRef = useRef<HTMLDivElement>(null);
   const [showScrollHint, setShowScrollHint] = useState(false);
-  const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
-
-  useEffect(() => {
-    const handleResize = () => {
-      setIsMobile(window.innerWidth <= 768);
-    };
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, []);
 
   useEffect(() => {
     const checkScrollable = () => {
@@ -245,23 +235,7 @@ const Building1: React.FC<Building1Props> = ({
     );
   };
 
-  // แสดง Card View บน Mobile
-  if (isMobile) {
-    return (
-      <Building1Mobile
-        bookings={bookings}
-        selections={selections}
-        onSelectSlot={onSelectSlot}
-        onBook={onBook}
-        isAdmin={isAdmin}
-        onResetRoom={onResetRoom}
-        closedRooms={closedRooms}
-        onToggleRoom={onToggleRoom}
-      />
-    );
-  }
-
-  // Desktop View - Table Layout (3 แถวเท่านั้น) - ใช้เหมือน Building2
+  // Table Layout (3 แถวเท่านั้น) - ใช้เหมือน Building2 ทุกกรณี
   return (
     <div className="container" ref={containerRef} id="building-1">
       <h1>[ อาคาร 1 ] ผังการจองห้อง</h1>
