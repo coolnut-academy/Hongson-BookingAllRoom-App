@@ -170,6 +170,11 @@ export const AdminUserManagement = () => {
     if (confirmAction.type === 'edit' && confirmAction.userData) {
       try {
         const { _id, ...updateData } = confirmAction.userData;
+        // ตรวจสอบว่า _id มีค่าก่อนเรียก updateUser
+        if (!_id) {
+          alert('ไม่พบ ID ของผู้ใช้');
+          return;
+        }
         // ถ้า password ว่าง ให้ลบออก
         if (!updateData.password || updateData.password === '') {
           delete updateData.password;
