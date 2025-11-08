@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { userService } from '../services/userService';
 import { useAuth } from '../contexts/AuthContext';
 import './AdminUserManagement.css';
@@ -24,6 +24,10 @@ export const AdminUserManagement = () => {
   const { user: loggedInUser } = useAuth();
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [showScrollHint, setShowScrollHint] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10; // จำนวน items ต่อหน้า
 
   // --- State สำหรับ Modal ---
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -65,6 +69,50 @@ export const AdminUserManagement = () => {
   useEffect(() => {
     fetchUsers();
   }, []);
+
+  // คำนวณข้อมูลที่ต้องแสดงในหน้าปัจจุบัน
+  const paginatedUsers = useMemo(() => {
+    const start = (currentPage - 1) * itemsPerPage;
+    const end = start + itemsPerPage;
+    return users.slice(start, end);
+  }, [users, currentPage]);
+
+  const totalPages = Math.ceil(users.length / itemsPerPage);
+
+  // ตรวจสอบว่ามี horizontal scroll หรือไม่
+  useEffect(() => {
+    const checkScrollable = () => {
+      if (containerRef.current) {
+        const hasHorizontalScroll = 
+          containerRef.current.scrollWidth > containerRef.current.clientWidth;
+        setShowScrollHint(hasHorizontalScroll);
+      }
+    };
+
+    checkScrollable();
+    window.addEventListener('resize', checkScrollable);
+    
+    const handleScroll = () => {
+      if (containerRef.current) {
+        const scrolled = containerRef.current.scrollLeft > 0;
+        if (scrolled) {
+          setShowScrollHint(false);
+        }
+      }
+    };
+
+    const containerElement = containerRef.current;
+    if (containerElement) {
+      containerElement.addEventListener('scroll', handleScroll);
+    }
+
+    return () => {
+      window.removeEventListener('resize', checkScrollable);
+      if (containerElement) {
+        containerElement.removeEventListener('scroll', handleScroll);
+      }
+    };
+  }, [users]); // Re-check when users data changes
 
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
@@ -152,6 +200,7 @@ export const AdminUserManagement = () => {
         alert('สร้างผู้ใช้สำเร็จ');
         setIsModalOpen(false);
         setFormData(emptyFormState);
+        setCurrentPage(1); // Reset to first page after creating new user
         fetchUsers();
       } catch (error: unknown) {
         console.error('Failed to save user', error);
@@ -212,7 +261,7 @@ export const AdminUserManagement = () => {
   }
 
   return (
-    <div className="container">
+    <div className="container admin-user-management-container" ref={containerRef}>
       <div
         style={{
           display: 'flex',
@@ -231,7 +280,7 @@ export const AdminUserManagement = () => {
         </button>
       </div>
 
-      <table className="summary-table">
+      <table className="summary-table admin-users-table">
         <thead>
           <tr>
             <th>Name (ชื่อ)</th>
@@ -242,7 +291,7 @@ export const AdminUserManagement = () => {
           </tr>
         </thead>
         <tbody>
-          {users.map((user) => {
+          {paginatedUsers.map((user) => {
             let canEditOrDelete = false;
             if (loggedInUser?.isAdmin) {
               // ตรวจสอบว่าเป็น god หรือไม่ (จาก username)
@@ -308,6 +357,37 @@ export const AdminUserManagement = () => {
           })}
         </tbody>
       </table>
+
+      {/* Pagination Controls */}
+      {totalPages > 1 && (
+        <div className="pagination-controls">
+          <button
+            onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+            disabled={currentPage === 1}
+            className="pagination-btn"
+          >
+            ← Previous
+          </button>
+          
+          <span className="pagination-info">
+            หน้า {currentPage} จาก {totalPages} (ทั้งหมด {users.length} คน)
+          </span>
+          
+          <button
+            onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
+            disabled={currentPage === totalPages}
+            className="pagination-btn"
+          >
+            Next →
+          </button>
+        </div>
+      )}
+
+      {showScrollHint && (
+        <div className="scroll-hint">
+          เลื่อนเพื่อดูข้อมูลเพิ่มเติม
+        </div>
+      )}
 
       {/* --- Modal สำหรับ Add/Edit User --- */}
       {isModalOpen && (

@@ -1,5 +1,53 @@
 @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@400;500;600&family=Noto+Sans+Thai:wght@400;500;700&display=swap');
 
+/*
+ * ============================================================
+ * RESPONSIVE TABLE DISPLAY STRATEGY - BEST PRACTICES COMMENT
+ * ============================================================
+ * 
+ * วิธีที่ดีกว่าในการแสดงข้อมูลตารางบนทุก platform:
+ * 
+ * 1. **Virtual Scrolling / Windowing (React Virtualized / react-window)**
+ *    - เหมาะสำหรับ: ตารางที่มีข้อมูลจำนวนมาก (100+ rows)
+ *    - ข้อดี: Render เฉพาะส่วนที่มองเห็น ลด memory usage
+ *    - ข้อเสีย: ต้องติดตั้ง library เพิ่ม
+ *    - ตัวอย่าง: react-window, react-virtualized
+ * 
+ * 2. **Pagination (แบ่งหน้า)**
+ *    - เหมาะสำหรับ: ตารางที่มีข้อมูลปานกลาง (20-100 rows)
+ *    - ข้อดี: โหลดเร็ว, UX ดี, ไม่ต้อง scroll ยาว
+ *    - ข้อเสีย: ต้องกดเปลี่ยนหน้าเพื่อดูข้อมูลทั้งหมด
+ * 
+ * 3. **Infinite Scroll / Load More**
+ *    - เหมาะสำหรับ: ตารางที่มีข้อมูลจำนวนมาก แต่ต้องการดูต่อเนื่อง
+ *    - ข้อดี: UX ดี, โหลดข้อมูลตาม demand
+ *    - ข้อเสีย: อาจโหลดช้าเมื่อ scroll เร็ว
+ * 
+ * 4. **Responsive Table with Card View (Mobile)**
+ *    - เหมาะสำหรับ: ตารางที่มีหลายคอลัมน์
+ *    - ข้อดี: แสดงผลดีบน mobile, อ่านง่าย
+ *    - ข้อเสีย: ต้องเขียน component 2 แบบ (table + card)
+ *    - ตัวอย่าง: แปลง table เป็น card list บน mobile
+ * 
+ * 5. **Sticky Header + Horizontal Scroll (วิธีที่ใช้อยู่)**
+ *    - เหมาะสำหรับ: ตารางที่มีคอลัมน์ไม่มาก (5-10 columns)
+ *    - ข้อดี: ใช้งานง่าย, ไม่ต้องติดตั้ง library
+ *    - ข้อเสีย: บน mobile อาจต้อง scroll 2 ทิศทาง (แนวนอน + แนวตั้ง)
+ * 
+ * 6. **Data Grid Component (AG Grid, TanStack Table)**
+ *    - เหมาะสำหรับ: ตารางที่ซับซ้อน (sorting, filtering, grouping)
+ *    - ข้อดี: Feature ครบ, Performance ดี
+ *    - ข้อเสีย: Bundle size ใหญ่, Learning curve
+ * 
+ * **คำแนะนำสำหรับโปรเจกต์นี้:**
+ * - ตารางที่มีข้อมูลไม่มาก (< 50 rows): ใช้วิธีปัจจุบัน (horizontal scroll) ได้
+ * - ตารางที่มีข้อมูลมาก (> 50 rows): ควรใช้ Pagination หรือ Virtual Scrolling
+ * - บน Mobile: ควรแปลง table เป็น card view เพื่อ UX ที่ดีกว่า
+ * - สำหรับตารางที่ซับซ้อน: พิจารณาใช้ Data Grid library
+ * 
+ * ============================================================
+ */
+
 * {
   box-sizing: border-box;
   margin: 0;

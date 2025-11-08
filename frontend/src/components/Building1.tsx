@@ -1,5 +1,22 @@
+/*
+ * Building1 Component - Room Booking Display
+ * 
+ * Layout Strategy:
+ * - ใช้ Table Layout แทน Grid Layout เพื่อให้สามารถ scroll แนวนอนได้
+ * - จัดเรียงห้องเป็นแถวละ 6 ห้อง (roomsPerRow = 6)
+ * - ใช้ Horizontal Scroll + Scroll Hint สำหรับ mobile/tablet
+ * - PC: ให้ขยายเต็มหน้าจอ (no scrollbar)
+ * 
+ * Alternative Approaches (สำหรับอนาคต):
+ * 1. Virtual Scrolling: หากมีห้องมาก (> 50 ห้อง) ควรใช้ react-window
+ * 2. Card View on Mobile: แปลง table เป็น card list บน mobile เพื่อ UX ที่ดีกว่า
+ * 3. Responsive Grid: ใช้ CSS Grid ที่ปรับจำนวนคอลัมน์ตามหน้าจอ (grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)))
+ * 4. Pagination: แบ่งห้องเป็นหน้าๆ หากมีห้องมากเกินไป
+ */
+
 import { useEffect, useRef, useState } from 'react';
 import RoomCell from './RoomCell';
+import Building1Mobile from './Building1Mobile';
 import './Building1.css';
 
 type BookingsMap = Record<
@@ -98,6 +115,15 @@ const Building1: React.FC<Building1Props> = ({
 
   const containerRef = useRef<HTMLDivElement>(null);
   const [showScrollHint, setShowScrollHint] = useState(false);
+  const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
+
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth <= 768);
+    };
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   useEffect(() => {
     const checkScrollable = () => {
@@ -133,84 +159,120 @@ const Building1: React.FC<Building1Props> = ({
     };
   }, []);
 
+  // แปลง rooms array เป็น table rows (จัดเรียงเป็นแถวละ 6 ห้อง)
+  const roomsPerRow = 6;
+  const roomRows: (typeof rooms)[] = [];
+  for (let i = 0; i < rooms.length; i += roomsPerRow) {
+    roomRows.push(rooms.slice(i, i + roomsPerRow));
+  }
+
+  const renderRoom = (room: (typeof rooms)[number]) => {
+    const bookedSlots = bookings[room.roomId] || {};
+    const selectedSlots = selections[room.roomId] || {};
+    const amBooked = bookedSlots.am || false;
+    const pmBooked = bookedSlots.pm || false;
+    const amSelected = selectedSlots.am || false;
+    const pmSelected = selectedSlots.pm || false;
+    const amBookedBy = bookedSlots.amBookedBy;
+    const pmBookedBy = bookedSlots.pmBookedBy;
+    // เช็คเฉพาะ closedRooms จาก API (ไม่เช็ค isBlocked เพราะ Admin สามารถเปิดได้)
+    // ถ้า roomId ไม่อยู่ใน closedRooms แสดงว่าห้องเปิด แม้ isBlocked จะเป็น true
+    const isRoomClosed = closedRooms.includes(room.roomId);
+
+    return (
+      <div
+        key={room.roomId}
+        className={`room-cell ${isRoomClosed ? 'room-closed' : ''}`}
+        data-room-name={room.roomName}
+      >
+        <div className={`room-header ${isRoomClosed ? 'room-closed-header' : ''}`}>
+          <strong>{room.roomName}</strong>
+          {isAdmin && onToggleRoom && (
+            <button
+              className={`room-toggle-btn ${isRoomClosed ? 'closed' : 'open'}`}
+              onClick={(e) => {
+                e.stopPropagation();
+                onToggleRoom(room.roomId);
+              }}
+              title={isRoomClosed ? 'คลิกเพื่อเปิดห้อง' : 'คลิกเพื่อปิดห้อง'}
+            >
+              {isRoomClosed ? '🔒' : '🔓'}
+            </button>
+          )}
+        </div>
+        <div className="room-slots">
+          <RoomCell
+            slot="am"
+            isSelected={amSelected}
+            isBooked={amBooked}
+            bookedBy={amBookedBy}
+            onClick={() => !isRoomClosed && onSelectSlot(room.roomId, 'am')}
+            isDisabled={isRoomClosed}
+          />
+          <RoomCell
+            slot="pm"
+            isSelected={pmSelected}
+            isBooked={pmBooked}
+            bookedBy={pmBookedBy}
+            onClick={() => !isRoomClosed && onSelectSlot(room.roomId, 'pm')}
+            isDisabled={isRoomClosed}
+          />
+        </div>
+        <div className="room-footer">
+          <button
+            className={`book-button ${isRoomClosed ? 'book-button-blocked' : ''}`}
+            onClick={() => onBook(room.roomId)}
+            disabled={isRoomClosed || (!amSelected && !pmSelected)}
+          >
+            {isRoomClosed ? 'ห้องปิด' : 'จอง'}
+          </button>
+          {isAdmin && (amBooked || pmBooked) && onResetRoom && (
+            <button
+              className="reset-button"
+              onClick={() => onResetRoom(room.roomId)}
+              title="Reset การจองในห้องนี้ (Admin only)"
+            >
+              Reset
+            </button>
+          )}
+        </div>
+      </div>
+    );
+  };
+
+  // แสดง Card View บน Mobile
+  if (isMobile) {
+    return (
+      <Building1Mobile
+        bookings={bookings}
+        selections={selections}
+        onSelectSlot={onSelectSlot}
+        onBook={onBook}
+        isAdmin={isAdmin}
+        onResetRoom={onResetRoom}
+        closedRooms={closedRooms}
+        onToggleRoom={onToggleRoom}
+      />
+    );
+  }
+
+  // Desktop View - Table Layout
   return (
     <div className="container" ref={containerRef} id="building-1">
       <h1>[ อาคาร 1 ] ผังการจองห้อง</h1>
-      <div className="room-grid">
-        {rooms.map((room) => {
-          const bookedSlots = bookings[room.roomId] || {};
-          const selectedSlots = selections[room.roomId] || {};
-          const amBooked = bookedSlots.am || false;
-          const pmBooked = bookedSlots.pm || false;
-          const amSelected = selectedSlots.am || false;
-          const pmSelected = selectedSlots.pm || false;
-          const amBookedBy = bookedSlots.amBookedBy;
-          const pmBookedBy = bookedSlots.pmBookedBy;
-          // เช็คเฉพาะ closedRooms จาก API (ไม่เช็ค isBlocked เพราะ Admin สามารถเปิดได้)
-          // ถ้า roomId ไม่อยู่ใน closedRooms แสดงว่าห้องเปิด แม้ isBlocked จะเป็น true
-          const isRoomClosed = closedRooms.includes(room.roomId);
-
-          return (
-            <div
-              key={room.roomId}
-              className={`room-cell ${isRoomClosed ? 'room-closed' : ''}`}
-              data-room-name={room.roomName}
-            >
-              <div className={`room-header ${isRoomClosed ? 'room-closed-header' : ''}`}>
-                <strong>{room.roomName}</strong>
-                {isAdmin && onToggleRoom && (
-                  <button
-                    className={`room-toggle-btn ${isRoomClosed ? 'closed' : 'open'}`}
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      onToggleRoom(room.roomId);
-                    }}
-                    title={isRoomClosed ? 'คลิกเพื่อเปิดห้อง' : 'คลิกเพื่อปิดห้อง'}
-                  >
-                    {isRoomClosed ? '🔒' : '🔓'}
-                  </button>
-                )}
-              </div>
-              <div className="room-slots">
-                <RoomCell
-                  slot="am"
-                  isSelected={amSelected}
-                  isBooked={amBooked}
-                  bookedBy={amBookedBy}
-                  onClick={() => !isRoomClosed && onSelectSlot(room.roomId, 'am')}
-                  isDisabled={isRoomClosed}
-                />
-                <RoomCell
-                  slot="pm"
-                  isSelected={pmSelected}
-                  isBooked={pmBooked}
-                  bookedBy={pmBookedBy}
-                  onClick={() => !isRoomClosed && onSelectSlot(room.roomId, 'pm')}
-                  isDisabled={isRoomClosed}
-                />
-              </div>
-              <div className="room-footer">
-                <button
-                  className={`book-button ${isRoomClosed ? 'book-button-blocked' : ''}`}
-                  onClick={() => onBook(room.roomId)}
-                  disabled={isRoomClosed || (!amSelected && !pmSelected)}
-                >
-                  {isRoomClosed ? 'ห้องปิด' : 'จอง'}
-                </button>
-                {isAdmin && (amBooked || pmBooked) && onResetRoom && (
-                  <button
-                    className="reset-button"
-                    onClick={() => onResetRoom(room.roomId)}
-                    title="Reset การจองในห้องนี้ (Admin only)"
-                  >
-                    Reset
-                  </button>
-                )}
-              </div>
-            </div>
-          );
-        })}
-      </div>
+      <table className="room-table">
+        <tbody>
+          {roomRows.map((row, rowIndex) => (
+            <tr key={rowIndex}>
+              {row.map((room) => (
+                <td key={room.roomId}>
+                  {renderRoom(room)}
+                </td>
+              ))}
+            </tr>
+          ))}
+        </tbody>
+      </table>
       {showScrollHint && (
         <div className="scroll-hint">
           เลื่อนเพื่อดูห้องเพิ่มเติม

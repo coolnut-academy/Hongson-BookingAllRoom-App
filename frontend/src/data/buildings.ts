@@ -107,7 +107,7 @@ export const building3: BuildingData = {
 export const building4: BuildingData = {
   id: 'building-4',
   title: '[ อาคาร 4 ]',
-  subtitle: '(อาคารนิเสสเวศ)',
+  subtitle: '(อาคารนิลสเวศ)',
   layout: 'table',
   rooms: [
     [
