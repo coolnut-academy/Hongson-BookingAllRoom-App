@@ -84,6 +84,13 @@
   display: table; /* ตรวจสอบให้แน่ใจว่าเป็น table */
 }
 
+/* สำหรับ Mobile/Tablet - กำหนด min-width เพื่อให้ scroll ได้ */
+@media screen and (max-width: 1024px) {
+  .room-table {
+    min-width: 800px; /* กำหนด min-width เพื่อให้ scroll ได้เมื่อบีบ */
+  }
+}
+
 .room-table td {
   padding: 0;
   vertical-align: top;
@@ -205,6 +212,20 @@
   }
   50% {
     transform: translateX(5px);
+  }
+}
+
+/* สำหรับ Tablet (769px - 1024px) - ใช้ scrollbar */
+@media screen and (min-width: 769px) and (max-width: 1024px) {
+  .container {
+    overflow-x: auto !important; /* บังคับให้มี scrollbar */
+    overflow-y: visible;
+    max-width: 100vw; /* ป้องกันการเลยขอบ */
+    padding: 20px 15px; /* ลด padding ด้านข้าง */
+  }
+
+  .room-table {
+    min-width: 800px; /* กำหนด min-width เพื่อให้ scroll ได้ */
   }
 }
 

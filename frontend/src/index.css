@@ -429,7 +429,7 @@ body {
 /* 4. สไตล์ของผังอาคาร */
 /* =================================== */
 .container {
-  max-width: 100%; /* ใช้ 100% เพื่อป้องกันการขยายเกินหน้าจอ */
+  max-width: 100vw; /* ใช้ 100vw เพื่อป้องกันการเลยขอบ */
   width: 100%;
   min-width: 0; /* อนุญาตให้ย่อได้บนหน้าจอเล็ก */
   margin: 20px auto;
@@ -443,6 +443,16 @@ body {
   -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
   /* ตรวจสอบให้แน่ใจว่า container ไม่ซ่อนเนื้อหา */
   position: relative;
+  box-sizing: border-box;
+}
+
+/* สำหรับ Mobile - ป้องกันการเลยขอบ */
+@media screen and (max-width: 768px) {
+  .container {
+    max-width: 100vw;
+    padding: 15px 10px; /* ลด padding ด้านข้าง */
+    margin: 10px auto;
+  }
 }
 
 /* Custom Scrollbar Styling - ทำให้เด่นและเห็นชัดเจน */
@@ -570,7 +580,8 @@ h2 {
   vertical-align: top;
   height: 100%;
   min-width: 180px; /* เพิ่ม minimum width เพื่อป้องกันการบีบ */
-  overflow: hidden; /* เก็บ hidden เพื่อป้องกัน layout แตก */
+  overflow-x: hidden; /* ป้องกัน horizontal overflow */
+  overflow-y: visible; /* อนุญาตให้ room-footer แสดงได้ */
   width: 100%; /* Ensures room cells take full width of their container */
   box-sizing: border-box;
 }
@@ -688,6 +699,20 @@ h2 {
   -webkit-box-orient: vertical;
 }
 
+/* สำหรับ Tablet (769px - 1024px) - ใช้ scrollbar */
+@media screen and (min-width: 769px) and (max-width: 1024px) {
+  .container {
+    overflow-x: auto !important; /* บังคับให้มี scrollbar */
+    overflow-y: visible;
+    max-width: 100vw; /* ป้องกันการเลยขอบ */
+    padding: 20px 15px; /* ลด padding ด้านข้าง */
+  }
+
+  .room-table {
+    min-width: 800px; /* กำหนด min-width เพื่อให้ scroll ได้ */
+  }
+}
+
 /* สำหรับ Desktop (PC) - ยกเลิก scrollbar และให้ขยายตามเนื้อหา */
 @media screen and (min-width: 1025px) {
   .container {
@@ -696,6 +721,7 @@ h2 {
     max-width: none; /* อนุญาตให้ขยายตามเนื้อหา */
     width: auto; /* ขยายตามเนื้อหา */
     min-width: 100%; /* แต่ยังคงมีขนาดขั้นต่ำเท่ากับ viewport */
+    padding: 25px; /* คืนค่า padding เดิม */
   }
 
   /* ซ่อน scrollbar styling สำหรับ PC */
