@@ -11,6 +11,7 @@ import { Booking } from '../schemas/booking.schema';
 import { RoomStatus } from '../schemas/room-status.schema';
 import { CustomRoom } from '../schemas/custom-room.schema';
 import { BookingDate } from '../schemas/booking-date.schema';
+import { AppSettings } from '../schemas/app-settings.schema';
 import { User } from '../schemas/user.schema';
 import * as ExcelJS from 'exceljs';
 
@@ -26,6 +27,7 @@ export class BookingsService {
     @InjectModel(RoomStatus.name) private roomStatusModel: Model<RoomStatus>,
     @InjectModel(CustomRoom.name) private customRoomModel: Model<CustomRoom>,
     @InjectModel(BookingDate.name) private bookingDateModel: Model<BookingDate>,
+    @InjectModel(AppSettings.name) private appSettingsModel: Model<AppSettings>,
   ) {}
 
   // Create single booking (for backward compatibility)
@@ -892,6 +894,37 @@ export class BookingsService {
     await bookingDate.save();
 
     // ไม่ลบการจองในวันที่นี้ (เก็บไว้เพื่อดูประวัติ)
+  }
+
+  // ============================================
+  // App Settings Management
+  // ============================================
+
+  // GET /bookings/settings - ดึงการตั้งค่าของแอป
+  async getAppSettings(): Promise<{ contestName: string }> {
+    let settings = await this.appSettingsModel.findOne().exec();
+    if (!settings) {
+      // สร้าง default settings ถ้ายังไม่มี
+      settings = new this.appSettingsModel({
+        contestName: 'งานแข่งขัน',
+      });
+      await settings.save();
+    }
+    return {
+      contestName: settings.contestName || 'งานแข่งขัน',
+    };
+  }
+
+  // PUT /bookings/settings - อัปเดตชื่องานแข่งขัน (Admin only)
+  async updateContestName(contestName: string): Promise<{ contestName: string }> {
+    let settings = await this.appSettingsModel.findOne().exec();
+    if (!settings) {
+      settings = new this.appSettingsModel({ contestName });
+    } else {
+      settings.contestName = contestName;
+    }
+    await settings.save();
+    return { contestName: settings.contestName };
   }
 
   // Export bookings to Excel

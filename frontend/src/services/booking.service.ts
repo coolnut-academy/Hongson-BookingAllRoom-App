@@ -213,5 +213,23 @@ export const bookingService = {
     });
     return response.data;
   },
+
+  // ============================================
+  // App Settings
+  // ============================================
+
+  // Get app settings
+  async getAppSettings(): Promise<{ contestName: string }> {
+    const response = await api.get<{ contestName: string }>('/bookings/settings');
+    return response.data;
+  },
+
+  // Update contest name (Admin only)
+  async updateContestName(contestName: string): Promise<{ contestName: string }> {
+    const response = await api.post<{ contestName: string }>('/bookings/settings', {
+      contestName,
+    });
+    return response.data;
+  },
 };
 

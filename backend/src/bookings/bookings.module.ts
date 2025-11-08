@@ -6,6 +6,7 @@ import { Booking, BookingSchema } from '../schemas/booking.schema';
 import { RoomStatus, RoomStatusSchema } from '../schemas/room-status.schema';
 import { CustomRoom, CustomRoomSchema } from '../schemas/custom-room.schema';
 import { BookingDate, BookingDateSchema } from '../schemas/booking-date.schema';
+import { AppSettings, AppSettingsSchema } from '../schemas/app-settings.schema';
 
 @Module({
   imports: [
@@ -14,6 +15,7 @@ import { BookingDate, BookingDateSchema } from '../schemas/booking-date.schema';
       { name: RoomStatus.name, schema: RoomStatusSchema },
       { name: CustomRoom.name, schema: CustomRoomSchema },
       { name: BookingDate.name, schema: BookingDateSchema },
+      { name: AppSettings.name, schema: AppSettingsSchema },
     ]),
   ],
   providers: [BookingsService],

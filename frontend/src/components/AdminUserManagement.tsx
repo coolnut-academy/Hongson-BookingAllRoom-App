@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { userService } from '../services/userService';
+import { bookingService } from '../services/booking.service';
 import { useAuth } from '../contexts/AuthContext';
 import './AdminUserManagement.css';
 
@@ -28,6 +29,10 @@ export const AdminUserManagement = () => {
   const [showScrollHint, setShowScrollHint] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10; // จำนวน items ต่อหน้า
+
+  // State สำหรับชื่องานแข่งขัน
+  const [contestName, setContestName] = useState('');
+  const [isSavingContestName, setIsSavingContestName] = useState(false);
 
   // --- State สำหรับ Modal ---
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -68,7 +73,36 @@ export const AdminUserManagement = () => {
 
   useEffect(() => {
     fetchUsers();
+    loadContestName();
   }, []);
+
+  const loadContestName = async () => {
+    try {
+      const settings = await bookingService.getAppSettings();
+      setContestName(settings.contestName || '');
+    } catch (error) {
+      console.error('Failed to load contest name:', error);
+    }
+  };
+
+  const handleSaveContestName = async () => {
+    if (!contestName.trim()) {
+      alert('กรุณากรอกชื่องานแข่งขัน');
+      return;
+    }
+    try {
+      setIsSavingContestName(true);
+      await bookingService.updateContestName(contestName.trim());
+      alert('บันทึกชื่องานแข่งขันสำเร็จ');
+      // ส่ง event เพื่อให้ BookingView reload
+      window.dispatchEvent(new CustomEvent('contestNameUpdated'));
+    } catch (error) {
+      console.error('Failed to save contest name:', error);
+      alert('ไม่สามารถบันทึกชื่องานแข่งขันได้');
+    } finally {
+      setIsSavingContestName(false);
+    }
+  };
 
   // คำนวณข้อมูลที่ต้องแสดงในหน้าปัจจุบัน
   const paginatedUsers = useMemo(() => {
@@ -262,6 +296,67 @@ export const AdminUserManagement = () => {
 
   return (
     <div className="container admin-user-management-container" ref={containerRef}>
+      {/* Section สำหรับตั้งชื่องานแข่งขัน */}
+      <div
+        style={{
+          backgroundColor: '#f8f9fa',
+          padding: '20px',
+          borderRadius: '8px',
+          marginBottom: '30px',
+          border: '1px solid #dee2e6',
+        }}
+      >
+        <h2 style={{ marginTop: 0, marginBottom: '15px' }}>ตั้งชื่องานแข่งขัน</h2>
+        <div
+          style={{
+            display: 'flex',
+            gap: '10px',
+            alignItems: 'center',
+            flexWrap: 'wrap',
+          }}
+        >
+          <input
+            type="text"
+            value={contestName}
+            onChange={(e) => setContestName(e.target.value)}
+            placeholder="กรอกชื่องานแข่งขัน"
+            style={{
+              flex: '1',
+              minWidth: '200px',
+              padding: '10px',
+              fontSize: '16px',
+              border: '1px solid #ced4da',
+              borderRadius: '4px',
+            }}
+            onKeyPress={(e) => {
+              if (e.key === 'Enter') {
+                handleSaveContestName();
+              }
+            }}
+          />
+          <button
+            onClick={handleSaveContestName}
+            disabled={isSavingContestName}
+            style={{
+              padding: '10px 20px',
+              backgroundColor: '#198754',
+              color: 'white',
+              border: 'none',
+              borderRadius: '4px',
+              cursor: isSavingContestName ? 'not-allowed' : 'pointer',
+              fontSize: '16px',
+              fontWeight: '500',
+              opacity: isSavingContestName ? 0.6 : 1,
+            }}
+          >
+            {isSavingContestName ? 'กำลังบันทึก...' : 'บันทึก'}
+          </button>
+        </div>
+        <p style={{ marginTop: '10px', marginBottom: 0, color: '#6c757d', fontSize: '14px' }}>
+          ชื่องานจะแสดงในหน้าการจองทันทีหลังจากบันทึก
+        </p>
+      </div>
+
       <div
         style={{
           display: 'flex',

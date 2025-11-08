@@ -41,6 +41,9 @@ const BookingView: React.FC<BookingViewProps> = ({ date }) => {
   // State: room status (รายการห้องที่ปิด)
   const [closedRooms, setClosedRooms] = useState<string[]>([]);
 
+  // State: ชื่องานแข่งขัน
+  const [contestName, setContestName] = useState<string>('');
+
   const [loading, setLoading] = useState(true);
 
   // State: confirmation modal
@@ -63,6 +66,16 @@ const BookingView: React.FC<BookingViewProps> = ({ date }) => {
     }
   }, []);
 
+  // Load contest name
+  const loadContestName = useCallback(async () => {
+    try {
+      const settings = await bookingService.getAppSettings();
+      setContestName(settings.contestName || '');
+    } catch (error) {
+      console.error('Failed to load contest name:', error);
+    }
+  }, []);
+
   // เรียก API GET /bookings/details?date={date} เพื่อดึงข้อมูลพร้อมชื่อผู้จอง
   const loadBookings = useCallback(async () => {
     try {
@@ -80,9 +93,21 @@ const BookingView: React.FC<BookingViewProps> = ({ date }) => {
   useEffect(() => {
     loadBookings();
     loadRoomStatus();
+    loadContestName();
     // เคลียร์ selections ทั้งหมดเมื่อเปลี่ยนวัน
     setSelections({});
-  }, [date, loadBookings, loadRoomStatus]);
+  }, [date, loadBookings, loadRoomStatus, loadContestName]);
+
+  // Listen for contest name updates
+  useEffect(() => {
+    const handleContestNameUpdate = () => {
+      loadContestName();
+    };
+    window.addEventListener('contestNameUpdated', handleContestNameUpdate);
+    return () => {
+      window.removeEventListener('contestNameUpdated', handleContestNameUpdate);
+    };
+  }, [loadContestName]);
 
   // Convert bookings array to map for easy lookup (พร้อมชื่อผู้จอง)
   const bookingsMap: BookingsMap = {};
@@ -303,6 +328,30 @@ const BookingView: React.FC<BookingViewProps> = ({ date }) => {
   return (
     <>
       <div id="booking-view">
+        {/* แสดงชื่องานแข่งขันตรงกลางบนสุด */}
+        {contestName && (
+          <div
+            style={{
+              textAlign: 'center',
+              marginBottom: '20px',
+              padding: '15px',
+              backgroundColor: '#e7f3ff',
+              borderRadius: '8px',
+              border: '2px solid #0d6efd',
+            }}
+          >
+            <h2
+              style={{
+                margin: 0,
+                color: '#0d6efd',
+                fontSize: '24px',
+                fontWeight: 'bold',
+              }}
+            >
+              {contestName}
+            </h2>
+          </div>
+        )}
         <div className="booking-header">
           <h1>การจองอาคาร ในวันที่ {dateDisplay}</h1>
           {isAdmin && (

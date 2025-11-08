@@ -304,4 +304,30 @@ export class BookingsController {
     // ส่งไฟล์กลับไป
     res.send(buffer);
   }
+
+  // ============================================
+  // App Settings Endpoints
+  // ============================================
+
+  // GET /bookings/settings - ดึงการตั้งค่าของแอป
+  @Get('settings')
+  async getAppSettings() {
+    return this.bookingsService.getAppSettings();
+  }
+
+  // PUT /bookings/settings - อัปเดตชื่องานแข่งขัน (Admin only)
+  @Post('settings')
+  @HttpCode(HttpStatus.OK)
+  async updateContestName(
+    @Body() body: { contestName: string },
+    @Request() req,
+  ) {
+    if (!req.user.isAdmin) {
+      throw new ConflictException('Only admin can update contest name');
+    }
+    if (!body.contestName || body.contestName.trim() === '') {
+      throw new BadRequestException('contestName is required');
+    }
+    return this.bookingsService.updateContestName(body.contestName.trim());
+  }
 }
