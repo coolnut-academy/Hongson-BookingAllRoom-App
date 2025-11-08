@@ -267,7 +267,7 @@ const SummaryView: React.FC<SummaryViewProps> = () => {
                   </td>
                   <td className="status-available">
                     <div>
-                      <strong>{row.availableSlots} ช่อง</strong>
+                      {row.availableSlots} ช่อง
                       {row.availableRooms.length > 0 && (
                         <div className="detail-text">
                           ห้อง: {row.availableRooms.join(', ')}
@@ -276,7 +276,7 @@ const SummaryView: React.FC<SummaryViewProps> = () => {
                     </div>
                   </td>
                   <td className="status-booked">
-                    <strong>{row.bookedSlots} ช่อง</strong>
+                    {row.bookedSlots} ช่อง
                   </td>
                   <td>
                     <div className="summary-details">
