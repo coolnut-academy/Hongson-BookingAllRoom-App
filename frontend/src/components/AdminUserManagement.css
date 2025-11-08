@@ -89,3 +89,155 @@
   margin-top: 10px;
 }
 
+/* Password Display */
+.password-display {
+  font-family: 'Courier New', monospace;
+  background-color: #f8f9fa;
+  padding: 4px 8px;
+  border-radius: 4px;
+  color: #28a745;
+  font-weight: 600;
+}
+
+.password-masked {
+  color: #6c757d;
+  font-size: 1.2em;
+  letter-spacing: 2px;
+}
+
+/* Action Buttons */
+.btn-edit {
+  background-color: #ffc107;
+  color: #000;
+  padding: 6px 12px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  margin-right: 5px;
+  font-size: 13px;
+}
+
+.btn-edit:hover:not(:disabled) {
+  background-color: #e0a800;
+}
+
+.btn-edit:disabled {
+  background-color: #e9ecef;
+  color: #6c757d;
+  cursor: not-allowed;
+}
+
+.btn-generate {
+  background-color: #17a2b8;
+  color: white;
+  padding: 6px 12px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  margin-right: 5px;
+  font-size: 13px;
+}
+
+.btn-generate:hover:not(:disabled) {
+  background-color: #138496;
+}
+
+.btn-generate:disabled {
+  background-color: #e9ecef;
+  color: #6c757d;
+  cursor: not-allowed;
+}
+
+.btn-delete {
+  background-color: #dc3545;
+  color: white;
+  padding: 6px 12px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 13px;
+}
+
+.btn-delete:hover:not(:disabled) {
+  background-color: #c82333;
+}
+
+.btn-delete:disabled {
+  background-color: #e9ecef;
+  color: #6c757d;
+  cursor: not-allowed;
+}
+
+/* Confirmation Modal */
+.confirmation-modal {
+  width: 450px;
+}
+
+.confirmation-content {
+  margin: 20px 0;
+  padding: 15px;
+  background-color: #f8f9fa;
+  border-radius: 4px;
+}
+
+.confirmation-content p {
+  margin: 10px 0;
+  line-height: 1.6;
+}
+
+.confirmation-details {
+  margin-top: 15px;
+  padding: 10px;
+  background-color: white;
+  border-radius: 4px;
+  border: 1px solid #dee2e6;
+}
+
+.confirmation-details p {
+  margin: 8px 0;
+  padding: 5px 0;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.confirmation-details p:last-child {
+  border-bottom: none;
+}
+
+.confirmation-details strong {
+  color: #495057;
+  margin-right: 10px;
+  min-width: 100px;
+  display: inline-block;
+}
+
+/* Table Improvements */
+.summary-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+}
+
+.summary-table th {
+  background-color: #f8f9fa;
+  padding: 12px;
+  text-align: left;
+  font-weight: 600;
+  border-bottom: 2px solid #dee2e6;
+}
+
+.summary-table td {
+  padding: 12px;
+  border-bottom: 1px solid #dee2e6;
+}
+
+.summary-table tr:hover {
+  background-color: #f8f9fa;
+}
+
+/* Container */
+.container {
+  padding: 20px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+

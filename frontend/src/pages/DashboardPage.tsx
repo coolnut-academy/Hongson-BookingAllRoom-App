@@ -3,12 +3,13 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import BookingView from '../components/BookingView';
 import SummaryView from '../components/SummaryView';
+import { AdminUserManagement } from '../components/AdminUserManagement';
 import './DashboardPage.css';
 
-type ActiveTap = 'tap1' | 'tap2' | 'tap3';
+type ActiveTap = 'tap1' | 'tap2' | 'tap3' | 'tap4';
 
 const DashboardPage = () => {
-  const { logout } = useAuth();
+  const { logout, user, isAdmin } = useAuth();
   const navigate = useNavigate();
   const [activeTap, setActiveTap] = useState<ActiveTap>('tap1');
 
@@ -48,6 +49,14 @@ const DashboardPage = () => {
           >
             สรุปผลการจอง
           </button>
+          {isAdmin && (
+            <button
+              className={`tab-link ${activeTap === 'tap4' ? 'active' : ''}`}
+              onClick={() => handleTabClick('tap4')}
+            >
+              จัดการสมาชิก
+            </button>
+          )}
         </nav>
         <button id="logout-button" onClick={handleLogout}>
           ออกจากระบบ
@@ -58,6 +67,7 @@ const DashboardPage = () => {
         {activeTap === 'tap1' && <BookingView date="2025-12-22" />}
         {activeTap === 'tap2' && <BookingView date="2025-12-23" />}
         {activeTap === 'tap3' && <SummaryView />}
+        {activeTap === 'tap4' && isAdmin && <AdminUserManagement />}
       </main>
     </div>
   );

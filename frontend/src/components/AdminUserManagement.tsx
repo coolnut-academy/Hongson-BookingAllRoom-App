@@ -8,6 +8,7 @@ interface User {
   name: string;
   username: string;
   role: 'user' | 'admin' | 'god';
+  password?: string; // สำหรับแสดง password ที่ generate ใหม่
 }
 
 // State สำหรับ Form
@@ -29,6 +30,13 @@ export const AdminUserManagement = () => {
   const [isEditing, setIsEditing] = useState(false);
   const [formData, setFormData] = useState(emptyFormState);
   const [error, setError] = useState<string | null>(null);
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const [confirmAction, setConfirmAction] = useState<{
+    type: 'edit' | 'delete' | 'generate' | null;
+    userId?: string;
+    userData?: any;
+  }>({ type: null });
+  const [generatedPassword, setGeneratedPassword] = useState<string | null>(null);
 
   async function fetchUsers() {
     try {
@@ -39,7 +47,12 @@ export const AdminUserManagement = () => {
         _id: user._id,
         name: user.name || user.username,
         username: user.username,
-        role: user.isAdmin ? (user.role || 'admin') : 'user',
+        role: user.isAdmin
+          ? user.username === 'admingod'
+            ? 'god'
+            : 'admin'
+          : 'user',
+        password: user.password || undefined, // เก็บ password ที่ generate ใหม่
       }));
       setUsers(usersWithRole);
     } catch (error: any) {
@@ -65,6 +78,7 @@ export const AdminUserManagement = () => {
     setIsEditing(false);
     setFormData(emptyFormState);
     setError(null);
+    setGeneratedPassword(null);
     setIsModalOpen(true);
   };
 
@@ -72,46 +86,108 @@ export const AdminUserManagement = () => {
     setIsEditing(true);
     setFormData({ ...user, password: '' }); // ใส่ password เป็นค่าว่าง
     setError(null);
+    setGeneratedPassword(null);
     setIsModalOpen(true);
+  };
+
+  const handleGeneratePassword = async (userId: string) => {
+    setConfirmAction({ type: 'generate', userId });
+    setShowConfirmModal(true);
+  };
+
+  const handleEditClick = (user: User) => {
+    openEditModal(user);
+  };
+
+  const handleDeleteClick = (userId: string) => {
+    setConfirmAction({ type: 'delete', userId });
+    setShowConfirmModal(true);
+  };
+
+  const executeConfirmAction = async () => {
+    if (!confirmAction.type) return;
+
+    try {
+      if (confirmAction.type === 'delete') {
+        await userService.deleteUser(confirmAction.userId!);
+        alert('ลบผู้ใช้สำเร็จ');
+        fetchUsers();
+        setShowConfirmModal(false);
+        setConfirmAction({ type: null });
+      } else if (confirmAction.type === 'generate') {
+        const response = await userService.resetPassword(confirmAction.userId!);
+        const newPassword = response.data.newPassword;
+        setGeneratedPassword(newPassword);
+        
+        // อัปเดต password ใน users list
+        setUsers((prevUsers) =>
+          prevUsers.map((user) =>
+            user._id === confirmAction.userId
+              ? { ...user, password: newPassword }
+              : user
+          )
+        );
+        
+        alert(`Password ใหม่: ${newPassword}\n\nกรุณาบันทึก password นี้ไว้!`);
+        setShowConfirmModal(false);
+        setConfirmAction({ type: null });
+      }
+    } catch (error: any) {
+      console.error('Failed to execute action', error);
+      alert(
+        'เกิดข้อผิดพลาด: ' +
+          (error.response?.data?.message || error.message)
+      );
+      setShowConfirmModal(false);
+      setConfirmAction({ type: null });
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
 
-    try {
-      if (isEditing) {
-        // โหมดแก้ไข
-        const { _id, ...updateData } = formData;
-        await userService.updateUser(formData._id, updateData);
-        alert('อัปเดตผู้ใช้สำเร็จ');
-      } else {
-        // โหมดสร้างใหม่
+    // สำหรับสร้างใหม่ ให้บันทึกเลย
+    if (!isEditing) {
+      try {
         await userService.createUser(formData);
         alert('สร้างผู้ใช้สำเร็จ');
+        setIsModalOpen(false);
+        setFormData(emptyFormState);
+        fetchUsers();
+      } catch (error: any) {
+        console.error('Failed to save user', error);
+        setError(
+          error.response?.data?.message || error.message || 'เกิดข้อผิดพลาด'
+        );
       }
-      setIsModalOpen(false);
-      fetchUsers(); // Refresh list
-    } catch (error: any) {
-      console.error('Failed to save user', error);
-      setError(
-        error.response?.data?.message || error.message || 'เกิดข้อผิดพลาด'
-      );
     }
+    // สำหรับแก้ไข จะแสดง confirmation modal ใน handleEditClick
   };
 
-  const handleDelete = async (userId: string) => {
-    if (!confirm('คุณแน่ใจหรือไม่ว่าต้องการลบผู้ใช้นี้?')) {
-      return;
-    }
-
-    try {
-      await userService.deleteUser(userId);
-      alert('ลบผู้ใช้สำเร็จ');
-      fetchUsers(); // Refresh list
-    } catch (error: any) {
-      console.error('Failed to delete user', error);
-      alert('ไม่สามารถลบผู้ใช้ได้: ' + (error.response?.data?.message || error.message));
+  const handleFinalConfirm = async () => {
+    if (confirmAction.type === 'edit' && confirmAction.userData) {
+      try {
+        const { _id, ...updateData } = confirmAction.userData;
+        // ถ้า password ว่าง ให้ลบออก
+        if (!updateData.password || updateData.password === '') {
+          delete updateData.password;
+        }
+        await userService.updateUser(_id, updateData);
+        alert('อัปเดตผู้ใช้สำเร็จ');
+        setIsModalOpen(false);
+        setFormData(emptyFormState);
+        setShowConfirmModal(false);
+        setConfirmAction({ type: null });
+        fetchUsers();
+      } catch (error: any) {
+        console.error('Failed to update user', error);
+        setError(
+          error.response?.data?.message || error.message || 'เกิดข้อผิดพลาด'
+        );
+        setShowConfirmModal(false);
+        setConfirmAction({ type: null });
+      }
     }
   };
 
@@ -133,10 +209,15 @@ export const AdminUserManagement = () => {
           display: 'flex',
           justifyContent: 'space-between',
           alignItems: 'center',
+          marginBottom: '20px',
         }}
       >
-        <h1>จัดการผู้ใช้ (Admin Panel)</h1>
-        <button onClick={openCreateModal} style={{ height: 'fit-content' }}>
+        <h1>จัดการสมาชิกในการจอง</h1>
+        <button
+          onClick={openCreateModal}
+          style={{ height: 'fit-content', padding: '10px 20px' }}
+          className="btn-primary"
+        >
           + เพิ่มผู้ใช้ใหม่
         </button>
       </div>
@@ -146,6 +227,7 @@ export const AdminUserManagement = () => {
           <tr>
             <th>Name (ชื่อ)</th>
             <th>Username</th>
+            <th>Password</th>
             <th>Role</th>
             <th>Actions</th>
           </tr>
@@ -170,28 +252,44 @@ export const AdminUserManagement = () => {
               <tr key={user._id}>
                 <td>{user.name}</td>
                 <td>{user.username}</td>
+                <td>
+                  {user.password ? (
+                    <span className="password-display">{user.password}</span>
+                  ) : (
+                    <span className="password-masked">••••••</span>
+                  )}
+                </td>
                 <td>{user.role}</td>
                 <td>
                   <button
-                    onClick={() => openEditModal(user)}
+                    onClick={() => handleEditClick(user)}
                     disabled={!canEditOrDelete}
                     title={
                       !canEditOrDelete
                         ? 'คุณไม่มีสิทธิ์แก้ไขผู้ใช้ระดับนี้'
                         : 'แก้ไขผู้ใช้'
                     }
+                    className="btn-edit"
                   >
                     แก้ไข
                   </button>
                   <button
-                    onClick={() => handleDelete(user._id)}
+                    onClick={() => handleGeneratePassword(user._id)}
+                    disabled={!canEditOrDelete}
+                    title="Generate Password ใหม่"
+                    className="btn-generate"
+                  >
+                    Generate
+                  </button>
+                  <button
+                    onClick={() => handleDeleteClick(user._id)}
                     disabled={!canEditOrDelete}
                     title={
                       !canEditOrDelete
                         ? 'คุณไม่มีสิทธิ์ลบผู้ใช้ระดับนี้'
                         : 'ลบผู้ใช้'
                     }
-                    style={{ backgroundColor: '#dc3545', marginLeft: '5px' }}
+                    className="btn-delete"
                   >
                     ลบ
                   </button>
@@ -202,7 +300,7 @@ export const AdminUserManagement = () => {
         </tbody>
       </table>
 
-      {/* --- Modal UI --- */}
+      {/* --- Modal สำหรับ Add/Edit User --- */}
       {isModalOpen && (
         <div className="modal-backdrop">
           <div className="modal-content">
@@ -243,7 +341,7 @@ export const AdminUserManagement = () => {
                       ? '(เว้นว่างไว้หากไม่ต้องการเปลี่ยน)'
                       : 'Required'
                   }
-                  required={!isEditing} // บังคับใส่ตอนสร้าง
+                  required={!isEditing}
                 />
               </div>
               <div className="form-group">
@@ -253,15 +351,17 @@ export const AdminUserManagement = () => {
                   name="role"
                   value={formData.role}
                   onChange={handleInputChange}
-                  disabled={!loggedInUser?.isAdmin} // Admin ธรรมดา สร้างได้แค่ 'user'
+                  disabled={
+                    !loggedInUser?.isAdmin ||
+                    (loggedInUser.username !== 'admingod' && formData.role !== 'user')
+                  }
                   title={
-                    !loggedInUser?.isAdmin
+                    loggedInUser?.username !== 'admingod'
                       ? "Admin สามารถสร้างได้เฉพาะ 'user'"
                       : ''
                   }
                 >
                   <option value="user">User</option>
-                  {/* God เท่านั้นที่เห็นตัวเลือกนี้ */}
                   {loggedInUser?.isAdmin &&
                     loggedInUser.username === 'admingod' && (
                       <>
@@ -277,20 +377,108 @@ export const AdminUserManagement = () => {
               <div className="modal-actions">
                 <button
                   type="button"
-                  onClick={() => setIsModalOpen(false)}
+                  onClick={() => {
+                    setIsModalOpen(false);
+                    setFormData(emptyFormState);
+                    setError(null);
+                  }}
                   className="btn-secondary"
                 >
                   ยกเลิก
                 </button>
-                <button type="submit" className="btn-primary">
-                  {isEditing ? 'บันทึกการเปลี่ยนแปลง' : 'สร้างผู้ใช้'}
+                <button
+                  type="submit"
+                  className="btn-primary"
+                  onClick={(e) => {
+                    if (isEditing) {
+                      e.preventDefault();
+                      setConfirmAction({ type: 'edit', userData: formData });
+                      setShowConfirmModal(true);
+                    }
+                  }}
+                >
+                  {isEditing ? 'ยืนยันการแก้ไข' : 'ยืนยันการสร้าง'}
                 </button>
               </div>
             </form>
           </div>
         </div>
       )}
+
+      {/* --- Confirmation Modal --- */}
+      {showConfirmModal && (
+        <div className="modal-backdrop">
+          <div className="modal-content confirmation-modal">
+            <h2>
+              {confirmAction.type === 'edit'
+                ? 'ยืนยันการแก้ไขข้อมูล'
+                : confirmAction.type === 'delete'
+                ? 'ยืนยันการลบผู้ใช้'
+                : 'ยืนยันการ Generate Password ใหม่'}
+            </h2>
+            <div className="confirmation-content">
+              {confirmAction.type === 'edit' && (
+                <div>
+                  <p>คุณต้องการแก้ไขข้อมูลผู้ใช้ต่อไปนี้หรือไม่?</p>
+                  <div className="confirmation-details">
+                    <p>
+                      <strong>ชื่อ:</strong> {confirmAction.userData?.name}
+                    </p>
+                    <p>
+                      <strong>Username:</strong>{' '}
+                      {confirmAction.userData?.username}
+                    </p>
+                    {confirmAction.userData?.password && (
+                      <p>
+                        <strong>Password:</strong>{' '}
+                        {confirmAction.userData.password}
+                      </p>
+                    )}
+                    <p>
+                      <strong>Role:</strong> {confirmAction.userData?.role}
+                    </p>
+                  </div>
+                </div>
+              )}
+              {confirmAction.type === 'delete' && (
+                <p>คุณแน่ใจหรือไม่ว่าต้องการลบผู้ใช้นี้?</p>
+              )}
+              {confirmAction.type === 'generate' && (
+                <p>
+                  คุณต้องการ Generate Password ใหม่สำหรับผู้ใช้นี้หรือไม่?
+                  <br />
+                  <small>
+                    (Password เก่าจะไม่สามารถใช้งานได้อีกต่อไป)
+                  </small>
+                </p>
+              )}
+            </div>
+            <div className="modal-actions">
+              <button
+                type="button"
+                onClick={() => {
+                  setShowConfirmModal(false);
+                  setConfirmAction({ type: null });
+                }}
+                className="btn-secondary"
+              >
+                ยกเลิก
+              </button>
+              <button
+                type="button"
+                onClick={
+                  confirmAction.type === 'edit'
+                    ? handleFinalConfirm
+                    : executeConfirmAction
+                }
+                className="btn-primary"
+              >
+                ยืนยัน
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
-

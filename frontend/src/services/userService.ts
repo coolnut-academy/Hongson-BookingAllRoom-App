@@ -36,6 +36,14 @@ export const userService = {
   deleteUser: (id: string) => {
     return axios.delete(`${API_URL}/${id}`, { headers: getAuthHeaders() });
   },
+
+  resetPassword: (id: string, newPassword?: string) => {
+    return axios.post(
+      `${API_URL}/${id}/reset-password`,
+      { newPassword },
+      { headers: getAuthHeaders() },
+    );
+  },
 };
 
 export type { UserData };

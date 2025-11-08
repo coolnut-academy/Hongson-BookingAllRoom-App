@@ -14,6 +14,7 @@ import {
   NotFoundException,
   BadRequestException,
 } from '@nestjs/common';
+import * as bcrypt from 'bcrypt';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
@@ -56,6 +57,67 @@ export class UsersController {
       createdAt: user.createdAt,
       updatedAt: user.updatedAt,
     }));
+  }
+
+  // POST /users/:id/reset-password - Reset password สำหรับ user (ต้องมาก่อน :id route)
+  @Post(':id/reset-password')
+  async resetPassword(
+    @Param('id') id: string,
+    @Body() body: { newPassword?: string },
+    @Request() req,
+  ) {
+    this.checkAdminAccess(req.user);
+
+    // ตรวจสอบว่า user ที่จะ reset password มีอยู่หรือไม่
+    const existingUser = await this.usersService.findById(id);
+    if (!existingUser) {
+      throw new NotFoundException('User not found');
+    }
+
+    // ตรวจสอบสิทธิ์
+    const isGod = this.isGod(req.user);
+    const targetIsGod = existingUser.username === 'admingod';
+
+    // God เท่านั้นที่ reset password ของ god คนอื่นได้
+    if (targetIsGod && !isGod) {
+      throw new ForbiddenException(
+        'Only God admin can reset password for other God admins',
+      );
+    }
+
+    // Admin ธรรมดา reset password ได้เฉพาะ user
+    if (!isGod && existingUser.isAdmin) {
+      throw new ForbiddenException(
+        'Regular admins can only reset password for users with role "user"',
+      );
+    }
+
+    // Generate password ใหม่ถ้าไม่ระบุ
+    const newPassword =
+      body.newPassword || this.generateRandomPassword();
+
+    // Update password
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+    await this.usersService.update(id, { password: hashedPassword });
+
+    return {
+      message: 'Password reset successfully',
+      newPassword: newPassword, // ส่งกลับไปให้ frontend แสดง
+    };
+  }
+
+  // Helper function สำหรับ generate random password
+  private generateRandomPassword(): string {
+    const length = 12;
+    const charset =
+      'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+    let password = '';
+    for (let i = 0; i < length; i++) {
+      password += charset.charAt(
+        Math.floor(Math.random() * charset.length),
+      );
+    }
+    return password;
   }
 
   // GET /users/:id - ดึง user ตาม id
