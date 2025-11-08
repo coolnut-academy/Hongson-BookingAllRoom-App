@@ -6,6 +6,7 @@ import SummaryView from '../components/SummaryView';
 import { AdminUserManagement } from '../components/AdminUserManagement';
 import { AddDateModal } from '../components/AddDateModal';
 import { bookingService } from '../services/booking.service';
+import { getUserDisplayName } from '../utils/userDisplay';
 import './DashboardPage.css';
 
 type ActiveTap = 'tap1' | 'tap2' | 'tap2.5' | 'tap3' | 'tap4' | string;
@@ -97,12 +98,20 @@ const DashboardPage = () => {
             alt="Logo โรงเรียนห้องสอนศึกษา" 
             className="header-logo"
           />
-          {user && (
-            <div className="user-info">
-              <span className="user-label">ผู้ใช้งาน:</span>
-              <span className="user-name">{user.name || user.username}</span>
-            </div>
-          )}
+          {user && (() => {
+            // แสดง username + displayName เช่น "hs-sci กลุ่มสาระวิทยาศาสตร์และเทคโนโลยี"
+            const displayName = getUserDisplayName(user.username);
+            const displayText = displayName && displayName !== user.username
+              ? `${user.username} ${displayName}`
+              : user.username;
+            
+            return (
+              <div className="user-info">
+                <span className="user-label">ผู้ใช้งาน:</span>
+                <span className="user-name">{displayText}</span>
+              </div>
+            );
+          })()}
         </div>
         <nav className="tabs">
           <button

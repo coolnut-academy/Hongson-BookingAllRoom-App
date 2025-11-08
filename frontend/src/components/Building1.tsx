@@ -17,7 +17,6 @@
 import { useEffect, useRef, useState } from 'react';
 import RoomCell from './RoomCell';
 import Building1Mobile from './Building1Mobile';
-import './Building1.css';
 
 type BookingsMap = Record<
   string,
@@ -262,16 +261,16 @@ const Building1: React.FC<Building1Props> = ({
     );
   }
 
-  // Desktop View - Table Layout (3 แถวเท่านั้น)
+  // Desktop View - Table Layout (3 แถวเท่านั้น) - ใช้เหมือน Building2
   return (
     <div className="container" ref={containerRef} id="building-1">
       <h1>[ อาคาร 1 ] ผังการจองห้อง</h1>
-      <table className="room-table building-1-table">
+      <table className="room-table">
         <tbody>
           {roomRows.map((row, rowIndex) => (
             <tr key={rowIndex}>
               {row.map((room) => (
-                <td key={room.roomId} className="building-1-td">
+                <td key={room.roomId}>
                   {renderRoom(room)}
                 </td>
               ))}
