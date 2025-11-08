@@ -446,12 +446,13 @@ body {
   box-sizing: border-box;
 }
 
-/* สำหรับ Mobile - ป้องกันการเลยขอบ */
+/* สำหรับ Mobile - ป้องกันการเลยขอบ และบังคับให้ scroll */
 @media screen and (max-width: 768px) {
   .container {
     max-width: 100vw;
     padding: 15px 10px; /* ลด padding ด้านข้าง */
     margin: 10px auto;
+    overflow-x: auto !important; /* บังคับให้มี scrollbar */
   }
 }
 

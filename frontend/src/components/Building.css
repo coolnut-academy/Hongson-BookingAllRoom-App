@@ -87,7 +87,9 @@
 /* สำหรับ Mobile/Tablet - กำหนด min-width เพื่อให้ scroll ได้ */
 @media screen and (max-width: 1024px) {
   .room-table {
-    min-width: 800px; /* กำหนด min-width เพื่อให้ scroll ได้เมื่อบีบ */
+    min-width: 1200px !important; /* เพิ่ม min-width เพื่อบังคับให้ scroll (6 ห้อง x 180px + spacing) */
+    width: auto !important; /* ให้ขยายตามเนื้อหา */
+    table-layout: auto; /* ใช้ auto layout */
   }
 }
 
@@ -99,6 +101,14 @@
   max-width: none; /* อนุญาตให้ขยายตามเนื้อหา */
   white-space: normal;
   word-wrap: break-word;
+}
+
+/* สำหรับ Mobile/Tablet - ป้องกัน td wrap */
+@media screen and (max-width: 1024px) {
+  .room-table td {
+    white-space: nowrap; /* ป้องกันการ wrap */
+    min-width: 180px !important; /* บังคับ min-width */
+  }
 }
 
 .room-table .room-cell {
