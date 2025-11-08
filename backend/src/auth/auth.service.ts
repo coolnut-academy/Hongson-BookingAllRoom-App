@@ -33,7 +33,7 @@ export class AuthService {
       access_token: this.jwtService.sign(payload),
       user: {
         id: user._id,
-        name: user.name,
+        name: user.name || user.username || 'User', // Fallback ถ้าไม่มี name
         username: user.username,
         isAdmin: user.isAdmin || false,
       },
@@ -56,7 +56,7 @@ export class AuthService {
       access_token: this.jwtService.sign(payload),
       user: {
         id: user._id,
-        name: user.name,
+        name: user.name || user.username || 'User', // Fallback ถ้าไม่มี name
         username: user.username,
         isAdmin: user.isAdmin || false,
       },

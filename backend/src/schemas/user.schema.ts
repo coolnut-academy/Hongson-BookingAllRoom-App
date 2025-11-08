@@ -3,8 +3,8 @@ import { Document } from 'mongoose';
 
 @Schema({ timestamps: true })
 export class User extends Document {
-  @Prop({ required: true })
-  name: string;
+  @Prop({ required: false }) // เปลี่ยนเป็น optional เพื่อรองรับ user เก่า
+  name?: string;
 
   @Prop({ unique: true, required: true })
   username: string;

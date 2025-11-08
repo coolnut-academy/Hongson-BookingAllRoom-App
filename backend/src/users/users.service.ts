@@ -52,14 +52,14 @@ export class UsersService implements OnModuleInit {
   }
 
   async create(
-    name: string,
+    name: string | undefined,
     username: string,
     hashedPassword: string,
     isAdmin: boolean = false,
     displayName?: string,
   ): Promise<User> {
     const user = new this.userModel({
-      name,
+      name: name || username, // ใช้ username เป็น fallback ถ้าไม่มี name
       username,
       password: hashedPassword,
       isAdmin,
