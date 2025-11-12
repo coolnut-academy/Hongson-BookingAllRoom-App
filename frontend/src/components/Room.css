@@ -81,24 +81,36 @@
 }
 
 .slot.available.selected {
-  background: linear-gradient(135deg, #1976d2 0%, #1565c0 100%);
+  background: linear-gradient(135deg, #00c853 0%, #00b248 100%);
   color: #ffffff;
   font-weight: 700;
-  border: 2px solid #0d47a1;
-  box-shadow: 0 4px 12px rgba(25, 118, 210, 0.4);
-  transform: translateY(-1px);
+  border: 3px solid #00897b;
+  box-shadow: 0 6px 20px rgba(0, 200, 83, 0.5), inset 0 2px 4px rgba(255, 255, 255, 0.2);
+  transform: translateY(-2px);
+  animation: pulse-selected 2s ease-in-out infinite;
 }
 
 .slot.available.selected:hover {
-  background: linear-gradient(135deg, #1565c0 0%, #0d47a1 100%);
-  box-shadow: 0 6px 16px rgba(25, 118, 210, 0.5);
-  transform: translateY(-2px);
+  background: linear-gradient(135deg, #00b248 0%, #009624 100%);
+  box-shadow: 0 8px 24px rgba(0, 200, 83, 0.6), inset 0 2px 4px rgba(255, 255, 255, 0.3);
+  transform: translateY(-3px);
+  border-color: #00796b;
 }
 
 .slot.available.selected .status-icon {
   color: #ffffff;
-  font-size: 1.4rem;
+  font-size: 1.6rem;
   font-weight: 700;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+@keyframes pulse-selected {
+  0%, 100% {
+    box-shadow: 0 6px 20px rgba(0, 200, 83, 0.5), inset 0 2px 4px rgba(255, 255, 255, 0.2);
+  }
+  50% {
+    box-shadow: 0 8px 24px rgba(0, 200, 83, 0.7), inset 0 2px 4px rgba(255, 255, 255, 0.3);
+  }
 }
 
 .slot.booked {

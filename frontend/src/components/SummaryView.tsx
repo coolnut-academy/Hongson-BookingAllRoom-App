@@ -198,7 +198,7 @@ const SummaryView: React.FC<SummaryViewProps> = () => {
     <div id="summary-view" style={{ width: '100%', overflowX: 'auto' }}>
       <div className="container" ref={containerRef}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
-          <div>
+          <div style={{ flex: 1, textAlign: 'center' }}>
             <h1>สรุปผลการจอง (22 - 23 ธ.ค. 68)</h1>
             <p>ข้อมูลสรุปผลการจอง</p>
           </div>
