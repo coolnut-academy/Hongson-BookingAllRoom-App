@@ -12,11 +12,11 @@
 }
 
 .dashboard-card {
-  background: linear-gradient(135deg, #ffffff 0%, #fafbfc 100%);
+  background: #ffffff;
   border-radius: 16px;
   padding: 24px;
-  box-shadow: 0 4px 16px rgba(15, 23, 42, 0.08), 0 2px 8px rgba(15, 23, 42, 0.04);
-  border: 1px solid rgba(15, 23, 42, 0.08);
+  box-shadow: 0 2px 8px rgba(0, 123, 255, 0.08), 0 1px 4px rgba(0, 0, 0, 0.04);
+  border: 1px solid rgba(0, 123, 255, 0.1);
   display: flex;
   align-items: center;
   gap: 18px;
@@ -38,8 +38,8 @@
 }
 
 .dashboard-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.12), 0 4px 12px rgba(15, 23, 42, 0.08);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 123, 255, 0.12), 0 2px 6px rgba(0, 0, 0, 0.06);
   border-color: rgba(0, 123, 255, 0.2);
 }
 
@@ -75,7 +75,7 @@
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.15);
+  box-shadow: 0 4px 12px rgba(0, 123, 255, 0.12);
   transition: transform 0.2s ease;
 }
 
@@ -160,19 +160,19 @@
   border-collapse: separate;
   border-spacing: 0;
   margin-top: 32px;
-  background: linear-gradient(135deg, #ffffff 0%, #fafbfc 100%);
+  background: #ffffff;
   border-radius: 16px;
   overflow: hidden;
-  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.1), 0 4px 12px rgba(15, 23, 42, 0.06);
+  box-shadow: 0 2px 8px rgba(0, 123, 255, 0.08), 0 1px 4px rgba(0, 0, 0, 0.04);
   min-width: fit-content;
   table-layout: auto;
-  border: 1px solid rgba(15, 23, 42, 0.08);
+  border: 1px solid rgba(0, 123, 255, 0.1);
 }
 
 .summary-table th,
 .summary-table td {
   border: none;
-  border-bottom: 1px solid rgba(15, 23, 42, 0.08);
+  border-bottom: 1px solid rgba(0, 123, 255, 0.08);
   padding: 16px 20px;
   text-align: left;
   transition: background-color 0.2s ease;

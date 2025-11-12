@@ -65,11 +65,12 @@ body {
   font-family: 'Inter', 'Noto Sans Thai', 'IBM Plex Sans Thai', sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
   background-attachment: fixed;
   padding: 24px;
   margin: 0;
   color: #1e293b;
+  min-height: 100vh;
 }
 
 /* ตั้งค่าหัวข้อ - Premium Typography */
@@ -244,19 +245,18 @@ h3 {
   margin: 0 auto;
 }
 
-/* ส่วนหัว (Header) และ Tabs - Premium Enterprise Style */
+/* ส่วนหัว (Header) และ Tabs - Premium Bright Style */
 #main-app-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+  background: #ffffff;
   padding: 16px 32px;
   border-radius: 16px;
-  border: 1px solid rgba(15, 23, 42, 0.08);
-  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.12), 0 2px 8px rgba(15, 23, 42, 0.08);
+  border: 1px solid rgba(0, 123, 255, 0.1);
+  box-shadow: 0 2px 8px rgba(0, 123, 255, 0.08), 0 1px 4px rgba(0, 0, 0, 0.04);
   margin-bottom: 32px;
   gap: 24px;
-  backdrop-filter: blur(10px);
 }
 
 .header-left {
@@ -280,13 +280,13 @@ h3 {
   padding: 10px 18px;
   background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
   border-radius: 12px;
-  border: 1px solid rgba(15, 23, 42, 0.1);
-  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.06);
+  border: 1px solid rgba(0, 123, 255, 0.1);
+  box-shadow: 0 2px 8px rgba(0, 123, 255, 0.06);
   transition: all 0.2s ease;
 }
 
 .user-info:hover {
-  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.1);
+  box-shadow: 0 4px 12px rgba(0, 123, 255, 0.1);
   transform: translateY(-1px);
 }
 
@@ -488,10 +488,10 @@ h3 {
   min-width: 0; /* อนุญาตให้ย่อได้บนหน้าจอเล็ก */
   margin: 0 auto 32px auto;
   padding: 32px 40px;
-  background: linear-gradient(135deg, #ffffff 0%, #fafbfc 100%);
-  border: 1px solid rgba(15, 23, 42, 0.08);
+  background: #ffffff;
+  border: 1px solid rgba(0, 123, 255, 0.1);
   border-radius: 16px;
-  box-shadow: 0 12px 32px rgba(15, 23, 42, 0.12), 0 4px 16px rgba(15, 23, 42, 0.08);
+  box-shadow: 0 2px 8px rgba(0, 123, 255, 0.08), 0 1px 4px rgba(0, 0, 0, 0.04);
   overflow-x: auto; /* ให้ scroll ได้เมื่อเนื้อหาเกิน */
   overflow-y: visible; /* แนวตั้งให้ขยายได้ตามปกติ */
   -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
@@ -501,8 +501,9 @@ h3 {
 }
 
 .container:hover {
-  box-shadow: 0 16px 40px rgba(15, 23, 42, 0.16), 0 6px 20px rgba(15, 23, 42, 0.12);
+  box-shadow: 0 4px 12px rgba(0, 123, 255, 0.12), 0 2px 6px rgba(0, 0, 0, 0.06);
   transform: translateY(-2px);
+  border-color: rgba(0, 123, 255, 0.15);
 }
 
 /* สำหรับ Mobile - ป้องกันการเลยขอบ และบังคับให้ scroll */
@@ -529,21 +530,21 @@ h3 {
 }
 
 .container::-webkit-scrollbar-thumb {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
   border-radius: 8px;
   border: 2px solid #ffffff;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 2px 4px rgba(0, 123, 255, 0.2);
 }
 
 .container::-webkit-scrollbar-thumb:hover {
-  background: linear-gradient(135deg, #5568d3 0%, #6a3d8f 100%);
-  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.3);
+  background: linear-gradient(135deg, #0056b3 0%, #004085 100%);
+  box-shadow: 0 3px 6px rgba(0, 123, 255, 0.3);
 }
 
 /* สำหรับ Firefox */
 .container {
   scrollbar-width: thick; /* auto | thin | none | thick */
-  scrollbar-color: #667eea #e0e0e0; /* thumb color | track color */
+  scrollbar-color: #007bff #e0e0e0; /* thumb color | track color */
 }
 
 /* Scroll Hint Indicator - แสดงที่ด้านล่างของ container */
