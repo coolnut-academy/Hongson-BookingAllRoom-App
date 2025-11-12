@@ -502,7 +502,7 @@ const BookingView: React.FC<BookingViewProps> = ({ date }) => {
                 name="details"
                 value={currentDetails}
                 onChange={(e) => setCurrentDetails(e.target.value)}
-                placeholder="เช่น แข่งขันฟิสิกส์สัประยุทธ์"
+                placeholder="เช่น แข่งขันเครื่องบิน3มิติ"
               />
             </div>
             <div className="modal-actions">

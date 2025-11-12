@@ -63,7 +63,6 @@ const DetailsModal: React.FC<DetailsModalProps> = ({
       });
       await onSaveSuccess();
     } catch (err) {
-      // eslint-disable-next-line no-console
       console.error('Failed to update booking details', err);
       setError('ไม่สามารถบันทึกรายละเอียดได้ กรุณาลองอีกครั้ง');
     } finally {

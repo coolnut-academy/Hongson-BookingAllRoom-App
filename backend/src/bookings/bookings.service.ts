@@ -7,7 +7,7 @@ import {
   Logger,
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import { Model, Types } from 'mongoose';
 import { Booking } from '../schemas/booking.schema';
 import { RoomStatus } from '../schemas/room-status.schema';
 import { CustomRoom } from '../schemas/custom-room.schema';
@@ -20,6 +20,31 @@ import * as ExcelJS from 'exceljs';
 interface BookingSelection {
   roomId: string;
   slot: 'am' | 'pm';
+}
+
+interface Requester {
+  userId?: string;
+  _id?: string;
+  id?: string;
+  isAdmin?: boolean;
+  username?: string;
+}
+
+interface BookingWithTimestamps extends Booking {
+  createdAt?: Date;
+  updatedAt?: Date;
+}
+
+interface SummaryItem {
+  building: string;
+  date: string;
+  available: number;
+  booked: number;
+  details: Array<{
+    roomId: string;
+    slot: string;
+    bookedBy: unknown;
+  }>;
 }
 
 @Injectable()
@@ -152,7 +177,11 @@ export class BookingsService {
   }
 
   // [เพิ่มใหม่] ฟังก์ชันสำหรับอัปเดตรายละเอียด
-  async updateDetails(id: string, details: string, requester: any): Promise<Booking> {
+  async updateDetails(
+    id: string,
+    details: string,
+    requester: Requester,
+  ): Promise<Booking> {
     const booking = await this.bookingModel.findById(id);
     if (!booking) {
       throw new NotFoundException('Booking not found');
@@ -160,15 +189,30 @@ export class BookingsService {
 
     // (ตรรกะตรวจสอบสิทธิ์)
     // requester มาจาก req.user ซึ่งมี userId และ isAdmin
-    const requesterId = requester.userId || requester._id || requester.id;
+    const requesterId = requester.userId || requester._id || requester.id || '';
     const isAdmin = requester.isAdmin === true;
     const isGod = requester.username === 'admingod';
-    const isOwner = booking.bookedBy.toString() === requesterId.toString();
+    let bookedById = '';
+    if (typeof booking.bookedBy === 'object' && booking.bookedBy !== null) {
+      const bookedByObj = booking.bookedBy as {
+        _id?: { toString: () => string } | Types.ObjectId;
+      };
+      const bookedByMongoId = (booking.bookedBy as { _id?: Types.ObjectId })
+        ._id;
+      bookedById =
+        bookedByObj._id?.toString() ||
+        (bookedByMongoId ? String(bookedByMongoId) : '');
+    } else {
+      bookedById = String(booking.bookedBy);
+    }
+    const isOwner = bookedById === String(requesterId);
 
     const canEdit = isAdmin || isGod || isOwner;
 
     if (!canEdit) {
-      throw new ForbiddenException('You do not have permission to edit this booking.');
+      throw new ForbiddenException(
+        'You do not have permission to edit this booking.',
+      );
     }
 
     booking.details = details;
@@ -176,8 +220,15 @@ export class BookingsService {
   }
 
   // [เพิ่มใหม่] ฟังก์ชันสำหรับอัปเดตรายละเอียดแบบกลุ่ม
-  async updateGroupDetails(dto: UpdateGroupDetailsDto, requester: any): Promise<any> {
-    const requesterId = requester.userId || requester._id || requester.id;
+  async updateGroupDetails(
+    dto: UpdateGroupDetailsDto,
+    requester: Requester,
+  ): Promise<{
+    message: string;
+    matchedCount: number;
+    modifiedCount: number;
+  }> {
+    const requesterId = requester.userId || requester._id || requester.id || '';
     const isAdmin = requester.isAdmin === true;
     const isGod = requester.username === 'admingod';
 
@@ -188,7 +239,11 @@ export class BookingsService {
     endOfDay.setHours(23, 59, 59, 999);
 
     // สร้าง query condition
-    const query: any = {
+    const query: {
+      date: { $gte: Date; $lte: Date };
+      roomId: string;
+      bookedBy?: string;
+    } = {
       date: {
         $gte: bookingDate,
         $lte: endOfDay,
@@ -198,19 +253,18 @@ export class BookingsService {
 
     // ถ้าไม่ใช่ admin หรือ god ให้จำกัดเฉพาะการจองของตัวเอง
     if (!isAdmin && !isGod) {
-      query.bookedBy = requesterId;
+      query.bookedBy = requesterId as unknown as string;
     }
 
     // อัปเดตทุก booking ที่ตรงเงื่อนไข
-    const result = await this.bookingModel.updateMany(
-      query,
-      {
-        $set: { details: dto.details },
-      },
-    );
+    const result = await this.bookingModel.updateMany(query, {
+      $set: { details: dto.details },
+    });
 
     if (result.matchedCount === 0) {
-      throw new NotFoundException('No bookings found for this user, room, and date.');
+      throw new NotFoundException(
+        'No bookings found for this user, room, and date.',
+      );
     }
 
     return {
@@ -301,7 +355,7 @@ export class BookingsService {
       .exec();
 
     // จัดกลุ่มตามอาคารและวันที่
-    const summary: Record<string, any> = {};
+    const summary: Record<string, SummaryItem> = {};
 
     bookings.forEach((booking) => {
       const dateStr = booking.date.toISOString().split('T')[0];
@@ -580,9 +634,13 @@ export class BookingsService {
                   typeof booking.bookedBy === 'object' &&
                   booking.bookedBy !== null
                 ) {
+                  const bookedByUser = booking.bookedBy as {
+                    displayName?: string;
+                    username?: string;
+                  };
                   displayName =
-                    (booking.bookedBy as any).displayName ||
-                    (booking.bookedBy as any).username ||
+                    bookedByUser.displayName ||
+                    bookedByUser.username ||
                     'Unknown';
                 } else {
                   // If it's just an ObjectId, we need to populate it
@@ -615,9 +673,13 @@ export class BookingsService {
                   typeof booking.bookedBy === 'object' &&
                   booking.bookedBy !== null
                 ) {
+                  const bookedByUser = booking.bookedBy as {
+                    displayName?: string;
+                    username?: string;
+                  };
                   displayName =
-                    (booking.bookedBy as any).displayName ||
-                    (booking.bookedBy as any).username ||
+                    bookedByUser.displayName ||
+                    bookedByUser.username ||
                     'Unknown';
                 } else {
                   // If it's just an ObjectId, we need to populate it
@@ -667,7 +729,20 @@ export class BookingsService {
     }
 
     // Admin สามารถลบการจองของทุกคนได้
-    if (!isAdmin && booking.bookedBy.toString() !== userId) {
+    let bookedById = '';
+    if (typeof booking.bookedBy === 'object' && booking.bookedBy !== null) {
+      const bookedByObj = booking.bookedBy as {
+        _id?: { toString: () => string } | Types.ObjectId;
+      };
+      const bookedByMongoId = (booking.bookedBy as { _id?: Types.ObjectId })
+        ._id;
+      bookedById =
+        bookedByObj._id?.toString() ||
+        (bookedByMongoId ? String(bookedByMongoId) : '');
+    } else {
+      bookedById = String(booking.bookedBy);
+    }
+    if (!isAdmin && bookedById !== userId) {
       throw new ConflictException('You can only delete your own bookings');
     }
 
@@ -991,7 +1066,9 @@ export class BookingsService {
   }
 
   // PUT /bookings/settings - อัปเดตชื่องานแข่งขัน (Admin only)
-  async updateContestName(contestName: string): Promise<{ contestName: string }> {
+  async updateContestName(
+    contestName: string,
+  ): Promise<{ contestName: string }> {
     let settings = await this.appSettingsModel.findOne().exec();
     if (!settings) {
       settings = new this.appSettingsModel({ contestName });
@@ -1044,14 +1121,15 @@ export class BookingsService {
 
     // เพิ่มข้อมูล (Rows)
     for (const booking of bookings) {
-      const user = booking.bookedBy as User;
-      const bookingDoc = booking as any; // Type assertion for timestamps
+      const user = booking.bookedBy;
+      const bookingDoc = booking as BookingWithTimestamps;
+      const userName = user?.name || user?.username || 'N/A';
       worksheet.addRow({
         roomId: booking.roomId,
         date: booking.date,
         slot: booking.slot === 'am' ? 'ช่วงเช้า' : 'ช่วงบ่าย',
         username: user?.username || 'N/A',
-        name: user?.name || user?.displayName || 'N/A',
+        name: userName,
         createdAt: bookingDoc.createdAt || new Date(),
       });
     }

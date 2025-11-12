@@ -7,6 +7,7 @@ import './CompetitionSummaryPage.css';
 export const CompetitionSummaryPage: React.FC = () => {
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [loading, setLoading] = useState(true);
+  const [isDownloading, setIsDownloading] = useState(false);
 
   useEffect(() => {
     async function fetchAllData() {
@@ -36,6 +37,32 @@ export const CompetitionSummaryPage: React.FC = () => {
     return acc;
   }, {} as Record<string, Booking[]>);
 
+  // ฟังก์ชันสำหรับดาวน์โหลด Excel
+  const handleDownloadExcel = async () => {
+    setIsDownloading(true);
+    try {
+      const blob = await bookingService.downloadExcelReport();
+
+      // Create temporary link in browser to download file
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', 'สรุปรายการแข่งขัน.xlsx'); // File name
+
+      document.body.appendChild(link);
+      link.click();
+
+      // Remove temporary link
+      link.parentNode?.removeChild(link);
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error('Failed to download Excel file', error);
+      alert('ไม่สามารถดาวน์โหลดไฟล์ Excel ได้ กรุณาลองอีกครั้ง');
+    } finally {
+      setIsDownloading(false);
+    }
+  };
+
   if (loading) {
     return (
       <div className="container">
@@ -46,7 +73,45 @@ export const CompetitionSummaryPage: React.FC = () => {
 
   return (
     <div className="container competition-summary-page">
-      <h1>สรุปรายการแข่งขัน (ภาพรวม)</h1>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px', flexWrap: 'wrap', gap: '16px' }}>
+        <h1 style={{ margin: 0, flex: 1, minWidth: '200px' }}>สรุปรายการแข่งขัน (ภาพรวม)</h1>
+        <button
+          onClick={handleDownloadExcel}
+          disabled={isDownloading}
+          className="download-excel-button"
+          style={{
+            padding: '12px 24px',
+            fontSize: '0.9375rem',
+            fontWeight: 600,
+            background: isDownloading
+              ? 'linear-gradient(135deg, #64748b 0%, #475569 100%)'
+              : 'linear-gradient(135deg, #198754 0%, #157347 100%)',
+            color: '#ffffff',
+            border: 'none',
+            borderRadius: '12px',
+            cursor: isDownloading ? 'not-allowed' : 'pointer',
+            transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
+            boxShadow: '0 2px 8px rgba(25, 135, 84, 0.3)',
+            letterSpacing: '0.01em',
+            whiteSpace: 'nowrap',
+            opacity: isDownloading ? 0.6 : 1,
+          }}
+          onMouseEnter={(e) => {
+            if (!isDownloading) {
+              e.currentTarget.style.boxShadow = '0 4px 12px rgba(25, 135, 84, 0.4)';
+              e.currentTarget.style.transform = 'translateY(-2px)';
+            }
+          }}
+          onMouseLeave={(e) => {
+            if (!isDownloading) {
+              e.currentTarget.style.boxShadow = '0 2px 8px rgba(25, 135, 84, 0.3)';
+              e.currentTarget.style.transform = 'translateY(0)';
+            }
+          }}
+        >
+          {isDownloading ? '⏳ กำลังสร้างไฟล์...' : '📥 ดาวน์โหลด Excel'}
+        </button>
+      </div>
 
       {Object.keys(bookingsByDate).length === 0 && (
         <div className="no-data">

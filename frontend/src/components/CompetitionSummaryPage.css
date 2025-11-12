@@ -5,12 +5,13 @@
 }
 
 .competition-summary-page h1 {
-  text-align: center;
-  color: #333;
-  margin-bottom: 30px;
-  font-size: 2rem;
-  border-bottom: 3px solid #007bff;
-  padding-bottom: 15px;
+  color: #0f172a;
+  margin-bottom: 0;
+  font-size: 1.875rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  border-bottom: none;
+  padding-bottom: 0;
 }
 
 .competition-summary-page h2 {
@@ -102,6 +103,11 @@
   font-size: 1.1rem;
 }
 
+/* Download Excel Button */
+.download-excel-button {
+  font-family: 'Inter', 'Noto Sans Thai', sans-serif;
+}
+
 /* Responsive design */
 @media screen and (max-width: 768px) {
   .competition-summary-page {
@@ -110,7 +116,14 @@
 
   .competition-summary-page h1 {
     font-size: 1.5rem;
-    margin-bottom: 20px;
+    margin-bottom: 16px;
+    text-align: center;
+    width: 100%;
+  }
+
+  .download-excel-button {
+    width: 100%;
+    margin-top: 8px;
   }
 
   .competition-summary-page h2 {

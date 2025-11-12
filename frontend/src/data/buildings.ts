@@ -107,7 +107,7 @@ export const building3: BuildingData = {
 export const building4: BuildingData = {
   id: 'building-4',
   title: '[ อาคาร 4 ]',
-  subtitle: '(อาคารนิลสเวศ)',
+  subtitle: '(อาคารนีลเศวต)',
   layout: 'table',
   rooms: [
     [
@@ -142,8 +142,8 @@ export const building4: BuildingData = {
     ],
     [
       { roomId: 'fablab', roomName: 'ห้อง FABLAB', colspan: 2 },
-      { roomId: 'meeting1', roomName: 'ห้องประชุมนิเสสเวศ 1', colspan: 2 },
-      { roomId: 'meeting2', roomName: 'ห้องประชุมนิเสสเวศ 2', colspan: 2 },
+      { roomId: 'nilsawet-meeting1', roomName: 'ห้องประชุมนีลเศวต 1', colspan: 2 },
+      { roomId: 'nilsawet-meeting2', roomName: 'ห้องประชุมนีลเศวต 2', colspan: 2 },
       { roomId: 'hcec', roomName: 'ห้อง HCEC', colspan: 2 },
     ],
   ],
@@ -174,13 +174,13 @@ export const building6: BuildingData = {
     [
       { roomId: 'music1', roomName: 'ห้องดนตรี 1' },
       { roomId: 'music2', roomName: 'ห้องดนตรี 2' },
-      { roomId: 'home1', roomName: 'ห้องคหกรรม 1' },
-      { roomId: 'home2', roomName: 'ห้องคหกรรม 2' },
+      { roomId: 'DIY-1', roomName: 'ห้องคหกรรม 1' },
+      { roomId: 'DIY-2', roomName: 'ห้องคหกรรม 2' },
     ],
     [
       { roomId: 'canteen', roomName: 'โรงอาหาร', colspan: 2 },
-      { roomId: 'phet', roomName: 'อาคารเพชรพลบดี' },
-      { roomId: 'phet-canteen', roomName: 'โรงอาหารเพชรพลบดี' },
+      { roomId: 'phetparabodhi', roomName: 'อาคารเพชรพลบดี' },
+      { roomId: 'phetparabodhi-canteen', roomName: 'โรงอาหารเพชรพลบดี' },
     ],
     [
       { roomId: 'industry1', roomName: 'ห้องอุตสาหกรรม 1', subtitle: 'ม.5/9', colspan: 2 },

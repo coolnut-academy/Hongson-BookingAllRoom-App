@@ -80,12 +80,9 @@ const RoomCell: React.FC<RoomCellProps> = ({
     bookingAM &&
     bookingPM &&
     bookingAM.bookedBy._id === bookingPM.bookedBy._id; // จองเต็มวัน (คนเดียวกัน)
-  const isMyBookingAM =
-    bookingAM?.bookedBy._id === loggedInUser?.id ||
-    bookingAM?.bookedBy._id === (loggedInUser as any)?._id;
-  const isMyBookingPM =
-    bookingPM?.bookedBy._id === loggedInUser?.id ||
-    bookingPM?.bookedBy._id === (loggedInUser as any)?._id;
+  const loggedInUserId = loggedInUser?.id || (loggedInUser as { _id?: string } | undefined)?._id;
+  const isMyBookingAM = bookingAM?.bookedBy._id === loggedInUserId;
+  const isMyBookingPM = bookingPM?.bookedBy._id === loggedInUserId;
   const isAdminUser = hasAdminAccess;
 
   // --- 3. ตรวจสอบสิทธิ์การแก้ไขรายละเอียด ---
