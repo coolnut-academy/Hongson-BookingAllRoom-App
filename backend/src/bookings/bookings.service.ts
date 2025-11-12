@@ -1091,9 +1091,15 @@ export class BookingsService {
 
     const worksheet = workbook.addWorksheet('สรุปการจองทั้งหมด');
 
-    // กำหนด Columns (หัวตาราง) - 4 ค่าตามที่ระบุ
+    // กำหนด Columns (หัวตาราง) - 5 ค่าตามที่ระบุ
     worksheet.columns = [
       { header: 'อาคาร/ห้อง', key: 'roomId', width: 25 },
+      {
+        header: 'วันที่จอง',
+        key: 'date',
+        width: 20,
+        style: { numFmt: 'yyyy-mm-dd' },
+      },
       { header: 'เวลา', key: 'time', width: 15 },
       { header: 'รายการแข่งขัน (รายละเอียด)', key: 'details', width: 40 },
       { header: 'ผู้จอง (มีชื่อกลุ่มสาระด้วย)', key: 'booker', width: 50 },
@@ -1118,8 +1124,12 @@ export class BookingsService {
       // รายละเอียดการแข่งขัน (ถ้าไม่มีให้แสดง "-")
       const details = booking.details?.trim() || '-';
 
+      // วันที่จอง (แปลงเป็น Date object)
+      const bookingDate = new Date(booking.date);
+
       worksheet.addRow({
         roomId: booking.roomId,
+        date: bookingDate,
         time: timeSlot,
         details: details,
         booker: bookerName,
