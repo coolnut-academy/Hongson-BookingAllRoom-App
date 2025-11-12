@@ -336,6 +336,7 @@ const BookingView: React.FC<BookingViewProps> = ({ date }) => {
     setShowResetAllModal(false);
   };
 
+  // สร้าง buildingProps ที่มี props ทั้งหมดที่จำเป็น
   const buildingProps = {
     bookingsByRoom,
     selections,
@@ -392,12 +393,78 @@ const BookingView: React.FC<BookingViewProps> = ({ date }) => {
             ℹ️ มีห้องที่ปิดอยู่ {closedRooms.length} ห้อง: {closedRooms.join(', ')}
           </div>
         )}
-        <Building1 {...buildingProps} />
-        <Building2 {...buildingProps} />
-        <Building3 {...buildingProps} />
-        <Building4 {...buildingProps} />
-        <Building5 {...buildingProps} />
-        <Building6 {...buildingProps} />
+        {/* อาคาร 1 */}
+        <Building1 
+          bookingsByRoom={bookingsByRoom}
+          selections={selections}
+          onOpenDetails={handleOpenDetails}
+          onSelectSlot={handleSelectSlot}
+          onBook={handleBook}
+          isAdmin={isAdmin}
+          onResetRoom={handleResetRoom}
+          closedRooms={closedRooms}
+          onToggleRoom={handleToggleRoom}
+        />
+        {/* อาคาร 2 */}
+        <Building2 
+          bookingsByRoom={bookingsByRoom}
+          selections={selections}
+          onOpenDetails={handleOpenDetails}
+          onSelectSlot={handleSelectSlot}
+          onBook={handleBook}
+          isAdmin={isAdmin}
+          onResetRoom={handleResetRoom}
+          closedRooms={closedRooms}
+          onToggleRoom={handleToggleRoom}
+        />
+        {/* อาคาร 3 */}
+        <Building3 
+          bookingsByRoom={bookingsByRoom}
+          selections={selections}
+          onOpenDetails={handleOpenDetails}
+          onSelectSlot={handleSelectSlot}
+          onBook={handleBook}
+          isAdmin={isAdmin}
+          onResetRoom={handleResetRoom}
+          closedRooms={closedRooms}
+          onToggleRoom={handleToggleRoom}
+        />
+        {/* อาคาร 4 */}
+        <Building4 
+          bookingsByRoom={bookingsByRoom}
+          selections={selections}
+          onOpenDetails={handleOpenDetails}
+          onSelectSlot={handleSelectSlot}
+          onBook={handleBook}
+          isAdmin={isAdmin}
+          onResetRoom={handleResetRoom}
+          closedRooms={closedRooms}
+          onToggleRoom={handleToggleRoom}
+        />
+        {/* อาคาร 5 */}
+        <Building5 
+          bookingsByRoom={bookingsByRoom}
+          selections={selections}
+          onOpenDetails={handleOpenDetails}
+          onSelectSlot={handleSelectSlot}
+          onBook={handleBook}
+          isAdmin={isAdmin}
+          onResetRoom={handleResetRoom}
+          closedRooms={closedRooms}
+          onToggleRoom={handleToggleRoom}
+        />
+        {/* อาคาร 6 */}
+        <Building6 
+          bookingsByRoom={bookingsByRoom}
+          selections={selections}
+          onOpenDetails={handleOpenDetails}
+          onSelectSlot={handleSelectSlot}
+          onBook={handleBook}
+          isAdmin={isAdmin}
+          onResetRoom={handleResetRoom}
+          closedRooms={closedRooms}
+          onToggleRoom={handleToggleRoom}
+        />
         <CustomRoomsSection
           {...buildingProps}
           onRoomCreated={async () => {
