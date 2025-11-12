@@ -1,23 +1,24 @@
 .room-cell {
-  background-color: #f9f9f9;
-  border: 1px solid #ddd;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  background-color: #ffffff;
+  border: 1px solid #e0e0e0;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
   display: flex;
   flex-direction: column;
   vertical-align: top;
   height: 100%;
-  border-radius: 8px;
+  overflow: hidden;
 }
 
 .room-header {
   padding: 8px 10px;
-  background-color: #e9ecef;
+  background-color: #f8f9fa;
   text-align: center;
   font-weight: 600;
-  color: #495057;
-  border-bottom: 1px solid #ddd;
-  border-top-left-radius: 8px;
-  border-top-right-radius: 8px;
+  color: #343a40;
+  border-bottom: 1px solid #e9ecef;
+  border-top-left-radius: 12px;
+  border-top-right-radius: 12px;
 }
 
 .room-header small {
@@ -55,75 +56,52 @@
 }
 
 .slot.available {
-  background-color: #e3f2fd;
-  color: #1565c0;
+  background-color: #e6f7ff;
+  color: #0056b3;
   cursor: pointer;
-  transition: all 0.2s ease;
-  border: 2px solid transparent;
-}
-
-.slot.available:hover {
-  background-color: #bbdefb;
-  border-color: #2196f3;
-  transform: translateY(-2px);
-  box-shadow: 0 4px 8px rgba(33, 150, 243, 0.3);
-}
-
-.slot.available:active {
-  transform: translateY(0) scale(0.98);
-  box-shadow: 0 2px 4px rgba(33, 150, 243, 0.2);
+  transition: background-color 0.2s, transform 0.1s;
 }
 
 .slot.available .status-icon {
-  font-size: 1.3rem;
-  color: #1976d2;
+  font-size: 1.5rem;
   font-weight: 600;
+  color: #007bff;
+}
+
+.slot.available:hover {
+  background-color: #ccebff;
+}
+
+.slot.available:active {
+  transform: scale(0.95);
 }
 
 .slot.available.selected {
-  background: linear-gradient(135deg, #00c853 0%, #00b248 100%);
+  background-color: #007bff;
   color: #ffffff;
   font-weight: 700;
-  border: 3px solid #00897b;
-  box-shadow: 0 6px 20px rgba(0, 200, 83, 0.5), inset 0 2px 4px rgba(255, 255, 255, 0.2);
-  transform: translateY(-2px);
-  animation: pulse-selected 2s ease-in-out infinite;
-}
-
-.slot.available.selected:hover {
-  background: linear-gradient(135deg, #00b248 0%, #009624 100%);
-  box-shadow: 0 8px 24px rgba(0, 200, 83, 0.6), inset 0 2px 4px rgba(255, 255, 255, 0.3);
-  transform: translateY(-3px);
-  border-color: #00796b;
+  transform: scale(1.0);
 }
 
 .slot.available.selected .status-icon {
   color: #ffffff;
-  font-size: 1.6rem;
-  font-weight: 700;
-  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  font-size: 1.5rem;
 }
 
-@keyframes pulse-selected {
-  0%, 100% {
-    box-shadow: 0 6px 20px rgba(0, 200, 83, 0.5), inset 0 2px 4px rgba(255, 255, 255, 0.2);
-  }
-  50% {
-    box-shadow: 0 8px 24px rgba(0, 200, 83, 0.7), inset 0 2px 4px rgba(255, 255, 255, 0.3);
-  }
+.slot.available.selected:before {
+  content: '✓ ';
 }
 
 .slot.booked {
-  background: linear-gradient(135deg, #c8e6c9 0%, #a5d6a7 100%);
+  background-color: #f8f9fa;
+  color: #adb5bd;
   cursor: help;
-  border: 2px solid #4caf50;
-  box-shadow: 0 2px 6px rgba(76, 175, 80, 0.2);
+  text-decoration: line-through;
 }
 
 .slot.booked .status-icon {
-  font-size: 1.5rem;
-  font-weight: bold;
-  color: #1b5e20;
+  font-size: 1.2rem;
+  color: #adb5bd;
 }
 
 .room-header.blocked-red {
@@ -164,24 +142,42 @@
   width: 100%;
   padding: 10px 5px;
   font-family: 'Noto Sans Thai', sans-serif;
-  font-size: 0.9rem;
+  font-size: 1rem;
   font-weight: 600;
   border: none;
   border-radius: 6px;
   cursor: pointer;
-  background-color: #28a745;
+  background-color: #198754;
   color: white;
   transition: background-color 0.2s;
 }
 
 .book-button:hover {
-  background-color: #218838;
+  background-color: #157347;
 }
 
 .book-button:disabled {
   background-color: #6c757d;
   color: #ccc;
   cursor: not-allowed;
+}
+
+.reset-button {
+  width: 100%;
+  padding: 8px 5px;
+  font-family: 'Noto Sans Thai', sans-serif;
+  font-size: 0.85rem;
+  font-weight: 600;
+  border: 2px solid #dc3545;
+  border-radius: 6px;
+  cursor: pointer;
+  background-color: #ffffff;
+  color: #dc3545;
+  transition: all 0.2s;
+}
+
+.reset-button:hover {
+  background-color: #fdf2f2;
 }
 
 .room-cell.colspan {
