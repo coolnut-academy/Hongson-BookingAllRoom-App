@@ -282,6 +282,7 @@ const RoomCell: React.FC<RoomCellProps> = ({
   const rootClasses = [
     'room-cell',
     isRoomClosed ? 'room-closed' : '',
+    isFullDay ? 'full-day' : '',
     className,
   ]
     .filter((x) => Boolean(x))

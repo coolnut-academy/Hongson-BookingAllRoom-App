@@ -1,8 +1,8 @@
 .room-cell {
-  background: linear-gradient(135deg, #ffffff 0%, #fafbfc 100%);
-  border: 1px solid rgba(15, 23, 42, 0.08);
+  background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+  border: 2px solid rgba(15, 23, 42, 0.12);
   border-radius: 14px;
-  box-shadow: 0 4px 16px rgba(15, 23, 42, 0.08), 0 2px 8px rgba(15, 23, 42, 0.04);
+  box-shadow: 0 6px 20px rgba(15, 23, 42, 0.12), 0 3px 10px rgba(15, 23, 42, 0.08);
   display: flex;
   flex-direction: column;
   vertical-align: top;
@@ -25,9 +25,10 @@
 }
 
 .room-cell:hover {
-  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.12), 0 4px 12px rgba(15, 23, 42, 0.08);
+  box-shadow: 0 10px 28px rgba(15, 23, 42, 0.16), 0 5px 14px rgba(15, 23, 42, 0.12);
   transform: translateY(-3px);
-  border-color: rgba(0, 123, 255, 0.2);
+  border-color: rgba(0, 123, 255, 0.3);
+  background: linear-gradient(135deg, #ffffff 0%, #f1f5f9 100%);
 }
 
 .room-cell:hover::before {
@@ -272,7 +273,61 @@ div.slot.slot-pm.selected span:first-of-type:before {
   min-height: 100px;
 }
 
-/* Premium Full Day Slot Styling */
+/* Premium Full Day Slot Styling - สีเขียวสว่างเด่นชัด */
+.room-cell.full-day {
+  background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
+  border: 3px solid #10b981;
+  box-shadow: 0 8px 24px rgba(16, 185, 129, 0.3), 0 4px 12px rgba(16, 185, 129, 0.2),
+    inset 0 1px 0 rgba(255, 255, 255, 0.5);
+  animation: fullDayGlow 2s ease-in-out infinite;
+}
+
+.room-cell.full-day::before {
+  opacity: 1;
+  background: linear-gradient(90deg, #10b981 0%, #059669 100%);
+  height: 4px;
+}
+
+.room-cell.full-day:hover {
+  box-shadow: 0 12px 32px rgba(16, 185, 129, 0.4), 0 6px 16px rgba(16, 185, 129, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.6);
+  transform: translateY(-4px);
+  border-color: #059669;
+}
+
+/* Fallback สำหรับเบราว์เซอร์ที่รองรับ :has() */
+.room-cell:has(.slot-full-day) {
+  background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
+  border: 3px solid #10b981;
+  box-shadow: 0 8px 24px rgba(16, 185, 129, 0.3), 0 4px 12px rgba(16, 185, 129, 0.2),
+    inset 0 1px 0 rgba(255, 255, 255, 0.5);
+  animation: fullDayGlow 2s ease-in-out infinite;
+}
+
+.room-cell:has(.slot-full-day)::before {
+  opacity: 1;
+  background: linear-gradient(90deg, #10b981 0%, #059669 100%);
+  height: 4px;
+}
+
+.room-cell:has(.slot-full-day):hover {
+  box-shadow: 0 12px 32px rgba(16, 185, 129, 0.4), 0 6px 16px rgba(16, 185, 129, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.6);
+  transform: translateY(-4px);
+  border-color: #059669;
+}
+
+@keyframes fullDayGlow {
+  0%, 100% {
+    box-shadow: 0 8px 24px rgba(16, 185, 129, 0.3), 0 4px 12px rgba(16, 185, 129, 0.2),
+      inset 0 1px 0 rgba(255, 255, 255, 0.5);
+  }
+  50% {
+    box-shadow: 0 10px 28px rgba(16, 185, 129, 0.4), 0 5px 14px rgba(16, 185, 129, 0.3),
+      inset 0 1px 0 rgba(255, 255, 255, 0.5), 0 0 20px rgba(16, 185, 129, 0.2);
+  }
+}
+
 .slot-full-day {
   display: flex;
   flex-direction: column;
@@ -281,33 +336,61 @@ div.slot.slot-pm.selected span:first-of-type:before {
   text-align: center;
   padding: 20px 16px;
   flex-grow: 1;
-  background: linear-gradient(135deg, rgba(0, 123, 255, 0.08) 0%, rgba(0, 123, 255, 0.04) 100%);
-  border: 1px solid rgba(0, 123, 255, 0.15);
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.15) 0%, rgba(5, 150, 105, 0.1) 100%);
+  border: 2px solid rgba(16, 185, 129, 0.3);
   border-radius: 12px;
   margin: 8px;
   transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+.slot-full-day::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+  animation: shimmer 3s infinite;
+  transform: rotate(45deg);
+}
+
+@keyframes shimmer {
+  0% {
+    transform: translateX(-100%) translateY(-100%) rotate(45deg);
+  }
+  100% {
+    transform: translateX(100%) translateY(100%) rotate(45deg);
+  }
 }
 
 .slot-full-day:hover {
-  background: linear-gradient(135deg, rgba(0, 123, 255, 0.12) 0%, rgba(0, 123, 255, 0.08) 100%);
-  border-color: rgba(0, 123, 255, 0.25);
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.2) 0%, rgba(5, 150, 105, 0.15) 100%);
+  border-color: rgba(16, 185, 129, 0.4);
   transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(0, 123, 255, 0.15);
+  box-shadow: 0 6px 16px rgba(16, 185, 129, 0.25);
 }
 
 .slot-full-day strong {
-  color: #0f172a;
+  color: #065f46;
   font-weight: 700;
-  font-size: 0.9375rem;
+  font-size: 1rem;
   letter-spacing: -0.01em;
   margin-bottom: 6px;
+  text-shadow: 0 1px 2px rgba(255, 255, 255, 0.5);
+  position: relative;
+  z-index: 1;
 }
 
 .slot-full-day small {
   font-size: 0.8125rem;
   margin-top: 6px;
-  color: #64748b;
-  font-weight: 500;
+  color: #047857;
+  font-weight: 600;
   letter-spacing: 0.01em;
+  position: relative;
+  z-index: 1;
 }
 
