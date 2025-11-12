@@ -1,4 +1,5 @@
-import { ReactNode, useMemo } from 'react';
+import { useMemo } from 'react';
+import type { ReactNode } from 'react';
 import './RoomCell.css';
 import type { Booking } from '../types/booking';
 import { useAuth } from '../hooks/useAuth';
