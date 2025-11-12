@@ -1,5 +1,6 @@
 import { useMemo } from 'react';
 import type { ReactNode, CSSProperties } from 'react';
+import './Room.css';
 import './RoomCell.css';
 import './AdminUserManagement.css';
 import type { Booking } from '../types/booking';

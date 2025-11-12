@@ -669,15 +669,7 @@ h2 {
   color: #007bff;
 }
 
-.slot.available.selected {
-  background-color: #007bff;
-  color: white;
-  font-weight: 600;
-}
-
-.slot.available.selected .status-icon {
-  color: white;
-}
+/* Selected state - ย้ายไปที่ Room.css แล้ว */
 
 .slot.booked {
   background-color: #d4edda;

@@ -82,24 +82,44 @@
   transform: scale(0.95);
 }
 
+/* Selected state - สีน้ำเงินเข้ม พื้นหลังและตัวหนังสือสีขาว */
 .slot.selected,
-.slot.available.selected {
+.slot.available.selected,
+.slot.slot-am.selected,
+.slot.slot-pm.selected,
+div.slot.selected,
+div.slot.available.selected,
+div.slot.slot-am.selected,
+div.slot.slot-pm.selected {
   background-color: #007bff !important;
   color: #ffffff !important;
-  font-weight: 700;
-  transform: scale(1.0);
+  font-weight: 700 !important;
+  transform: scale(1.0) !important;
 }
 
 .slot.selected .status-icon,
-.slot.available.selected .status-icon {
+.slot.available.selected .status-icon,
+.slot.slot-am.selected .status-icon,
+.slot.slot-pm.selected .status-icon,
+div.slot.selected .status-icon,
+div.slot.available.selected .status-icon,
+div.slot.slot-am.selected .status-icon,
+div.slot.slot-pm.selected .status-icon {
   color: #ffffff !important;
-  font-size: 1.5rem;
+  font-size: 1.5rem !important;
 }
 
 .slot.selected span:first-of-type:before,
-.slot.available.selected span:first-of-type:before {
+.slot.available.selected span:first-of-type:before,
+.slot.slot-am.selected span:first-of-type:before,
+.slot.slot-pm.selected span:first-of-type:before,
+div.slot.selected span:first-of-type:before,
+div.slot.available.selected span:first-of-type:before,
+div.slot.slot-am.selected span:first-of-type:before,
+div.slot.slot-pm.selected span:first-of-type:before {
   content: '✓ ';
   font-weight: 700;
+  color: #ffffff !important;
 }
 
 .slot.booked {
