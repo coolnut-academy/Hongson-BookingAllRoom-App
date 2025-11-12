@@ -3,6 +3,7 @@ import {
   ConflictException,
   NotFoundException,
   BadRequestException,
+  ForbiddenException,
   Logger,
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
@@ -122,27 +123,55 @@ export class BookingsService {
   }
 
   // GET /bookings?date=2025-12-22
-  // Returns: [{ roomId: "131", slot: "am" }, { roomId: "A4", slot: "pm" }]
+  // Returns: Full booking data with populated bookedBy
   async getBookingsByDate(date: string) {
     const bookingDate = new Date(date);
     bookingDate.setHours(0, 0, 0, 0);
     const endOfDay = new Date(bookingDate);
     endOfDay.setHours(23, 59, 59, 999);
 
-    const bookings = await this.bookingModel
+    return this.bookingModel
       .find({
         date: {
           $gte: bookingDate,
           $lte: endOfDay,
         },
       })
-      .select('roomId slot')
+      .populate<{ bookedBy: User }>('bookedBy', 'name username')
       .exec();
+  }
 
-    return bookings.map((booking) => ({
-      roomId: booking.roomId,
-      slot: booking.slot,
-    }));
+  // [เพิ่มใหม่] ฟังก์ชันสำหรับหน้าสรุปรายการแข่งขัน
+  async findAllBookings(): Promise<Booking[]> {
+    return this.bookingModel
+      .find()
+      .populate<{ bookedBy: User }>('bookedBy', 'name username')
+      .sort({ date: 1, roomId: 1, slot: 1 }) // เรียงข้อมูล
+      .exec();
+  }
+
+  // [เพิ่มใหม่] ฟังก์ชันสำหรับอัปเดตรายละเอียด
+  async updateDetails(id: string, details: string, requester: any): Promise<Booking> {
+    const booking = await this.bookingModel.findById(id);
+    if (!booking) {
+      throw new NotFoundException('Booking not found');
+    }
+
+    // (ตรรกะตรวจสอบสิทธิ์)
+    // requester มาจาก req.user ซึ่งมี userId และ isAdmin
+    const requesterId = requester.userId || requester._id || requester.id;
+    const isAdmin = requester.isAdmin === true;
+    const isGod = requester.username === 'admingod';
+    const isOwner = booking.bookedBy.toString() === requesterId.toString();
+
+    const canEdit = isAdmin || isGod || isOwner;
+
+    if (!canEdit) {
+      throw new ForbiddenException('You do not have permission to edit this booking.');
+    }
+
+    booking.details = details;
+    return booking.save();
   }
 
   // GET /bookings/details?date=2025-12-22

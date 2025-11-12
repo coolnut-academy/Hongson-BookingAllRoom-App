@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import Building1 from './Building1';
 import Building2 from './Building2';
 import Building3 from './Building3';
@@ -6,10 +6,12 @@ import Building4 from './Building4';
 import Building5 from './Building5';
 import Building6 from './Building6';
 import CustomRoomsSection from './CustomRoomsSection';
+import DetailsModal from './DetailsModal';
 import ConfirmBookingModal from './ConfirmBookingModal';
 import ConfirmResetAllModal from './ConfirmResetAllModal';
 import { bookingService } from '../services/booking.service';
 import type { BookingSelection } from '../services/booking.service';
+import type { Booking } from '../types/booking';
 import { useAuth } from '../contexts/AuthContext';
 import './BookingView.css';
 
@@ -17,23 +19,14 @@ interface BookingViewProps {
   date: string;
 }
 
-// Convert bookings array to status map for easy lookup
-type BookingsMap = Record<
-  string,
-  {
-    am?: boolean;
-    pm?: boolean;
-    amBookedBy?: { username: string; displayName?: string };
-    pmBookedBy?: { username: string; displayName?: string };
-  }
->;
 type SelectionsMap = Record<string, { am?: boolean; pm?: boolean }>;
+type BookingsByRoom = Record<string, Booking[]>;
 
 const BookingView: React.FC<BookingViewProps> = ({ date }) => {
   const { isAdmin } = useAuth();
 
   // State: bookings (ข้อมูลที่จองแล้วจาก API)
-  const [bookings, setBookings] = useState<BookingSelection[]>([]);
+  const [bookings, setBookings] = useState<Booking[]>([]);
 
   // State: selections (ข้อมูลที่ผู้ใช้กำลังเลือก)
   const [selections, setSelections] = useState<SelectionsMap>({});
@@ -45,6 +38,10 @@ const BookingView: React.FC<BookingViewProps> = ({ date }) => {
   const [contestName, setContestName] = useState<string>('');
 
   const [loading, setLoading] = useState(true);
+
+  // State: modal รายละเอียด
+  const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
+  const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null);
 
   // State: confirmation modal
   const [showConfirmModal, setShowConfirmModal] = useState(false);
@@ -76,11 +73,11 @@ const BookingView: React.FC<BookingViewProps> = ({ date }) => {
     }
   }, []);
 
-  // เรียก API GET /bookings/details?date={date} เพื่อดึงข้อมูลพร้อมชื่อผู้จอง
-  const loadBookings = useCallback(async () => {
+  // โหลดข้อมูลการจองทั้งหมดของวันที่ระบุ
+  const fetchBookings = useCallback(async () => {
     try {
       setLoading(true);
-      const data = await bookingService.getBookingsWithDetails(date);
+      const data = await bookingService.getBookingsByDate(date);
       setBookings(data);
     } catch (error) {
       console.error('Failed to load bookings:', error);
@@ -91,12 +88,14 @@ const BookingView: React.FC<BookingViewProps> = ({ date }) => {
 
   // useEffect: เมื่อ props.date เปลี่ยน
   useEffect(() => {
-    loadBookings();
+    fetchBookings();
     loadRoomStatus();
     loadContestName();
     // เคลียร์ selections ทั้งหมดเมื่อเปลี่ยนวัน
     setSelections({});
-  }, [date, loadBookings, loadRoomStatus, loadContestName]);
+    setIsDetailModalOpen(false);
+    setSelectedBooking(null);
+  }, [date, fetchBookings, loadRoomStatus, loadContestName]);
 
   // Listen for contest name updates
   useEffect(() => {
@@ -109,24 +108,16 @@ const BookingView: React.FC<BookingViewProps> = ({ date }) => {
     };
   }, [loadContestName]);
 
-  // Convert bookings array to map for easy lookup (พร้อมชื่อผู้จอง)
-  const bookingsMap: BookingsMap = {};
-  bookings.forEach((booking) => {
-    if (!bookingsMap[booking.roomId]) {
-      bookingsMap[booking.roomId] = {};
-    }
-    if (booking.slot === 'am') {
-      bookingsMap[booking.roomId].am = true;
-      if (booking.bookedBy) {
-        bookingsMap[booking.roomId].amBookedBy = booking.bookedBy;
+  const bookingsByRoom = useMemo<BookingsByRoom>(() => {
+    const map: BookingsByRoom = {};
+    bookings.forEach((booking) => {
+      if (!map[booking.roomId]) {
+        map[booking.roomId] = [];
       }
-    } else {
-      bookingsMap[booking.roomId].pm = true;
-      if (booking.bookedBy) {
-        bookingsMap[booking.roomId].pmBookedBy = booking.bookedBy;
-      }
-    }
-  });
+      map[booking.roomId].push(booking);
+    });
+    return map;
+  }, [bookings]);
 
   // Handler: เมื่อเลือก slot
   const handleSelectSlot = (roomId: string, slot: 'am' | 'pm') => {
@@ -138,6 +129,20 @@ const BookingView: React.FC<BookingViewProps> = ({ date }) => {
       },
     }));
   };
+
+  const handleOpenDetails = (booking: Booking) => {
+    setSelectedBooking(booking);
+    setIsDetailModalOpen(true);
+  };
+
+  const handleCloseDetails = () => {
+    setIsDetailModalOpen(false);
+    setSelectedBooking(null);
+  };
+
+  const handleRefreshData = useCallback(async () => {
+    await fetchBookings();
+  }, [fetchBookings]);
 
   // Handler: เมื่อกดปุ่มจอง (แสดง confirmation modal)
   const handleBook = (roomId: string) => {
@@ -184,7 +189,7 @@ const BookingView: React.FC<BookingViewProps> = ({ date }) => {
       // ปิด modal และ reload bookings
       setShowConfirmModal(false);
       setPendingBooking(null);
-      await loadBookings();
+      await fetchBookings();
       await loadRoomStatus();
     } catch (error) {
       if (
@@ -234,7 +239,7 @@ const BookingView: React.FC<BookingViewProps> = ({ date }) => {
     try {
       const result = await bookingService.resetRoom(roomId, date);
       alert(`Reset สำเร็จ: ลบการจอง ${result.deletedCount} รายการ`);
-      await loadBookings();
+      await fetchBookings();
     } catch (error) {
       if (error && typeof error === "object" && 'response' in error && error.response && typeof error.response === "object" && 'data' in error.response && error.response.data && typeof error.response.data === "object" && 'message' in error.response.data) {
         alert(error.response.data.message);
@@ -267,7 +272,7 @@ const BookingView: React.FC<BookingViewProps> = ({ date }) => {
       // Reload room status เพื่อให้แน่ใจว่าข้อมูลตรงกัน
       await loadRoomStatus();
       // Reload bookings to update UI
-      await loadBookings();
+      await fetchBookings();
       // Dispatch event เพื่อให้ SummaryView อัปเดต
       window.dispatchEvent(new Event('roomStatusChanged'));
     } catch (error) {
@@ -296,7 +301,7 @@ const BookingView: React.FC<BookingViewProps> = ({ date }) => {
       const result = await bookingService.resetAll();
       alert(`Reset All สำเร็จ: ลบการจอง ${result.deletedCount} รายการ`);
       setShowResetAllModal(false);
-      await loadBookings();
+      await fetchBookings();
       // Dispatch event เพื่อให้ SummaryView อัปเดต
       window.dispatchEvent(new Event('roomStatusChanged'));
     } catch (error) {
@@ -315,7 +320,7 @@ const BookingView: React.FC<BookingViewProps> = ({ date }) => {
   };
 
   const buildingProps = {
-    bookings: bookingsMap,
+    bookingsByRoom,
     selections,
     onSelectSlot: handleSelectSlot,
     onBook: handleBook,
@@ -323,6 +328,7 @@ const BookingView: React.FC<BookingViewProps> = ({ date }) => {
     onResetRoom: handleResetRoom,
     closedRooms,
     onToggleRoom: handleToggleRoom,
+    onOpenDetails: handleOpenDetails,
   };
 
   return (
@@ -378,7 +384,7 @@ const BookingView: React.FC<BookingViewProps> = ({ date }) => {
         <CustomRoomsSection
           {...buildingProps}
           onRoomCreated={async () => {
-            await loadBookings();
+            await fetchBookings();
             await loadRoomStatus();
           }}
         />
@@ -398,6 +404,16 @@ const BookingView: React.FC<BookingViewProps> = ({ date }) => {
         onConfirm={handleConfirmResetAll}
         onCancel={handleCancelResetAll}
       />
+      {isDetailModalOpen && selectedBooking && (
+        <DetailsModal
+          booking={selectedBooking}
+          onClose={handleCloseDetails}
+          onSaveSuccess={async () => {
+            await handleRefreshData();
+            handleCloseDetails();
+          }}
+        />
+      )}
     </>
   );
 };

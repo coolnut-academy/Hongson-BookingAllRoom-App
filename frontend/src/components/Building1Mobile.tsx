@@ -1,20 +1,13 @@
 import React from 'react';
 import RoomCell from './RoomCell';
+import type { Booking } from '../types/booking';
 import './Building1Mobile.css';
 
-type BookingsMap = Record<
-  string,
-  {
-    am?: boolean;
-    pm?: boolean;
-    amBookedBy?: { username: string; displayName?: string };
-    pmBookedBy?: { username: string; displayName?: string };
-  }
->;
 type SelectionsMap = Record<string, { am?: boolean; pm?: boolean }>;
+type BookingsByRoom = Record<string, Booking[]>;
 
 interface Building1MobileProps {
-  bookings: BookingsMap;
+  bookingsByRoom: BookingsByRoom;
   selections: SelectionsMap;
   onSelectSlot: (roomId: string, slot: 'am' | 'pm') => void;
   onBook: (roomId: string) => void;
@@ -22,10 +15,11 @@ interface Building1MobileProps {
   onResetRoom?: (roomId: string) => void;
   closedRooms?: string[];
   onToggleRoom?: (roomId: string) => void;
+  onOpenDetails: (booking: Booking) => void;
 }
 
 const Building1Mobile: React.FC<Building1MobileProps> = ({
-  bookings,
+  bookingsByRoom,
   selections,
   onSelectSlot,
   onBook,
@@ -33,6 +27,7 @@ const Building1Mobile: React.FC<Building1MobileProps> = ({
   onResetRoom,
   closedRooms = [],
   onToggleRoom,
+  onOpenDetails,
 }) => {
   const rooms = [
     { roomId: '131', roomName: 'ห้อง 131' },
@@ -101,79 +96,30 @@ const Building1Mobile: React.FC<Building1MobileProps> = ({
       
       <div className="rooms-card-list">
         {rooms.map((room) => {
-          const bookedSlots = bookings[room.roomId] || {};
+          const roomBookings = bookingsByRoom[room.roomId] || [];
           const selectedSlots = selections[room.roomId] || {};
-          const amBooked = bookedSlots.am || false;
-          const pmBooked = bookedSlots.pm || false;
-          const amSelected = selectedSlots.am || false;
-          const pmSelected = selectedSlots.pm || false;
-          const amBookedBy = bookedSlots.amBookedBy;
-          const pmBookedBy = bookedSlots.pmBookedBy;
           const isRoomClosed = closedRooms.includes(room.roomId);
-          // ตรวจสอบว่าห้องจองเต็มแล้วหรือไม่ (ทั้ง AM และ PM)
-          const isRoomFull = amBooked && pmBooked;
 
           return (
             <div key={room.roomId} className="room-card">
-              <div className="room-card-header">
-                <h3>{room.roomName}</h3>
-                {isAdmin && onToggleRoom && (
-                  <button
-                    className={`room-toggle-btn ${isRoomClosed ? 'closed' : 'open'}`}
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      onToggleRoom(room.roomId);
-                    }}
-                    title={isRoomClosed ? 'คลิกเพื่อเปิดห้อง' : 'คลิกเพื่อปิดห้อง'}
-                  >
-                    {isRoomClosed ? '🔒' : '🔓'}
-                  </button>
-                )}
-              </div>
-
-              <div className="room-card-slots">
-                <div className="slot-section">
-                  <label>เช้า (AM)</label>
-                  <RoomCell
-                    slot="am"
-                    isSelected={amSelected}
-                    isBooked={amBooked}
-                    bookedBy={amBookedBy}
-                    onClick={() => !isRoomClosed && onSelectSlot(room.roomId, 'am')}
-                    isDisabled={isRoomClosed}
-                  />
-                </div>
-                <div className="slot-section">
-                  <label>บ่าย (PM)</label>
-                  <RoomCell
-                    slot="pm"
-                    isSelected={pmSelected}
-                    isBooked={pmBooked}
-                    bookedBy={pmBookedBy}
-                    onClick={() => !isRoomClosed && onSelectSlot(room.roomId, 'pm')}
-                    isDisabled={isRoomClosed}
-                  />
-                </div>
-              </div>
-
-              <div className="room-card-actions">
-                <button
-                  className={`book-button ${isRoomClosed ? 'book-button-blocked' : ''} ${isRoomFull ? 'book-button-full' : ''}`}
-                  onClick={() => onBook(room.roomId)}
-                  disabled={isRoomClosed || isRoomFull || (!amSelected && !pmSelected)}
-                >
-                  {isRoomClosed ? 'ห้องปิด' : isRoomFull ? 'ห้องเต็ม' : 'จอง'}
-                </button>
-                {isAdmin && (amBooked || pmBooked) && onResetRoom && (
-                  <button
-                    className="reset-button"
-                    onClick={() => onResetRoom(room.roomId)}
-                    title="Reset การจองในห้องนี้ (Admin only)"
-                  >
-                    Reset
-                  </button>
-                )}
-              </div>
+              <RoomCell
+                roomId={room.roomId}
+                roomName={room.roomName}
+                roomDetail={room.subtitle}
+                bookings={roomBookings}
+                selections={selectedSlots}
+                isBookable={!isRoomClosed}
+                onSelectSlot={(slot) => onSelectSlot(room.roomId, slot)}
+                onBook={() => onBook(room.roomId)}
+                onOpenDetails={onOpenDetails}
+                isAdmin={isAdmin}
+                onResetRoom={
+                  onResetRoom ? () => onResetRoom(room.roomId) : undefined
+                }
+                onToggleRoom={
+                  onToggleRoom ? () => onToggleRoom(room.roomId) : undefined
+                }
+              />
             </div>
           );
         })}

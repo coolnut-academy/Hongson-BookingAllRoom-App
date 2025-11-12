@@ -1,4 +1,5 @@
 import api from './api';
+import type { Booking } from '../types/booking';
 
 export interface BookingSelection {
   roomId: string;
@@ -19,17 +20,6 @@ export interface CreateSingleBookingDto {
   roomId: string;
   date: string;
   slot: 'am' | 'pm';
-}
-
-export interface Booking {
-  _id: string;
-  roomId: string;
-  date: string;
-  slot: 'am' | 'pm';
-  bookedBy: {
-    _id: string;
-    username: string;
-  };
 }
 
 export interface BookingStatus {
@@ -87,10 +77,24 @@ export const bookingService = {
     return response.data;
   },
 
-  // Get bookings for a specific date (Phase 2 API)
-  async getBookings(date: string): Promise<BookingSelection[]> {
-    const response = await api.get<BookingSelection[]>('/bookings', {
+  // Get bookings for a specific date with populated user info
+  async getBookingsByDate(date: string): Promise<Booking[]> {
+    const response = await api.get<Booking[]>('/bookings', {
       params: { date },
+    });
+    return response.data;
+  },
+
+  // Get all bookings (admin summary page)
+  async getAllBookings(): Promise<Booking[]> {
+    const response = await api.get<Booking[]>('/bookings/all');
+    return response.data;
+  },
+
+  // Update booking details
+  async updateBookingDetails(id: string, details: string): Promise<Booking> {
+    const response = await api.put<Booking>(`/bookings/${id}/details`, {
+      details,
     });
     return response.data;
   },

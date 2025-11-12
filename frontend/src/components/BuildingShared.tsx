@@ -2,21 +2,14 @@ import React, { useEffect, useRef, useState } from 'react';
 import RoomCell from './RoomCell';
 import type { RoomData } from './Room';
 import type { BuildingData } from '../data/buildings';
+import type { Booking } from '../types/booking';
 
-type BookingsMap = Record<
-  string,
-  {
-    am?: boolean;
-    pm?: boolean;
-    amBookedBy?: { username: string; displayName?: string };
-    pmBookedBy?: { username: string; displayName?: string };
-  }
->;
 type SelectionsMap = Record<string, { am?: boolean; pm?: boolean }>;
+type BookingsByRoom = Record<string, Booking[]>;
 
 interface BuildingSharedProps {
   building: BuildingData;
-  bookings: BookingsMap;
+  bookingsByRoom: BookingsByRoom;
   selections: SelectionsMap;
   onSelectSlot: (roomId: string, slot: 'am' | 'pm') => void;
   onBook: (roomId: string) => void;
@@ -24,12 +17,13 @@ interface BuildingSharedProps {
   onResetRoom?: (roomId: string) => void;
   closedRooms?: string[];
   onToggleRoom?: (roomId: string) => void;
+  onOpenDetails: (booking: Booking) => void;
 }
 
 // Shared component for Building3-6 (reusable)
 export const BuildingShared: React.FC<BuildingSharedProps> = ({
   building,
-  bookings,
+  bookingsByRoom,
   selections,
   onSelectSlot,
   onBook,
@@ -37,82 +31,35 @@ export const BuildingShared: React.FC<BuildingSharedProps> = ({
   onResetRoom,
   closedRooms = [],
   onToggleRoom,
+  onOpenDetails,
 }) => {
 
   const renderRoom = (room: RoomData) => {
-    const bookedSlots = bookings[room.roomId] || {};
+    const roomBookings = bookingsByRoom[room.roomId] || [];
     const selectedSlots = selections[room.roomId] || {};
-    const amBooked = bookedSlots.am || false;
-    const pmBooked = bookedSlots.pm || false;
-    const amSelected = selectedSlots.am || false;
-    const pmSelected = selectedSlots.pm || false;
-    const amBookedBy = bookedSlots.amBookedBy;
-    const pmBookedBy = bookedSlots.pmBookedBy;
-    // เช็คเฉพาะ closedRooms จาก API (ไม่เช็ค isBlocked เพราะ Admin สามารถเปิดได้)
-    // ถ้า roomId ไม่อยู่ใน closedRooms แสดงว่าห้องเปิด แม้ isBlocked จะเป็น true
     const isRoomClosed = closedRooms.includes(room.roomId);
-    // ตรวจสอบว่าห้องจองเต็มแล้วหรือไม่ (ทั้ง AM และ PM)
-    const isRoomFull = amBooked && pmBooked;
 
     return (
-      <div
+      <RoomCell
         key={room.roomId}
-        className={`room-cell ${room.colspan ? 'colspan' : ''} ${isRoomClosed ? 'room-closed' : ''}`}
-        data-room-name={room.roomName}
-      >
-        <div className={`room-header ${isRoomClosed ? 'room-closed-header' : ''}`}>
-          <strong>{room.roomName}</strong>
-          {room.subtitle && <small>{room.subtitle}</small>}
-          {isAdmin && onToggleRoom && (
-            <button
-              className={`room-toggle-btn ${isRoomClosed ? 'closed' : 'open'}`}
-              onClick={(e) => {
-                e.stopPropagation();
-                onToggleRoom(room.roomId);
-              }}
-              title={isRoomClosed ? 'คลิกเพื่อเปิดห้อง' : 'คลิกเพื่อปิดห้อง'}
-            >
-              {isRoomClosed ? '🔒' : '🔓'}
-            </button>
-          )}
-        </div>
-        <div className="room-slots">
-          <RoomCell
-            slot="am"
-            isSelected={amSelected}
-            isBooked={amBooked}
-            bookedBy={amBookedBy}
-            onClick={() => !isRoomClosed && onSelectSlot(room.roomId, 'am')}
-            isDisabled={isRoomClosed}
-          />
-          <RoomCell
-            slot="pm"
-            isSelected={pmSelected}
-            isBooked={pmBooked}
-            bookedBy={pmBookedBy}
-            onClick={() => !isRoomClosed && onSelectSlot(room.roomId, 'pm')}
-            isDisabled={isRoomClosed}
-          />
-        </div>
-        <div className="room-footer">
-          <button
-            className={`book-button ${isRoomClosed ? 'book-button-blocked' : ''} ${isRoomFull ? 'book-button-full' : ''}`}
-            onClick={() => onBook(room.roomId)}
-            disabled={isRoomClosed || isRoomFull || (!amSelected && !pmSelected)}
-          >
-            {isRoomClosed ? 'ห้องปิด' : isRoomFull ? 'ห้องเต็ม' : 'จอง'}
-          </button>
-          {isAdmin && (amBooked || pmBooked) && onResetRoom && (
-            <button
-              className="reset-button"
-              onClick={() => onResetRoom(room.roomId)}
-              title="Reset การจองในห้องนี้ (Admin only)"
-            >
-              Reset
-            </button>
-          )}
-        </div>
-      </div>
+        roomId={room.roomId}
+        roomName={room.roomName}
+        roomDetail={room.subtitle}
+        bookings={roomBookings}
+        selections={selectedSlots}
+        isBookable={!isRoomClosed}
+        onSelectSlot={(slot) => onSelectSlot(room.roomId, slot)}
+        onBook={() => onBook(room.roomId)}
+        onOpenDetails={onOpenDetails}
+        isAdmin={isAdmin}
+        onResetRoom={
+          onResetRoom ? () => onResetRoom(room.roomId) : undefined
+        }
+        onToggleRoom={
+          onToggleRoom ? () => onToggleRoom(room.roomId) : undefined
+        }
+        className={room.colspan ? 'colspan' : undefined}
+      />
     );
   };
 

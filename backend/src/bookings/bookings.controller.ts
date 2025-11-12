@@ -2,6 +2,7 @@ import {
   Controller,
   Get,
   Post,
+  Put,
   Delete,
   Body,
   Param,
@@ -74,11 +75,31 @@ export class AddBookingDateDto {
 export class BookingsController {
   constructor(private bookingsService: BookingsService) {}
 
+  // --- [Endpoint ใหม่ สำหรับหน้าสรุปรายการแข่งขัน] ---
+  @Get('/all')
+  @UseGuards(JwtAuthGuard) // (อนุญาตให้ User ที่ Login ทุกคนดูได้)
+  async getAllBookings() {
+    return this.bookingsService.findAllBookings();
+  }
+
+  // --- [Endpoint ใหม่ สำหรับปุ่ม "รายละเอียด"] ---
+  @Put('/:id/details')
+  @UseGuards(JwtAuthGuard) // (User ทั่วไปก็แก้ของตัวเองได้)
+  async updateDetails(
+    @Param('id') id: string,
+    @Body() body: { details: string },
+    @Request() req,
+  ) {
+    return this.bookingsService.updateDetails(id, body.details, req.user);
+  }
+
+  // --- [แก้ไข Endpoint นี้] ---
   // GET /bookings?date=2025-12-22
-  // Returns: [{ roomId: "131", slot: "am" }, { roomId: "A4", slot: "pm" }]
+  // Returns: Full booking data with populated bookedBy
   @Get()
-  async getBookings(@Query('date') date: string) {
-    return this.bookingsService.getBookingsByDate(date);
+  async getBookings(@Query('date') dateString: string) {
+    // (คุณอาจจะต้องปรับ Logic การ parse date ให้ถูกต้อง)
+    return this.bookingsService.getBookingsByDate(dateString); // << [แก้ไข] เรียกฟังก์ชันที่ populate
   }
 
   // GET /bookings/details?date=2025-12-22

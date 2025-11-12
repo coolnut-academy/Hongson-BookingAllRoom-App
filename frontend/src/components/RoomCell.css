@@ -1,3 +1,72 @@
-/* RoomCell styles are already in index.css */
-/* This file is kept for component-specific styles if needed */
+/* RoomCell specific enhancements */
+.room-header {
+  position: relative;
+}
+
+.room-header-actions {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+
+.room-header-actions .room-toggle-btn {
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  font-size: 1rem;
+}
+
+.room-header-actions .room-toggle-btn:hover {
+  transform: scale(1.05);
+}
+
+.details-button {
+  margin-top: 6px;
+  padding: 4px 8px;
+  font-size: 0.75rem;
+  border: 1px solid #0d6efd;
+  border-radius: 12px;
+  background-color: transparent;
+  color: #0d6efd;
+  cursor: pointer;
+  transition: background-color 0.2s, color 0.2s;
+}
+
+.details-button:hover {
+  background-color: #0d6efd;
+  color: #fff;
+}
+
+.details-button.editable {
+  border-color: #28a745;
+  color: #28a745;
+}
+
+.details-button.editable:hover {
+  background-color: #28a745;
+  color: #fff;
+}
+
+.slot.disabled {
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+.slot.disabled .status-icon {
+  font-size: 1.2rem;
+}
+
+.booking-detail-text {
+  display: block;
+  font-size: 0.7rem;
+  color: #0d6efd;
+  margin-top: 4px;
+  max-height: 2.8em;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  word-wrap: break-word;
+}
 

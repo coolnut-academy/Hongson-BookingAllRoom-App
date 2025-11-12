@@ -5,11 +5,12 @@ import BookingView from '../components/BookingView';
 import SummaryView from '../components/SummaryView';
 import { AdminUserManagement } from '../components/AdminUserManagement';
 import { AddDateModal } from '../components/AddDateModal';
+import { CompetitionSummaryPage } from '../components/CompetitionSummaryPage';
 import { bookingService } from '../services/booking.service';
 import { getUserDisplayName } from '../utils/userDisplay';
 import './DashboardPage.css';
 
-type ActiveTap = 'tap1' | 'tap2' | 'tap2.5' | 'tap3' | 'tap4' | string;
+type ActiveTap = 'tap1' | 'tap2' | 'tap2.5' | 'tap3' | 'tap4' | 'competitionSummary' | string;
 
 interface CustomDate {
   date: string;
@@ -162,6 +163,12 @@ const DashboardPage = () => {
           >
             สรุปผลการจอง
           </button>
+          <button
+            className={`tab-link ${activeTap === 'competitionSummary' ? 'active' : ''}`}
+            onClick={() => handleTabClick('competitionSummary')}
+          >
+            สรุปรายการแข่งขัน
+          </button>
           {isAdmin && (
             <button
               className={`tab-link ${activeTap === 'tap4' ? 'active' : ''}`}
@@ -189,6 +196,7 @@ const DashboardPage = () => {
           return null;
         })}
         {activeTap === 'tap3' && <SummaryView customDates={customDates.map((d) => d.date)} />}
+        {activeTap === 'competitionSummary' && <CompetitionSummaryPage />}
         {activeTap === 'tap4' && isAdmin && <AdminUserManagement />}
       </main>
 

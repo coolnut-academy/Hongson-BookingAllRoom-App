@@ -17,6 +17,11 @@ export class Booking extends Document {
 
   @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true })
   bookedBy: User;
+
+  // --- [เพิ่มใหม่] ---
+  @Prop({ type: String, default: '' })
+  details: string; // สำหรับเก็บชื่อการแข่งขัน
+  // --- [สิ้นสุดส่วนที่เพิ่ม] ---
 }
 
 export const BookingSchema = SchemaFactory.createForClass(Booking);
