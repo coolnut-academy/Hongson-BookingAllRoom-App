@@ -2,17 +2,18 @@
   max-width: 100%; /* ใช้ 100% เพื่อป้องกันการขยายเกินหน้าจอ */
   width: 100%;
   min-width: 0; /* อนุญาตให้ย่อได้บนหน้าจอเล็ก */
-  margin: 20px auto;
-  padding: 25px;
-  background-color: #ffffff;
-  border-radius: 12px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-  border: 1px solid #e0e0e0;
+  margin: 24px auto;
+  padding: 32px 40px;
+  background: linear-gradient(135deg, #ffffff 0%, #fafbfc 100%);
+  border-radius: 16px;
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.12), 0 4px 16px rgba(15, 23, 42, 0.08);
+  border: 1px solid rgba(15, 23, 42, 0.08);
   overflow-x: auto; /* ให้ scroll ได้เมื่อเนื้อหาเกิน */
   overflow-y: visible; /* แนวตั้งให้ขยายได้ตามปกติ */
   -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
   position: relative;
   box-sizing: border-box;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 /* สำหรับ Desktop (PC) - ยกเลิก scrollbar และให้ขยายตามเนื้อหา */
@@ -42,22 +43,25 @@
 
 .container h1 {
   text-align: center;
-  color: #333;
-  font-weight: 600;
-  border-bottom: 2px solid #007bff;
-  padding-bottom: 10px;
+  color: #0f172a;
+  font-weight: 700;
+  border-bottom: 3px solid #007bff;
+  padding-bottom: 12px;
   display: block;
   width: fit-content;
-  margin: 0 auto 25px auto;
+  margin: 0 auto 28px auto;
+  letter-spacing: -0.02em;
+  font-size: 1.75rem;
 }
 
 .container h2 {
   text-align: center;
-  color: #555;
+  color: #64748b;
   font-weight: 500;
-  font-size: 1.2rem;
-  margin-top: -15px;
-  margin-bottom: 20px;
+  font-size: 1.125rem;
+  margin-top: -16px;
+  margin-bottom: 24px;
+  letter-spacing: 0.01em;
 }
 
 .room-grid {
@@ -143,21 +147,21 @@
 }
 
 .container::-webkit-scrollbar-thumb {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
   border-radius: 8px;
   border: 2px solid #ffffff;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 2px 4px rgba(0, 123, 255, 0.3);
 }
 
 .container::-webkit-scrollbar-thumb:hover {
-  background: linear-gradient(135deg, #5568d3 0%, #6a3d8f 100%);
-  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.3);
+  background: linear-gradient(135deg, #0056b3 0%, #004085 100%);
+  box-shadow: 0 3px 6px rgba(0, 123, 255, 0.4);
 }
 
 /* For Firefox */
 .container {
   scrollbar-width: thick;
-  scrollbar-color: #667eea #e0e0e0;
+  scrollbar-color: #007bff #e0e0e0;
 }
 
 /* Scroll Hint Indicator สำหรับ Building containers */
@@ -166,14 +170,14 @@
   bottom: 10px;
   left: 50%;
   transform: translateX(-50%);
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
   color: white;
-  padding: 10px 24px;
-  border-radius: 25px;
-  font-size: 0.9rem;
+  padding: 12px 28px;
+  border-radius: 28px;
+  font-size: 0.875rem;
   font-weight: 600;
   white-space: nowrap;
-  box-shadow: 0 4px 16px rgba(102, 126, 234, 0.5);
+  box-shadow: 0 4px 16px rgba(0, 123, 255, 0.4);
   z-index: 100;
   pointer-events: none;
   display: flex;
@@ -182,6 +186,7 @@
   margin-top: 15px;
   width: fit-content;
   animation: pulse-hint 2s ease-in-out infinite;
+  letter-spacing: 0.01em;
 }
 
 .scroll-hint::before {

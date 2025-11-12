@@ -12,26 +12,51 @@
 }
 
 .dashboard-card {
-  background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
-  border-radius: 12px;
-  padding: 20px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-  border: 1px solid #e0e0e0;
+  background: linear-gradient(135deg, #ffffff 0%, #fafbfc 100%);
+  border-radius: 16px;
+  padding: 24px;
+  box-shadow: 0 4px 16px rgba(15, 23, 42, 0.08), 0 2px 8px rgba(15, 23, 42, 0.04);
+  border: 1px solid rgba(15, 23, 42, 0.08);
   display: flex;
   align-items: center;
-  gap: 15px;
-  transition: transform 0.2s, box-shadow 0.2s;
+  gap: 18px;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+.dashboard-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, #007bff 0%, rgba(0, 123, 255, 0.5) 100%);
+  opacity: 0;
+  transition: opacity 0.3s ease;
 }
 
 .dashboard-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
+  transform: translateY(-4px);
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.12), 0 4px 12px rgba(15, 23, 42, 0.08);
+  border-color: rgba(0, 123, 255, 0.2);
+}
+
+.dashboard-card:hover::before {
+  opacity: 1;
 }
 
 .dashboard-card.highlight {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
   color: white;
   border: none;
+  box-shadow: 0 8px 24px rgba(0, 123, 255, 0.3), 0 4px 12px rgba(0, 123, 255, 0.2);
+}
+
+.dashboard-card.highlight::before {
+  opacity: 1;
+  background: linear-gradient(90deg, rgba(255, 255, 255, 0.3) 0%, rgba(255, 255, 255, 0.1) 100%);
 }
 
 .dashboard-card.highlight .dashboard-label {
@@ -43,13 +68,19 @@
 }
 
 .dashboard-icon {
-  width: 56px;
-  height: 56px;
-  border-radius: 12px;
+  width: 64px;
+  height: 64px;
+  border-radius: 14px;
   display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
+  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.15);
+  transition: transform 0.2s ease;
+}
+
+.dashboard-card:hover .dashboard-icon {
+  transform: scale(1.05);
 }
 
 .dashboard-icon.booked {
@@ -78,17 +109,21 @@
 }
 
 .dashboard-label {
-  font-size: 0.85rem;
-  color: #6c757d;
+  font-size: 0.8125rem;
+  color: #64748b;
   font-weight: 500;
-  margin-bottom: 5px;
+  margin-bottom: 6px;
+  letter-spacing: 0.01em;
+  text-transform: uppercase;
+  font-size: 0.75rem;
 }
 
 .dashboard-value {
-  font-size: 1.5rem;
+  font-size: 1.75rem;
   font-weight: 700;
-  color: #333;
+  color: #0f172a;
   line-height: 1.2;
+  letter-spacing: -0.02em;
 }
 
 .dashboard-value.percentage-value {
@@ -122,26 +157,43 @@
 
 .summary-table {
   width: 100%;
-  border-collapse: collapse;
-  margin-top: 20px;
-  background-color: #fff;
-  border-radius: 8px;
-  overflow: visible; /* เปลี่ยนจาก hidden เป็น visible เพื่อให้เห็นเนื้อหาทั้งหมด */
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-  min-width: fit-content; /* ให้ table ขยายตามเนื้อหา */
-  table-layout: auto; /* ให้คอลัมน์ขยายตามเนื้อหาและความกว้างหน้าต่าง */
+  border-collapse: separate;
+  border-spacing: 0;
+  margin-top: 32px;
+  background: linear-gradient(135deg, #ffffff 0%, #fafbfc 100%);
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.1), 0 4px 12px rgba(15, 23, 42, 0.06);
+  min-width: fit-content;
+  table-layout: auto;
+  border: 1px solid rgba(15, 23, 42, 0.08);
 }
 
 .summary-table th,
 .summary-table td {
-  border: 1px solid #ddd;
-  padding: 12px 15px;
+  border: none;
+  border-bottom: 1px solid rgba(15, 23, 42, 0.08);
+  padding: 16px 20px;
   text-align: left;
+  transition: background-color 0.2s ease;
 }
 
 .summary-table th {
-  background-color: #f8f9fa;
+  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
   font-weight: 600;
+  color: #0f172a;
+  letter-spacing: -0.01em;
+  font-size: 0.875rem;
+  text-transform: uppercase;
+  border-bottom: 2px solid rgba(0, 123, 255, 0.2);
+}
+
+.summary-table tbody tr:hover {
+  background-color: rgba(0, 123, 255, 0.04);
+}
+
+.summary-table tbody tr:last-child td {
+  border-bottom: none;
 }
 
 .summary-table .status-booked {

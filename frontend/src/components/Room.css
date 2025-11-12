@@ -1,30 +1,50 @@
 .room-cell {
-  background-color: #ffffff;
-  border: 1px solid #e9ecef;
-  border-radius: 10px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  background: linear-gradient(135deg, #ffffff 0%, #fafbfc 100%);
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  border-radius: 14px;
+  box-shadow: 0 4px 16px rgba(15, 23, 42, 0.08), 0 2px 8px rgba(15, 23, 42, 0.04);
   display: flex;
   flex-direction: column;
   vertical-align: top;
   height: 100%;
   overflow: hidden;
-  transition: all 0.2s ease-in-out;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+}
+
+.room-cell::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, #007bff 0%, rgba(0, 123, 255, 0.5) 100%);
+  opacity: 0;
+  transition: opacity 0.3s ease;
 }
 
 .room-cell:hover {
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
-  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.12), 0 4px 12px rgba(15, 23, 42, 0.08);
+  transform: translateY(-3px);
+  border-color: rgba(0, 123, 255, 0.2);
+}
+
+.room-cell:hover::before {
+  opacity: 1;
 }
 
 .room-header {
-  background-color: #f8f9fa;
-  color: #212529;
+  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+  color: #0f172a;
   font-weight: 600;
-  padding: 10px 12px;
+  padding: 14px 16px;
   text-align: center;
-  border-bottom: 1px solid #e9ecef;
-  border-top-left-radius: 10px;
-  border-top-right-radius: 10px;
+  border-bottom: 1px solid rgba(15, 23, 42, 0.08);
+  border-top-left-radius: 14px;
+  border-top-right-radius: 14px;
+  letter-spacing: -0.01em;
+  font-size: 0.9375rem;
 }
 
 .room-header small {
@@ -41,15 +61,18 @@
 
 .slot {
   flex: 1;
-  padding: 10px;
+  padding: 14px 12px;
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
   text-align: center;
-  font-size: 0.8rem;
-  color: #6c757d;
+  font-size: 0.8125rem;
+  color: #64748b;
   position: relative;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  font-weight: 500;
+  letter-spacing: 0.01em;
 }
 
 .slot-am {
@@ -62,27 +85,36 @@
 }
 
 .slot.available {
-  background-color: #e6f7ff;
-  color: #0056b3;
+  background: linear-gradient(135deg, rgba(0, 123, 255, 0.08) 0%, rgba(0, 123, 255, 0.04) 100%);
+  color: #007bff;
   cursor: pointer;
-  transition: background-color 0.2s, transform 0.1s;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  border: 1px solid transparent;
 }
 
 .slot.available .status-icon {
-  font-size: 1.5rem;
+  font-size: 1.625rem;
   font-weight: 600;
   color: #007bff;
+  transition: transform 0.2s ease;
 }
 
 .slot.available:hover {
-  background-color: #ccebff;
+  background: linear-gradient(135deg, rgba(0, 123, 255, 0.15) 0%, rgba(0, 123, 255, 0.08) 100%);
+  border-color: rgba(0, 123, 255, 0.2);
+  transform: scale(1.02);
+  box-shadow: 0 4px 12px rgba(0, 123, 255, 0.15);
+}
+
+.slot.available:hover .status-icon {
+  transform: scale(1.1);
 }
 
 .slot.available:active {
-  transform: scale(0.95);
+  transform: scale(0.98);
 }
 
-/* Selected state - สีน้ำเงินเข้ม พื้นหลังและตัวหนังสือสีขาว */
+/* Selected state - Premium Blue with White Text */
 .slot.selected,
 .slot.available.selected,
 .slot.slot-am.selected,
@@ -91,10 +123,12 @@ div.slot.selected,
 div.slot.available.selected,
 div.slot.slot-am.selected,
 div.slot.slot-pm.selected {
-  background-color: #007bff !important;
+  background: linear-gradient(135deg, #007bff 0%, #0056b3 100%) !important;
   color: #ffffff !important;
   font-weight: 700 !important;
   transform: scale(1.0) !important;
+  border-color: #0056b3 !important;
+  box-shadow: 0 4px 16px rgba(0, 123, 255, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.2) !important;
 }
 
 .slot.selected .status-icon,
@@ -123,15 +157,17 @@ div.slot.slot-pm.selected span:first-of-type:before {
 }
 
 .slot.booked {
-  background-color: #f8f9fa;
-  color: #adb5bd;
+  background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
+  color: #94a3b8;
   cursor: help;
   text-decoration: line-through;
+  opacity: 0.7;
+  border: 1px solid rgba(15, 23, 42, 0.06);
 }
 
 .slot.booked .status-icon {
-  font-size: 1.2rem;
-  color: #adb5bd;
+  font-size: 1.25rem;
+  color: #94a3b8;
 }
 
 .room-header.blocked-red {
@@ -170,51 +206,108 @@ div.slot.slot-pm.selected span:first-of-type:before {
 
 .book-button {
   width: 100%;
-  padding: 12px;
+  padding: 14px;
   font-family: 'Inter', 'Noto Sans Thai', sans-serif;
-  font-size: 1rem;
+  font-size: 0.9375rem;
   font-weight: 600;
   border: none;
-  border-radius: 0 0 8px 8px;
+  border-radius: 0 0 14px 14px;
   cursor: pointer;
-  background-color: #198754;
+  background: linear-gradient(135deg, #198754 0%, #157347 100%);
   color: white;
-  transition: background-color 0.2s;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 2px 8px rgba(25, 135, 84, 0.3);
+  letter-spacing: 0.01em;
 }
 
-.book-button:hover {
-  background-color: #157347;
+.book-button:hover:not(:disabled) {
+  background: linear-gradient(135deg, #157347 0%, #146c43 100%);
+  box-shadow: 0 4px 12px rgba(25, 135, 84, 0.4);
+  transform: translateY(-1px);
+}
+
+.book-button:active:not(:disabled) {
+  transform: translateY(0);
+  box-shadow: 0 2px 6px rgba(25, 135, 84, 0.3);
 }
 
 .book-button:disabled {
-  background-color: #6c757d;
-  color: #ccc;
+  background: linear-gradient(135deg, #64748b 0%, #475569 100%);
+  color: #cbd5e1;
   cursor: not-allowed;
+  opacity: 0.6;
+  box-shadow: none;
 }
 
 .reset-button {
   width: calc(100% - 16px);
-  padding: 10px;
+  padding: 12px;
   margin: 8px;
   font-family: 'Inter', 'Noto Sans Thai', sans-serif;
-  font-size: 0.85rem;
+  font-size: 0.875rem;
   font-weight: 600;
   border: 2px solid #ffc107;
-  border-radius: 8px;
+  border-radius: 10px;
   cursor: pointer;
-  background-color: #ffc107;
+  background: linear-gradient(135deg, #ffc107 0%, #ffb300 100%);
   color: #000000;
-  transition: all 0.2s;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 2px 8px rgba(255, 193, 7, 0.3);
+  letter-spacing: 0.01em;
 }
 
 .reset-button:hover {
-  background-color: #ffb300;
+  background: linear-gradient(135deg, #ffb300 0%, #ffa000 100%);
   border-color: #ffb300;
-  transform: translateY(-1px);
-  box-shadow: 0 2px 4px rgba(255, 193, 7, 0.3);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(255, 193, 7, 0.4);
+}
+
+.reset-button:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 6px rgba(255, 193, 7, 0.3);
 }
 
 .room-cell.colspan {
   min-height: 100px;
+}
+
+/* Premium Full Day Slot Styling */
+.slot-full-day {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  padding: 20px 16px;
+  flex-grow: 1;
+  background: linear-gradient(135deg, rgba(0, 123, 255, 0.08) 0%, rgba(0, 123, 255, 0.04) 100%);
+  border: 1px solid rgba(0, 123, 255, 0.15);
+  border-radius: 12px;
+  margin: 8px;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.slot-full-day:hover {
+  background: linear-gradient(135deg, rgba(0, 123, 255, 0.12) 0%, rgba(0, 123, 255, 0.08) 100%);
+  border-color: rgba(0, 123, 255, 0.25);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 123, 255, 0.15);
+}
+
+.slot-full-day strong {
+  color: #0f172a;
+  font-weight: 700;
+  font-size: 0.9375rem;
+  letter-spacing: -0.01em;
+  margin-bottom: 6px;
+}
+
+.slot-full-day small {
+  font-size: 0.8125rem;
+  margin-top: 6px;
+  color: #64748b;
+  font-weight: 500;
+  letter-spacing: 0.01em;
 }
 
