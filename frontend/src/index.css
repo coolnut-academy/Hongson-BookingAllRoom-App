@@ -1,3 +1,4 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@400;500;600&family=Noto+Sans+Thai:wght@400;500;700&display=swap');
 
 /*
@@ -61,10 +62,18 @@ html, body {
 }
 
 body {
-  font-family: 'Noto Sans Thai', 'IBM Plex Sans Thai', sans-serif;
-  background-color: #f0f2f5;
+  font-family: 'Inter', 'Noto Sans Thai', 'IBM Plex Sans Thai', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background-color: #F8F9FC;
   padding: 20px;
   margin: 0;
+}
+
+/* ตั้งค่าหัวข้อ */
+h1, h2, h3 {
+  color: #1a202c;
+  font-weight: 700;
 }
 
 /* =================================== */
@@ -221,11 +230,12 @@ body {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background-color: #fff;
-  padding: 15px 25px;
-  border-radius: 12px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-  margin-bottom: 20px;
+  background-color: #ffffff;
+  padding: 12px 24px;
+  border-radius: 10px;
+  border: 1px solid #e7eaf3;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
+  margin-bottom: 24px;
   gap: 20px;
 }
 
@@ -273,25 +283,27 @@ body {
 }
 
 .tab-link {
-  padding: 10px 20px;
-  font-size: 1rem;
+  font-size: 0.95rem;
   font-weight: 600;
-  border: 2px solid transparent;
-  background-color: #f0f2f5;
-  color: #555;
-  border-radius: 8px;
+  color: #4A5568;
+  background-color: transparent;
+  border: none;
+  border-bottom: 3px solid transparent;
+  border-radius: 0;
+  padding: 12px 16px;
   cursor: pointer;
-  transition: all 0.2s;
+  transition: all 0.2s ease-in-out;
 }
 
 .tab-link:hover {
-  background-color: #e0e5eb;
+  background-color: #f7f7f7;
+  color: #007bff;
 }
 
 .tab-link.active {
-  background-color: #007bff;
-  color: white;
-  border-color: #007bff;
+  color: #007bff;
+  background-color: transparent;
+  border-bottom: 3px solid #007bff;
 }
 
 .tab-link.add-date-tab {
@@ -432,12 +444,12 @@ body {
   max-width: 100vw; /* ใช้ 100vw เพื่อป้องกันการเลยขอบ */
   width: 100%;
   min-width: 0; /* อนุญาตให้ย่อได้บนหน้าจอเล็ก */
-  margin: 20px auto;
-  padding: 25px;
+  margin: 0 auto 24px auto;
+  padding: 24px 30px;
   background-color: #ffffff;
+  border: 1px solid #e7eaf3;
   border-radius: 12px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-  border: 1px solid #e0e0e0;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
   overflow-x: auto; /* ให้ scroll ได้เมื่อเนื้อหาเกิน */
   overflow-y: visible; /* แนวตั้งให้ขยายได้ตามปกติ */
   -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */

@@ -1,24 +1,30 @@
 .room-cell {
   background-color: #ffffff;
-  border: 1px solid #e0e0e0;
-  border-radius: 12px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  border: 1px solid #e9ecef;
+  border-radius: 10px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
   display: flex;
   flex-direction: column;
   vertical-align: top;
   height: 100%;
   overflow: hidden;
+  transition: all 0.2s ease-in-out;
+}
+
+.room-cell:hover {
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+  transform: translateY(-2px);
 }
 
 .room-header {
-  padding: 8px 10px;
   background-color: #f8f9fa;
-  text-align: center;
+  color: #212529;
   font-weight: 600;
-  color: #343a40;
+  padding: 10px 12px;
+  text-align: center;
   border-bottom: 1px solid #e9ecef;
-  border-top-left-radius: 12px;
-  border-top-right-radius: 12px;
+  border-top-left-radius: 10px;
+  border-top-right-radius: 10px;
 }
 
 .room-header small {
@@ -88,8 +94,9 @@
   font-size: 1.5rem;
 }
 
-.slot.available.selected:before {
+.slot.available.selected span:first-of-type:before {
   content: '✓ ';
+  font-weight: 700;
 }
 
 .slot.booked {
@@ -140,12 +147,12 @@
 
 .book-button {
   width: 100%;
-  padding: 10px 5px;
-  font-family: 'Noto Sans Thai', sans-serif;
+  padding: 12px;
+  font-family: 'Inter', 'Noto Sans Thai', sans-serif;
   font-size: 1rem;
   font-weight: 600;
   border: none;
-  border-radius: 6px;
+  border-radius: 0 0 8px 8px;
   cursor: pointer;
   background-color: #198754;
   color: white;
@@ -163,13 +170,14 @@
 }
 
 .reset-button {
-  width: 100%;
-  padding: 8px 5px;
-  font-family: 'Noto Sans Thai', sans-serif;
+  width: calc(100% - 16px);
+  padding: 10px;
+  margin: 8px;
+  font-family: 'Inter', 'Noto Sans Thai', sans-serif;
   font-size: 0.85rem;
   font-weight: 600;
-  border: 2px solid #dc3545;
-  border-radius: 6px;
+  border: 2px solid #e7eaf3;
+  border-radius: 8px;
   cursor: pointer;
   background-color: #ffffff;
   color: #dc3545;
@@ -178,6 +186,7 @@
 
 .reset-button:hover {
   background-color: #fdf2f2;
+  border-color: #dc3545;
 }
 
 .room-cell.colspan {
