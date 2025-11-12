@@ -55,44 +55,63 @@
 }
 
 .slot.available {
-  background-color: #e6f7ff;
-  color: #0056b3;
+  background-color: #e3f2fd;
+  color: #1565c0;
   cursor: pointer;
-  transition: background-color 0.2s, transform 0.1s;
+  transition: all 0.2s ease;
+  border: 2px solid transparent;
 }
 
 .slot.available:hover {
-  background-color: #ccebff;
+  background-color: #bbdefb;
+  border-color: #2196f3;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(33, 150, 243, 0.3);
 }
 
 .slot.available:active {
-  transform: scale(0.95);
+  transform: translateY(0) scale(0.98);
+  box-shadow: 0 2px 4px rgba(33, 150, 243, 0.2);
 }
 
 .slot.available .status-icon {
-  font-size: 1.2rem;
-  color: #007bff;
-}
-
-.slot.available.selected {
-  background-color: #007bff;
-  color: white;
+  font-size: 1.3rem;
+  color: #1976d2;
   font-weight: 600;
 }
 
+.slot.available.selected {
+  background: linear-gradient(135deg, #1976d2 0%, #1565c0 100%);
+  color: #ffffff;
+  font-weight: 700;
+  border: 2px solid #0d47a1;
+  box-shadow: 0 4px 12px rgba(25, 118, 210, 0.4);
+  transform: translateY(-1px);
+}
+
+.slot.available.selected:hover {
+  background: linear-gradient(135deg, #1565c0 0%, #0d47a1 100%);
+  box-shadow: 0 6px 16px rgba(25, 118, 210, 0.5);
+  transform: translateY(-2px);
+}
+
 .slot.available.selected .status-icon {
-  color: white;
+  color: #ffffff;
+  font-size: 1.4rem;
+  font-weight: 700;
 }
 
 .slot.booked {
-  background-color: #d4edda;
+  background: linear-gradient(135deg, #c8e6c9 0%, #a5d6a7 100%);
   cursor: help;
+  border: 2px solid #4caf50;
+  box-shadow: 0 2px 6px rgba(76, 175, 80, 0.2);
 }
 
 .slot.booked .status-icon {
   font-size: 1.5rem;
   font-weight: bold;
-  color: #155724;
+  color: #1b5e20;
 }
 
 .room-header.blocked-red {

@@ -111,8 +111,9 @@ const RoomCell: React.FC<RoomCellProps> = ({
   const isRoomFull = Boolean(bookingAM) && Boolean(bookingPM);
   const hasAnySelection = amSelected || pmSelected;
   const disableBookButton = isRoomClosed || isRoomFull || !hasAnySelection;
+  // Admin และ Admin god สามารถ Reset ได้แม้ว่าห้องจะเต็มแล้ว
   const showResetButton =
-    hasAdminAccess && (bookingAM || bookingPM) && typeof onResetRoom === 'function';
+    hasAdminAccess && typeof onResetRoom === 'function';
 
   // --- 5. Render Logic (ตรรกะการแสดงผล) ---
   const renderSlots = () => {
@@ -146,7 +147,19 @@ const RoomCell: React.FC<RoomCellProps> = ({
               </button>
             )}
           </div>
-          {/* (ไม่ต้องแสดงปุ่ม "จอง" เพราะมันเต็มแล้ว) */}
+          {/* แสดง Reset button สำหรับ Admin แม้ว่าห้องจะเต็มแล้ว */}
+          {showResetButton && (
+            <div className="room-footer">
+              <button
+                type="button"
+                className="reset-button"
+                onClick={() => onResetRoom?.()}
+                title="Reset การจองในห้องนี้ (Admin only)"
+              >
+                Reset
+              </button>
+            </div>
+          )}
         </>
       );
     }
