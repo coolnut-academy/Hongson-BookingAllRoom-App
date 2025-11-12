@@ -82,18 +82,21 @@
   transform: scale(0.95);
 }
 
+.slot.selected,
 .slot.available.selected {
-  background-color: #007bff;
-  color: #ffffff;
+  background-color: #007bff !important;
+  color: #ffffff !important;
   font-weight: 700;
   transform: scale(1.0);
 }
 
+.slot.selected .status-icon,
 .slot.available.selected .status-icon {
-  color: #ffffff;
+  color: #ffffff !important;
   font-size: 1.5rem;
 }
 
+.slot.selected span:first-of-type:before,
 .slot.available.selected span:first-of-type:before {
   content: '✓ ';
   font-weight: 700;
