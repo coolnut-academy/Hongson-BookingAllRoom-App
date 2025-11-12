@@ -125,13 +125,16 @@
 }
 
 .reset-button {
-  background: #dc3545;
-  color: white;
+  background: #ffc107;
+  color: #000000;
+  border: 2px solid #ffc107;
 }
 
 .reset-button:hover {
-  background: #c82333;
+  background: #ffb300;
+  border-color: #ffb300;
   transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(255, 193, 7, 0.3);
 }
 
 /* Responsive adjustments */

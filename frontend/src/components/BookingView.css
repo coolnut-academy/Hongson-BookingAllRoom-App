@@ -92,20 +92,21 @@
   font-size: 1rem;
   font-weight: 600;
   background-color: #dc3545;
-  color: white;
+  color: #ffffff;
   border: none;
   border-radius: 8px;
   cursor: pointer;
   transition: all 0.2s;
-  font-family: 'Noto Sans Thai', sans-serif;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  font-family: 'Inter', 'Noto Sans Thai', sans-serif;
+  box-shadow: 0 2px 4px rgba(220, 53, 69, 0.3);
   white-space: nowrap;
 }
 
 .reset-all-button:hover {
   background-color: #c82333;
+  color: #ffffff;
   transform: translateY(-2px);
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 4px 8px rgba(220, 53, 69, 0.4);
 }
 
 .reset-all-button:active {

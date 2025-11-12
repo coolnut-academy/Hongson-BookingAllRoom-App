@@ -869,24 +869,7 @@ h2 {
   font-weight: 600;
 }
 
-.reset-button {
-  width: 100%;
-  padding: 8px 5px;
-  font-family: 'Noto Sans Thai', sans-serif;
-  font-size: 0.85rem;
-  font-weight: 600;
-  border: 1px solid #dc3545;
-  border-radius: 6px;
-  cursor: pointer;
-  background-color: #fff;
-  color: #dc3545;
-  transition: all 0.2s;
-}
-
-.reset-button:hover {
-  background-color: #dc3545;
-  color: white;
-}
+/* Reset button - ย้ายไปที่ Room.css แล้ว (สีเหลือง, ตัวอักษรดำ) */
 
 .room-table {
   width: 100%; /* ใช้ 100% เพื่อให้พอดีกับ container */

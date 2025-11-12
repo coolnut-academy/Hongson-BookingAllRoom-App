@@ -199,17 +199,19 @@ div.slot.slot-pm.selected span:first-of-type:before {
   font-family: 'Inter', 'Noto Sans Thai', sans-serif;
   font-size: 0.85rem;
   font-weight: 600;
-  border: 2px solid #e7eaf3;
+  border: 2px solid #ffc107;
   border-radius: 8px;
   cursor: pointer;
-  background-color: #ffffff;
-  color: #dc3545;
+  background-color: #ffc107;
+  color: #000000;
   transition: all 0.2s;
 }
 
 .reset-button:hover {
-  background-color: #fdf2f2;
-  border-color: #dc3545;
+  background-color: #ffb300;
+  border-color: #ffb300;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(255, 193, 7, 0.3);
 }
 
 .room-cell.colspan {
