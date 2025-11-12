@@ -91,11 +91,17 @@ export const bookingService = {
     return response.data;
   },
 
-  // Update booking details
-  async updateBookingDetails(id: string, details: string): Promise<Booking> {
-    const response = await api.put<Booking>(`/bookings/${id}/details`, {
-      details,
-    });
+  // Update group details (updates all slots for a room on a specific date)
+  async updateGroupDetails(data: {
+    roomId: string;
+    date: string;
+    details: string;
+  }): Promise<{ message: string; matchedCount: number; modifiedCount: number }> {
+    const response = await api.put<{
+      message: string;
+      matchedCount: number;
+      modifiedCount: number;
+    }>('/bookings/group-details', data);
     return response.data;
   },
 

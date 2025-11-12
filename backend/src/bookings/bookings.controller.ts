@@ -28,6 +28,7 @@ import {
 import { Type } from 'class-transformer';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { BookingsService } from './bookings.service';
+import { UpdateGroupDetailsDto } from './dto/update-group-details.dto';
 
 // DTO สำหรับแต่ละ selection
 export class BookingSelectionDto {
@@ -91,6 +92,16 @@ export class BookingsController {
     @Request() req,
   ) {
     return this.bookingsService.updateDetails(id, body.details, req.user);
+  }
+
+  // --- [Endpoint ใหม่ สำหรับอัปเดตรายละเอียดแบบกลุ่ม] ---
+  @Put('/group-details')
+  @UseGuards(JwtAuthGuard) // (อนุญาตให้ User ทุกคนอัปเดตของตัวเอง)
+  async updateGroupDetails(
+    @Body() updateGroupDetailsDto: UpdateGroupDetailsDto,
+    @Request() req,
+  ) {
+    return this.bookingsService.updateGroupDetails(updateGroupDetailsDto, req.user);
   }
 
   // --- [แก้ไข Endpoint นี้] ---

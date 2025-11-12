@@ -14,6 +14,7 @@ import { CustomRoom } from '../schemas/custom-room.schema';
 import { BookingDate } from '../schemas/booking-date.schema';
 import { AppSettings } from '../schemas/app-settings.schema';
 import { User } from '../schemas/user.schema';
+import { UpdateGroupDetailsDto } from './dto/update-group-details.dto';
 import * as ExcelJS from 'exceljs';
 
 interface BookingSelection {
@@ -172,6 +173,51 @@ export class BookingsService {
 
     booking.details = details;
     return booking.save();
+  }
+
+  // [เพิ่มใหม่] ฟังก์ชันสำหรับอัปเดตรายละเอียดแบบกลุ่ม
+  async updateGroupDetails(dto: UpdateGroupDetailsDto, requester: any): Promise<any> {
+    const requesterId = requester.userId || requester._id || requester.id;
+    const isAdmin = requester.isAdmin === true;
+    const isGod = requester.username === 'admingod';
+
+    // Parse date และตั้งค่าเป็น start of day
+    const bookingDate = new Date(dto.date);
+    bookingDate.setHours(0, 0, 0, 0);
+    const endOfDay = new Date(bookingDate);
+    endOfDay.setHours(23, 59, 59, 999);
+
+    // สร้าง query condition
+    const query: any = {
+      date: {
+        $gte: bookingDate,
+        $lte: endOfDay,
+      },
+      roomId: dto.roomId,
+    };
+
+    // ถ้าไม่ใช่ admin หรือ god ให้จำกัดเฉพาะการจองของตัวเอง
+    if (!isAdmin && !isGod) {
+      query.bookedBy = requesterId;
+    }
+
+    // อัปเดตทุก booking ที่ตรงเงื่อนไข
+    const result = await this.bookingModel.updateMany(
+      query,
+      {
+        $set: { details: dto.details },
+      },
+    );
+
+    if (result.matchedCount === 0) {
+      throw new NotFoundException('No bookings found for this user, room, and date.');
+    }
+
+    return {
+      message: `${result.modifiedCount} slot(s) updated.`,
+      matchedCount: result.matchedCount,
+      modifiedCount: result.modifiedCount,
+    };
   }
 
   // GET /bookings/details?date=2025-12-22

@@ -6,7 +6,6 @@ import Building4 from './Building4';
 import Building5 from './Building5';
 import Building6 from './Building6';
 import CustomRoomsSection from './CustomRoomsSection';
-import DetailsModal from './DetailsModal';
 import ConfirmBookingModal from './ConfirmBookingModal';
 import ConfirmResetAllModal from './ConfirmResetAllModal';
 import { bookingService } from '../services/booking.service';
@@ -14,6 +13,7 @@ import type { BookingSelection } from '../services/booking.service';
 import type { Booking } from '../types/booking';
 import { useAuth } from '../contexts/AuthContext';
 import './BookingView.css';
+import './AdminUserManagement.css';
 
 interface BookingViewProps {
   date: string;
@@ -41,7 +41,8 @@ const BookingView: React.FC<BookingViewProps> = ({ date }) => {
 
   // State: modal รายละเอียด
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
-  const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null);
+  const [currentRoomId, setCurrentRoomId] = useState<string>('');
+  const [currentDetails, setCurrentDetails] = useState<string>('');
 
   // State: confirmation modal
   const [showConfirmModal, setShowConfirmModal] = useState(false);
@@ -94,7 +95,8 @@ const BookingView: React.FC<BookingViewProps> = ({ date }) => {
     // เคลียร์ selections ทั้งหมดเมื่อเปลี่ยนวัน
     setSelections({});
     setIsDetailModalOpen(false);
-    setSelectedBooking(null);
+    setCurrentRoomId('');
+    setCurrentDetails('');
   }, [date, fetchBookings, loadRoomStatus, loadContestName]);
 
   // Listen for contest name updates
@@ -130,19 +132,34 @@ const BookingView: React.FC<BookingViewProps> = ({ date }) => {
     }));
   };
 
-  const handleOpenDetails = (booking: Booking) => {
-    setSelectedBooking(booking);
+  // ฟังก์ชันสำหรับเปิด Modal (ส่งไปให้ RoomCell)
+  const handleOpenDetails = (roomId: string) => {
+    // หา booking อันไหนก็ได้ (am หรือ pm) ของห้องนี้ เพื่อดึงรายละเอียดปัจจุบัน
+    const existingBooking = bookings.find((b) => b.roomId === roomId);
+
+    setCurrentRoomId(roomId);
+    setCurrentDetails(existingBooking?.details || ''); // (ดึงรายละเอียดเก่ามาแสดง)
     setIsDetailModalOpen(true);
   };
 
-  const handleCloseDetails = () => {
-    setIsDetailModalOpen(false);
-    setSelectedBooking(null);
+  // ฟังก์ชันสำหรับ Save Modal
+  const handleSaveDetails = async () => {
+    if (!currentRoomId) return;
+
+    try {
+      await bookingService.updateGroupDetails({
+        roomId: currentRoomId,
+        date: date, // (ใช้วันที่จาก Prop)
+        details: currentDetails,
+      });
+      setIsDetailModalOpen(false);
+      await fetchBookings(); // Refresh ข้อมูลทั้งหมด
+    } catch (error) {
+      console.error('Failed to save details', error);
+      alert('Failed to save details. See console.');
+    }
   };
 
-  const handleRefreshData = useCallback(async () => {
-    await fetchBookings();
-  }, [fetchBookings]);
 
   // Handler: เมื่อกดปุ่มจอง (แสดง confirmation modal)
   const handleBook = (roomId: string) => {
@@ -404,15 +421,37 @@ const BookingView: React.FC<BookingViewProps> = ({ date }) => {
         onConfirm={handleConfirmResetAll}
         onCancel={handleCancelResetAll}
       />
-      {isDetailModalOpen && selectedBooking && (
-        <DetailsModal
-          booking={selectedBooking}
-          onClose={handleCloseDetails}
-          onSaveSuccess={async () => {
-            await handleRefreshData();
-            handleCloseDetails();
-          }}
-        />
+      {/* Modal สำหรับเพิ่ม/แก้ไขรายละเอียด */}
+      {isDetailModalOpen && (
+        <div className="modal-backdrop" onClick={() => setIsDetailModalOpen(false)}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+            <h2>เพิ่ม/แก้ไข รายละเอียดการจอง</h2>
+            <h4>ห้อง: {currentRoomId}</h4>
+            <div className="form-group">
+              <label htmlFor="details">ชื่อการแข่งขัน / รายละเอียด:</label>
+              <input
+                type="text"
+                id="details"
+                name="details"
+                value={currentDetails}
+                onChange={(e) => setCurrentDetails(e.target.value)}
+                placeholder="เช่น แข่งขันฟิสิกส์สัประยุทธ์"
+              />
+            </div>
+            <div className="modal-actions">
+              <button
+                type="button"
+                onClick={() => setIsDetailModalOpen(false)}
+                className="btn-secondary"
+              >
+                ยกเลิก
+              </button>
+              <button type="button" onClick={handleSaveDetails} className="btn-primary">
+                บันทึก
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </>
   );

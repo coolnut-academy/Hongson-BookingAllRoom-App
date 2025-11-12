@@ -57,15 +57,14 @@ export const CompetitionSummaryPage: React.FC = () => {
 
       {sortedDates.length === 0 && (
         <div className="no-data">
-          <p>ยังไม่มีการจองที่มีรายละเอียด</p>
+          <p>ยังไม่มีการจองในระบบ</p>
         </div>
       )}
 
       {sortedDates.map((dateKey) => {
         const { displayDate, bookings: dateBookings } = bookingsByDate[dateKey];
-        const bookingsWithDetails = dateBookings.filter((b) => b.details?.trim());
 
-        if (bookingsWithDetails.length === 0) {
+        if (dateBookings.length === 0) {
           return null;
         }
 
@@ -83,12 +82,18 @@ export const CompetitionSummaryPage: React.FC = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {bookingsWithDetails.map((booking) => (
+                  {dateBookings.map((booking) => (
                     <tr key={booking._id}>
                       <td>{booking.roomId}</td>
                       <td>{booking.slot === 'am' ? 'ช่วงเช้า' : 'ช่วงบ่าย'}</td>
                       <td className="details-cell">
-                        <strong>{booking.details}</strong>
+                        {booking.details?.trim() ? (
+                          <strong>{booking.details}</strong>
+                        ) : (
+                          <span style={{ color: '#888', fontStyle: 'italic' }}>
+                            (ยังไม่ได้ใส่รายละเอียด)
+                          </span>
+                        )}
                       </td>
                       <td>
                         {booking.bookedBy?.name?.trim() ||
@@ -104,14 +109,6 @@ export const CompetitionSummaryPage: React.FC = () => {
         );
       })}
 
-      {sortedDates.length > 0 &&
-        sortedDates.every(
-          (dateKey) => bookingsByDate[dateKey].bookings.filter((b) => b.details?.trim()).length === 0,
-        ) && (
-          <div className="no-data">
-            <p>ยังไม่มีการจองที่มีรายละเอียด</p>
-          </div>
-        )}
     </div>
   );
 };

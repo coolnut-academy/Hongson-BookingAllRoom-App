@@ -15,7 +15,7 @@ interface Building1MobileProps {
   onResetRoom?: (roomId: string) => void;
   closedRooms?: string[];
   onToggleRoom?: (roomId: string) => void;
-  onOpenDetails: (booking: Booking) => void;
+  onOpenDetails: (roomId: string) => void;
 }
 
 const Building1Mobile: React.FC<Building1MobileProps> = ({
@@ -111,7 +111,7 @@ const Building1Mobile: React.FC<Building1MobileProps> = ({
                 isBookable={!isRoomClosed}
                 onSelectSlot={(slot) => onSelectSlot(room.roomId, slot)}
                 onBook={() => onBook(room.roomId)}
-                onOpenDetails={onOpenDetails}
+                onOpenDetails={() => onOpenDetails(room.roomId)}
                 isAdmin={isAdmin}
                 onResetRoom={
                   onResetRoom ? () => onResetRoom(room.roomId) : undefined

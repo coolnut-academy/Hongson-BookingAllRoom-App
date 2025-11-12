@@ -20,7 +20,7 @@ interface CustomRoomsSectionProps {
   onToggleRoom?: (roomId: string) => void;
   onResetRoom?: (roomId: string) => void;
   onRoomCreated?: () => void;
-  onOpenDetails: (booking: Booking) => void;
+  onOpenDetails: (roomId: string) => void;
 }
 
 const CustomRoomsSection: React.FC<CustomRoomsSectionProps> = ({
@@ -158,7 +158,7 @@ const CustomRoomsSection: React.FC<CustomRoomsSectionProps> = ({
                   isBookable={!isRoomClosed}
                   onSelectSlot={(slot) => onSelectSlot(room.roomId, slot)}
                   onBook={() => onBook(room.roomId)}
-                  onOpenDetails={onOpenDetails}
+                    onOpenDetails={() => onOpenDetails(room.roomId)}
                   isAdmin={isAdmin}
                   onResetRoom={
                     onResetRoom ? () => onResetRoom(room.roomId) : undefined

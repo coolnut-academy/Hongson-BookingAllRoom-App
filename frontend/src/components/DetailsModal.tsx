@@ -55,7 +55,12 @@ const DetailsModal: React.FC<DetailsModalProps> = ({
     try {
       setSaving(true);
       setError(null);
-      await bookingService.updateBookingDetails(booking._id, details.trim());
+      // ใช้ updateGroupDetails เพื่ออัปเดตทุกสล็อต (AM และ PM) ในห้องและวันที่เดียวกัน
+      await bookingService.updateGroupDetails({
+        roomId: booking.roomId,
+        date: booking.date,
+        details: details.trim(),
+      });
       await onSaveSuccess();
     } catch (err) {
       // eslint-disable-next-line no-console

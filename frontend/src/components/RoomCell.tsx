@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import type { ReactNode } from 'react';
+import type { ReactNode, CSSProperties } from 'react';
 import './RoomCell.css';
 import type { Booking } from '../types/booking';
 import { useAuth } from '../hooks/useAuth';
@@ -14,7 +14,7 @@ interface RoomCellProps {
   isBookable: boolean;
   onSelectSlot: (slot: 'am' | 'pm') => void;
   onBook: () => void;
-  onOpenDetails: (booking: Booking) => void;
+  onOpenDetails: (roomId: string) => void;
   isAdmin?: boolean;
   onResetRoom?: () => void;
   onToggleRoom?: () => void;
@@ -50,6 +50,22 @@ const RoomCell: React.FC<RoomCellProps> = ({
     [bookings],
   );
 
+  // ตรวจสอบสิทธิ์
+  const isMyBookingAM =
+    bookingAM?.bookedBy?._id === loggedInUser?.id || bookingAM?.bookedBy?._id === (loggedInUser as any)?._id;
+  const isMyBookingPM =
+    bookingPM?.bookedBy?._id === loggedInUser?.id || bookingPM?.bookedBy?._id === (loggedInUser as any)?._id;
+
+  // เช็คว่าฉันสามารถ "แก้ไขรายละเอียด" ของห้องนี้ได้หรือไม่
+  const canEditRoomDetails = isMyBookingAM || isMyBookingPM || hasAdminAccess;
+
+  // เช็คสถานะรายละเอียด
+  const details = bookingAM?.details || bookingPM?.details; // (ดึงรายละเอียดจากช่องไหนก็ได้)
+  const hasDetails = !!details?.trim();
+
+  // ถ้าจองเต็มวัน และเป็นคนเดียวกัน
+  const isFullDaySameUser = isMyBookingAM && isMyBookingPM && bookingAM?.bookedBy?._id === bookingPM?.bookedBy?._id;
+
   const amSelected = selections.am || false;
   const pmSelected = selections.pm || false;
   const isRoomClosed = !isBookable;
@@ -58,6 +74,28 @@ const RoomCell: React.FC<RoomCellProps> = ({
   const disableBookButton = isRoomClosed || isRoomFull || !hasAnySelection;
   const showResetButton =
     hasAdminAccess && (bookingAM || bookingPM) && typeof onResetRoom === 'function';
+
+  // CSS สำหรับปุ่มสถานะ
+  const statusButtonBase: CSSProperties = {
+    cursor: 'pointer',
+    borderRadius: '4px',
+    padding: '2px 6px',
+    fontSize: '0.8em',
+    border: '1px solid',
+    marginTop: '4px',
+  };
+  const statusEmpty: CSSProperties = {
+    ...statusButtonBase,
+    color: '#dc3545',
+    borderColor: '#dc3545',
+    backgroundColor: '#fff',
+  };
+  const statusFilled: CSSProperties = {
+    ...statusButtonBase,
+    color: '#198754',
+    borderColor: '#198754',
+    backgroundColor: '#e6f7e6',
+  };
 
   const handleSlotClick = (slot: 'am' | 'pm', booking?: Booking) => {
     if (isRoomClosed) {
@@ -96,7 +134,7 @@ const RoomCell: React.FC<RoomCellProps> = ({
       isRoomClosed ? 'disabled' : '',
       !isBooked && isSelected ? 'selected' : '',
     ]
-      .filter(Boolean)
+      .filter((x) => Boolean(x))
       .join(' ');
 
     const displayName = getDisplayName(booking);
@@ -125,19 +163,19 @@ const RoomCell: React.FC<RoomCellProps> = ({
                 {detailText}
               </span>
             )}
-            <button
-              type="button"
-              className={`details-button ${editable ? 'editable' : ''}`}
-              onClick={(event) => {
-                event.stopPropagation();
-                if (booking) {
-                  onOpenDetails(booking);
-                }
-              }}
-              title={detailTooltip}
-            >
-              รายละเอียด
-            </button>
+            {editable && (
+              <button
+                type="button"
+                style={detailText ? statusFilled : statusEmpty}
+                onClick={(event) => {
+                  event.stopPropagation();
+                  onOpenDetails(roomId);
+                }}
+                title={detailTooltip}
+              >
+                {detailText ? '✓' : '!'}
+              </button>
+            )}
           </>
         ) : (
           <span className="status-icon">
@@ -153,7 +191,7 @@ const RoomCell: React.FC<RoomCellProps> = ({
     isRoomClosed ? 'book-button-blocked' : '',
     isRoomFull ? 'book-button-full' : '',
   ]
-    .filter(Boolean)
+    .filter((x) => Boolean(x))
     .join(' ');
 
   const rootClasses = [
@@ -161,7 +199,7 @@ const RoomCell: React.FC<RoomCellProps> = ({
     isRoomClosed ? 'room-closed' : '',
     className,
   ]
-    .filter(Boolean)
+    .filter((x) => Boolean(x))
     .join(' ');
 
   return (
@@ -188,10 +226,29 @@ const RoomCell: React.FC<RoomCellProps> = ({
           </div>
         )}
       </div>
-      <div className="room-slots">
-        {renderSlot('am', bookingAM, amSelected)}
-        {renderSlot('pm', bookingPM, pmSelected)}
-      </div>
+      {/* ถ้าจองเต็มวัน และเป็นคนเดียวกัน ให้รวมปุ่ม */}
+      {isFullDaySameUser ? (
+        <div className="slot-full-day" style={{ padding: '10px', textAlign: 'center' }}>
+          <strong>จองเต็มวัน</strong>
+          <small style={{ display: 'block', marginTop: '4px' }}>
+            โดย: {getDisplayName(bookingAM)}
+          </small>
+          {canEditRoomDetails && (
+            <button
+              type="button"
+              style={hasDetails ? statusFilled : statusEmpty}
+              onClick={() => onOpenDetails(roomId)}
+            >
+              {hasDetails ? '✓ มีรายละเอียด' : '! เพิ่มรายละเอียด'}
+            </button>
+          )}
+        </div>
+      ) : (
+        <div className="room-slots">
+          {renderSlot('am', bookingAM, amSelected)}
+          {renderSlot('pm', bookingPM, pmSelected)}
+        </div>
+      )}
       <div className="room-footer">
         <button
           type="button"
