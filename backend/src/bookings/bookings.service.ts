@@ -30,11 +30,6 @@ interface Requester {
   username?: string;
 }
 
-interface BookingWithTimestamps extends Booking {
-  createdAt?: Date;
-  updatedAt?: Date;
-}
-
 interface SummaryItem {
   building: string;
   date: string;
@@ -1096,24 +1091,12 @@ export class BookingsService {
 
     const worksheet = workbook.addWorksheet('สรุปการจองทั้งหมด');
 
-    // กำหนด Columns (หัวตาราง)
+    // กำหนด Columns (หัวตาราง) - 4 ค่าตามที่ระบุ
     worksheet.columns = [
-      { header: 'รหัสห้อง (RoomID)', key: 'roomId', width: 25 },
-      {
-        header: 'วันที่จอง',
-        key: 'date',
-        width: 15,
-        style: { numFmt: 'yyyy-mm-dd' },
-      },
-      { header: 'ช่วงเวลา (Slot)', key: 'slot', width: 10 },
-      { header: 'จองโดย (Username)', key: 'username', width: 20 },
-      { header: 'ชื่อผู้จอง', key: 'name', width: 30 },
-      {
-        header: 'จองเมื่อ (Timestamp)',
-        key: 'createdAt',
-        width: 20,
-        style: { numFmt: 'yyyy-mm-dd hh:mm:ss' },
-      },
+      { header: 'อาคาร/ห้อง', key: 'roomId', width: 25 },
+      { header: 'เวลา', key: 'time', width: 15 },
+      { header: 'รายการแข่งขัน (รายละเอียด)', key: 'details', width: 40 },
+      { header: 'ผู้จอง (มีชื่อกลุ่มสาระด้วย)', key: 'booker', width: 50 },
     ];
 
     // (ปรับแต่งหัวตารางให้เป็นตัวหนา)
@@ -1122,15 +1105,24 @@ export class BookingsService {
     // เพิ่มข้อมูล (Rows)
     for (const booking of bookings) {
       const user = booking.bookedBy;
-      const bookingDoc = booking as BookingWithTimestamps;
+      // สร้างชื่อผู้จองพร้อมชื่อกลุ่มสาระ
       const userName = user?.name || user?.username || 'N/A';
+      const subjectGroup = user?.displayName || '';
+      const bookerName = subjectGroup
+        ? `${userName} (${subjectGroup})`
+        : userName;
+
+      // สร้างเวลา (ช่วงเช้า/ช่วงบ่าย)
+      const timeSlot = booking.slot === 'am' ? 'ช่วงเช้า' : 'ช่วงบ่าย';
+
+      // รายละเอียดการแข่งขัน (ถ้าไม่มีให้แสดง "-")
+      const details = booking.details?.trim() || '-';
+
       worksheet.addRow({
         roomId: booking.roomId,
-        date: booking.date,
-        slot: booking.slot === 'am' ? 'ช่วงเช้า' : 'ช่วงบ่าย',
-        username: user?.username || 'N/A',
-        name: userName,
-        createdAt: bookingDoc.createdAt || new Date(),
+        time: timeSlot,
+        details: details,
+        booker: bookerName,
       });
     }
 
