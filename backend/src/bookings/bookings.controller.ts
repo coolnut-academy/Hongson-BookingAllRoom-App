@@ -314,13 +314,9 @@ export class BookingsController {
     return { message: 'ลบวันที่สำเร็จ' };
   }
 
-  // GET /bookings/export/excel - Export all bookings to Excel (Admin only)
+  // GET /bookings/export/excel - Export all bookings to Excel (All users can export)
   @Get('export/excel')
-  async exportToExcel(@Res() res: Response, @Request() req) {
-    if (!req.user.isAdmin) {
-      throw new ConflictException('Only admin can export bookings');
-    }
-
+  async exportToExcel(@Res() res: Response) {
     const buffer = await this.bookingsService.exportToExcel();
 
     // ตั้งค่า Headers

@@ -1,7 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { bookingService } from '../services/booking.service';
 import type { SummaryResponse } from '../services/booking.service';
-import { useAuth } from '../contexts/AuthContext';
 import './SummaryView.css';
 
 const buildingNames: Record<string, string> = {
@@ -18,12 +17,10 @@ interface SummaryViewProps {
 }
 
 const SummaryView: React.FC<SummaryViewProps> = () => {
-  const { isAdmin } = useAuth();
   const [summary, setSummary] = useState<SummaryResponse>({});
   const [loading, setLoading] = useState(true);
   const containerRef = useRef<HTMLDivElement>(null);
   const [showScrollHint, setShowScrollHint] = useState(false);
-  const [isDownloading, setIsDownloading] = useState(false);
 
   useEffect(() => {
     // Load summary when component mounts or becomes visible
@@ -100,30 +97,6 @@ const SummaryView: React.FC<SummaryViewProps> = () => {
     }
   };
 
-  const handleDownloadExcel = async () => {
-    setIsDownloading(true);
-    try {
-      const blob = await bookingService.downloadExcelReport();
-
-      // Create temporary link in browser to download file
-      const url = window.URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      link.href = url;
-      link.setAttribute('download', 'bookings-export.xlsx'); // File name
-
-      document.body.appendChild(link);
-      link.click();
-
-      // Remove temporary link
-      link.parentNode?.removeChild(link);
-      window.URL.revokeObjectURL(url);
-    } catch (error) {
-      console.error('Failed to download Excel file', error);
-      alert('Failed to download report.');
-    } finally {
-      setIsDownloading(false);
-    }
-  };
 
   if (loading) {
     return <div className="loading">กำลังโหลด...</div>;
@@ -202,26 +175,6 @@ const SummaryView: React.FC<SummaryViewProps> = () => {
             <h1>สรุปผลการจอง (22 - 23 ธ.ค. 68)</h1>
             <p>ข้อมูลสรุปผลการจอง</p>
           </div>
-          {isAdmin && (
-            <button
-              onClick={handleDownloadExcel}
-              disabled={isDownloading}
-              style={{
-                height: 'fit-content',
-                backgroundColor: '#198754',
-                color: 'white',
-                border: 'none',
-                padding: '0.5rem 1rem',
-                borderRadius: '0.25rem',
-                cursor: isDownloading ? 'not-allowed' : 'pointer',
-                fontSize: '1rem',
-                fontWeight: '500',
-                opacity: isDownloading ? 0.6 : 1,
-              }}
-            >
-              {isDownloading ? 'กำลังสร้างไฟล์...' : 'ดาวน์โหลด Excel'}
-            </button>
-          )}
         </div>
 
         {/* Dashboard/Infographic */}
