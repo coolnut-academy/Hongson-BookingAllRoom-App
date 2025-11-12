@@ -497,3 +497,25 @@
   }
 }
 
+/* Style สำหรับช่อง "เต็มวัน" ที่รวมกัน */
+.slot-full-day {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  padding: 10px;
+  flex-grow: 1;
+  background-color: #d4edda; /* (สีเขียวอ่อน เหมือน .booked) */
+}
+
+.slot-full-day small {
+  font-size: 0.8rem;
+  margin-top: 4px;
+  color: #155724;
+}
+
+.slot-full-day strong {
+  color: #084298;
+}
+

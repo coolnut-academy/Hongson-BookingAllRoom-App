@@ -1,6 +1,7 @@
 import { useMemo } from 'react';
 import type { ReactNode, CSSProperties } from 'react';
 import './RoomCell.css';
+import './AdminUserManagement.css';
 import type { Booking } from '../types/booking';
 import { useAuth } from '../hooks/useAuth';
 import { getUserDisplayName } from '../utils/userDisplay';
@@ -22,6 +23,28 @@ interface RoomCellProps {
   className?: string;
 }
 
+// --- (CSS สำหรับปุ่มสถานะ) ---
+const statusButtonBase: CSSProperties = {
+  cursor: 'pointer',
+  borderRadius: '4px',
+  padding: '2px 6px',
+  fontSize: '0.8em',
+  border: '1px solid',
+  marginTop: '4px',
+};
+const statusEmpty: CSSProperties = {
+  ...statusButtonBase,
+  color: '#dc3545',
+  borderColor: '#dc3545',
+  backgroundColor: '#fff',
+};
+const statusFilled: CSSProperties = {
+  ...statusButtonBase,
+  color: '#198754',
+  borderColor: '#198754',
+  backgroundColor: '#e6f7e6',
+};
+
 const RoomCell: React.FC<RoomCellProps> = ({
   roomId,
   roomName,
@@ -41,71 +64,36 @@ const RoomCell: React.FC<RoomCellProps> = ({
   const { user: loggedInUser, isAdmin: isAdminFromContext } = useAuth();
   const hasAdminAccess = isAdmin || isAdminFromContext;
 
+  // --- 1. ค้นหาการจอง ---
   const bookingAM = useMemo(
-    () => bookings.find((booking) => booking.slot === 'am'),
-    [bookings],
+    () => bookings.find((b) => b.roomId === roomId && b.slot === 'am'),
+    [bookings, roomId],
   );
   const bookingPM = useMemo(
-    () => bookings.find((booking) => booking.slot === 'pm'),
-    [bookings],
+    () => bookings.find((b) => b.roomId === roomId && b.slot === 'pm'),
+    [bookings, roomId],
   );
 
-  // ตรวจสอบสิทธิ์
+  // --- 2. ตรวจสอบสถานะการจอง ---
+  const isFullDay =
+    bookingAM &&
+    bookingPM &&
+    bookingAM.bookedBy._id === bookingPM.bookedBy._id; // จองเต็มวัน (คนเดียวกัน)
   const isMyBookingAM =
-    bookingAM?.bookedBy?._id === loggedInUser?.id || bookingAM?.bookedBy?._id === (loggedInUser as any)?._id;
+    bookingAM?.bookedBy._id === loggedInUser?.id ||
+    bookingAM?.bookedBy._id === (loggedInUser as any)?._id;
   const isMyBookingPM =
-    bookingPM?.bookedBy?._id === loggedInUser?.id || bookingPM?.bookedBy?._id === (loggedInUser as any)?._id;
+    bookingPM?.bookedBy._id === loggedInUser?.id ||
+    bookingPM?.bookedBy._id === (loggedInUser as any)?._id;
+  const isAdminUser = hasAdminAccess;
 
-  // เช็คว่าฉันสามารถ "แก้ไขรายละเอียด" ของห้องนี้ได้หรือไม่
-  const canEditRoomDetails = isMyBookingAM || isMyBookingPM || hasAdminAccess;
+  // --- 3. ตรวจสอบสิทธิ์การแก้ไขรายละเอียด ---
+  const canEditDetails =
+    (isAdminUser || isMyBookingAM || isMyBookingPM) && (bookingAM || bookingPM);
 
-  // เช็คสถานะรายละเอียด
-  const details = bookingAM?.details || bookingPM?.details; // (ดึงรายละเอียดจากช่องไหนก็ได้)
+  // --- 4. ดึงรายละเอียด (จากช่องไหนก็ได้) ---
+  const details = bookingAM?.details || bookingPM?.details || '';
   const hasDetails = !!details?.trim();
-
-  // ถ้าจองเต็มวัน และเป็นคนเดียวกัน
-  const isFullDaySameUser = isMyBookingAM && isMyBookingPM && bookingAM?.bookedBy?._id === bookingPM?.bookedBy?._id;
-
-  const amSelected = selections.am || false;
-  const pmSelected = selections.pm || false;
-  const isRoomClosed = !isBookable;
-  const isRoomFull = Boolean(bookingAM) && Boolean(bookingPM);
-  const hasAnySelection = amSelected || pmSelected;
-  const disableBookButton = isRoomClosed || isRoomFull || !hasAnySelection;
-  const showResetButton =
-    hasAdminAccess && (bookingAM || bookingPM) && typeof onResetRoom === 'function';
-
-  // CSS สำหรับปุ่มสถานะ
-  const statusButtonBase: CSSProperties = {
-    cursor: 'pointer',
-    borderRadius: '4px',
-    padding: '2px 6px',
-    fontSize: '0.8em',
-    border: '1px solid',
-    marginTop: '4px',
-  };
-  const statusEmpty: CSSProperties = {
-    ...statusButtonBase,
-    color: '#dc3545',
-    borderColor: '#dc3545',
-    backgroundColor: '#fff',
-  };
-  const statusFilled: CSSProperties = {
-    ...statusButtonBase,
-    color: '#198754',
-    borderColor: '#198754',
-    backgroundColor: '#e6f7e6',
-  };
-
-  const handleSlotClick = (slot: 'am' | 'pm', booking?: Booking) => {
-    if (isRoomClosed) {
-      return;
-    }
-    if (booking) {
-      return;
-    }
-    onSelectSlot(slot);
-  };
 
   const getDisplayName = (booking?: Booking) => {
     if (!booking?.bookedBy) return '';
@@ -117,82 +105,165 @@ const RoomCell: React.FC<RoomCellProps> = ({
     return getUserDisplayName(username);
   };
 
-  const canEditDetails = (booking?: Booking) => {
-    if (!booking?.bookedBy) return hasAdminAccess;
-    if (hasAdminAccess) return true;
-    if (!loggedInUser) return false;
-    return booking.bookedBy._id === loggedInUser.id;
-  };
+  const amSelected = selections.am || false;
+  const pmSelected = selections.pm || false;
+  const isRoomClosed = !isBookable;
+  const isRoomFull = Boolean(bookingAM) && Boolean(bookingPM);
+  const hasAnySelection = amSelected || pmSelected;
+  const disableBookButton = isRoomClosed || isRoomFull || !hasAnySelection;
+  const showResetButton =
+    hasAdminAccess && (bookingAM || bookingPM) && typeof onResetRoom === 'function';
 
-  const renderSlot = (slot: 'am' | 'pm', booking?: Booking, isSelected?: boolean) => {
-    const slotLabel = slot === 'am' ? 'เช้า' : 'บ่าย';
-    const isBooked = Boolean(booking);
-    const slotClasses = [
-      'slot',
-      `slot-${slot}`,
-      isBooked ? 'booked' : 'available',
-      isRoomClosed ? 'disabled' : '',
-      !isBooked && isSelected ? 'selected' : '',
-    ]
-      .filter((x) => Boolean(x))
-      .join(' ');
+  // --- 5. Render Logic (ตรรกะการแสดงผล) ---
+  const renderSlots = () => {
+    // --- [FIX 1: ตรวจสอบห้องที่จองไม่ได้ (Blocked) ก่อน] ---
+    if (!isBookable) {
+      // ถ้าเป็นห้องพักครู (จองไม่ได้) ให้แสดงปุ่ม "ห้องเต็ม" เท่านั้น
+      return (
+        <div className="room-footer">
+          <button className="book-button" disabled>
+            ห้องเต็ม
+          </button>
+        </div>
+      );
+    }
 
-    const displayName = getDisplayName(booking);
-    const detailText = booking?.details?.trim();
-    const detailTooltip = detailText || 'เพิ่มรายละเอียด';
-    const editable = canEditDetails(booking);
-
-    return (
-      <div
-        key={`${roomId}-${slot}`}
-        className={slotClasses}
-        data-slot={slotLabel}
-        onClick={() => handleSlotClick(slot, booking)}
-      >
-        <span>{slotLabel}</span>
-        {isBooked ? (
-          <>
-            <span className="status-icon">✓</span>
-            {displayName && (
-              <span className="booked-by-name" title={`จองโดย: ${displayName}`}>
-                {displayName}
-              </span>
-            )}
-            {detailText && (
-              <span className="booking-detail-text" title={detailText}>
-                {detailText}
-              </span>
-            )}
-            {editable && (
+    // --- [FIX 2: ตรวจสอบห้องที่จองเต็มวันจริงๆ (Full Day)] ---
+    if (isFullDay && bookingAM) {
+      return (
+        <>
+          <div className="slot-full-day">
+            <strong>จองเต็มวัน</strong>
+            <small>โดย: {getDisplayName(bookingAM)}</small>
+            {/* แสดงปุ่มรายละเอียด ถ้าเป็นเจ้าของ หรือ Admin */}
+            {canEditDetails && (
               <button
                 type="button"
-                style={detailText ? statusFilled : statusEmpty}
-                onClick={(event) => {
-                  event.stopPropagation();
-                  onOpenDetails(roomId);
-                }}
-                title={detailTooltip}
+                style={hasDetails ? statusFilled : statusEmpty}
+                onClick={() => onOpenDetails(roomId)} // (ส่ง roomId ไปให้ Modal)
               >
-                {detailText ? '✓' : '!'}
+                {hasDetails ? '✓ มีรายละเอียด' : '! เพิ่มรายละเอียด'}
               </button>
             )}
-          </>
-        ) : (
-          <span className="status-icon">
-            {isRoomClosed ? '🔒' : isSelected ? '✓' : '+'}
-          </span>
-        )}
-      </div>
-    );
-  };
+          </div>
+          {/* (ไม่ต้องแสดงปุ่ม "จอง" เพราะมันเต็มแล้ว) */}
+        </>
+      );
+    }
 
-  const bookButtonClasses = [
-    'book-button',
-    isRoomClosed ? 'book-button-blocked' : '',
-    isRoomFull ? 'book-button-full' : '',
-  ]
-    .filter((x) => Boolean(x))
-    .join(' ');
+    // --- [Default: แสดงผล 2 สล็อต (AM/PM) แยกกัน] ---
+    return (
+      <>
+        <div className="room-slots">
+          {/* --- ช่อง AM (เช้า) --- */}
+          <div
+            className={`slot slot-am ${
+              bookingAM
+                ? 'booked'
+                : amSelected
+                  ? 'selected'
+                  : 'available'
+            } ${isRoomClosed ? 'disabled' : ''}`}
+            onClick={() => {
+              if (!isRoomClosed && !bookingAM) {
+                onSelectSlot('am');
+              }
+            }}
+          >
+            <span>เช้า</span>
+            {bookingAM ? (
+              <>
+                <span className="status-icon">✓</span>
+                <small>({getDisplayName(bookingAM)})</small>
+                {(isAdminUser || isMyBookingAM) && (
+                  <button
+                    type="button"
+                    style={bookingAM.details ? statusFilled : statusEmpty}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onOpenDetails(roomId);
+                    }}
+                    title={bookingAM.details || 'เพิ่มรายละเอียด'}
+                  >
+                    {bookingAM.details ? '✓' : '!'}
+                  </button>
+                )}
+              </>
+            ) : (
+              // (ช่องว่าง)
+              <span className="status-icon">
+                {isRoomClosed ? '🔒' : amSelected ? '✓' : '+'}
+              </span>
+            )}
+          </div>
+
+          {/* --- ช่อง PM (บ่าย) --- */}
+          <div
+            className={`slot slot-pm ${
+              bookingPM
+                ? 'booked'
+                : pmSelected
+                  ? 'selected'
+                  : 'available'
+            } ${isRoomClosed ? 'disabled' : ''}`}
+            onClick={() => {
+              if (!isRoomClosed && !bookingPM) {
+                onSelectSlot('pm');
+              }
+            }}
+          >
+            <span>บ่าย</span>
+            {bookingPM ? (
+              <>
+                <span className="status-icon">✓</span>
+                <small>({getDisplayName(bookingPM)})</small>
+                {(isAdminUser || isMyBookingPM) && (
+                  <button
+                    type="button"
+                    style={bookingPM.details ? statusFilled : statusEmpty}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onOpenDetails(roomId);
+                    }}
+                    title={bookingPM.details || 'เพิ่มรายละเอียด'}
+                  >
+                    {bookingPM.details ? '✓' : '!'}
+                  </button>
+                )}
+              </>
+            ) : (
+              // (ช่องว่าง)
+              <span className="status-icon">
+                {isRoomClosed ? '🔒' : pmSelected ? '✓' : '+'}
+              </span>
+            )}
+          </div>
+        </div>
+
+        {/* --- ปุ่ม "จอง" (จะแสดงเฉพาะเมื่อห้องไม่เต็ม) --- */}
+        <div className="room-footer">
+          <button
+            type="button"
+            className={`book-button ${isRoomClosed ? 'book-button-blocked' : ''} ${isRoomFull ? 'book-button-full' : ''}`}
+            onClick={onBook}
+            disabled={disableBookButton}
+          >
+            {isRoomClosed ? 'ห้องปิด' : isRoomFull ? 'ห้องเต็ม' : 'จอง'}
+          </button>
+          {showResetButton && (
+            <button
+              type="button"
+              className="reset-button"
+              onClick={() => onResetRoom?.()}
+              title="Reset การจองในห้องนี้ (Admin only)"
+            >
+              Reset
+            </button>
+          )}
+        </div>
+      </>
+    );
+  }; // (จบฟังก์ชัน renderSlots)
 
   const rootClasses = [
     'room-cell',
@@ -226,49 +297,8 @@ const RoomCell: React.FC<RoomCellProps> = ({
           </div>
         )}
       </div>
-      {/* ถ้าจองเต็มวัน และเป็นคนเดียวกัน ให้รวมปุ่ม */}
-      {isFullDaySameUser ? (
-        <div className="slot-full-day" style={{ padding: '10px', textAlign: 'center' }}>
-          <strong>จองเต็มวัน</strong>
-          <small style={{ display: 'block', marginTop: '4px' }}>
-            โดย: {getDisplayName(bookingAM)}
-          </small>
-          {canEditRoomDetails && (
-            <button
-              type="button"
-              style={hasDetails ? statusFilled : statusEmpty}
-              onClick={() => onOpenDetails(roomId)}
-            >
-              {hasDetails ? '✓ มีรายละเอียด' : '! เพิ่มรายละเอียด'}
-            </button>
-          )}
-        </div>
-      ) : (
-        <div className="room-slots">
-          {renderSlot('am', bookingAM, amSelected)}
-          {renderSlot('pm', bookingPM, pmSelected)}
-        </div>
-      )}
-      <div className="room-footer">
-        <button
-          type="button"
-          className={bookButtonClasses}
-          onClick={onBook}
-          disabled={disableBookButton}
-        >
-          {isRoomClosed ? 'ห้องปิด' : isRoomFull ? 'ห้องเต็ม' : 'จอง'}
-        </button>
-        {showResetButton && (
-          <button
-            type="button"
-            className="reset-button"
-            onClick={() => onResetRoom?.()}
-            title="Reset การจองในห้องนี้ (Admin only)"
-          >
-            Reset
-          </button>
-        )}
-      </div>
+
+      {renderSlots()}
     </div>
   );
 };

@@ -1,3 +1,4 @@
+// frontend/src/components/CompetitionSummaryPage.tsx
 import React, { useState, useEffect } from 'react';
 import { bookingService } from '../services/booking.service';
 import type { Booking } from '../types/booking';
@@ -11,6 +12,7 @@ export const CompetitionSummaryPage: React.FC = () => {
     async function fetchAllData() {
       try {
         setLoading(true);
+        // (ดึงข้อมูลทั้งหมดจาก Backend)
         const data = await bookingService.getAllBookings();
         setBookings(data);
       } catch (error) {
@@ -22,26 +24,17 @@ export const CompetitionSummaryPage: React.FC = () => {
     fetchAllData();
   }, []);
 
-  // ฟังก์ชันสำหรับ Group ข้อมูลตามวันที่
+  // (ฟังก์ชันสำหรับ Group ข้อมูลตามวันที่)
   const bookingsByDate = bookings.reduce((acc, booking) => {
-    const dateStr = new Date(booking.date).toISOString().split('T')[0];
     const date = new Date(booking.date).toLocaleDateString('th-TH', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
+      dateStyle: 'long',
     });
-    if (!acc[dateStr]) {
-      acc[dateStr] = {
-        displayDate: date,
-        bookings: [],
-      };
+    if (!acc[date]) {
+      acc[date] = [];
     }
-    acc[dateStr].bookings.push(booking);
+    acc[date].push(booking);
     return acc;
-  }, {} as Record<string, { displayDate: string; bookings: Booking[] }>);
-
-  // เรียงวันที่ตามลำดับ
-  const sortedDates = Object.keys(bookingsByDate).sort();
+  }, {} as Record<string, Booking[]>);
 
   if (loading) {
     return (
@@ -55,61 +48,63 @@ export const CompetitionSummaryPage: React.FC = () => {
     <div className="container competition-summary-page">
       <h1>สรุปรายการแข่งขัน (ภาพรวม)</h1>
 
-      {sortedDates.length === 0 && (
+      {Object.keys(bookingsByDate).length === 0 && (
         <div className="no-data">
           <p>ยังไม่มีการจองในระบบ</p>
         </div>
       )}
 
-      {sortedDates.map((dateKey) => {
-        const { displayDate, bookings: dateBookings } = bookingsByDate[dateKey];
+      {Object.keys(bookingsByDate).map((date) => (
+        <div key={date} className="summary-section" style={{ marginBottom: '20px' }}>
+          <h2>วันที่ {date}</h2>
+          <div className="table-wrapper">
+            <table className="summary-table">
+              <thead>
+                <tr>
+                  <th>อาคาร/ห้อง</th>
+                  <th>เวลา</th>
+                  <th>รายการแข่งขัน (รายละเอียด)</th>
+                  <th>ผู้จอง</th>
+                </tr>
+              </thead>
+              <tbody>
+                {/* [แก้ไข] เราจะไม่กรอง booking.details ออก */}
+                {bookingsByDate[date].map((booking) => (
+                  <tr key={booking._id}>
+                    <td>{booking.roomId}</td>
+                    <td>{booking.slot === 'am' ? 'ช่วงเช้า' : 'ช่วงบ่าย'}</td>
 
-        if (dateBookings.length === 0) {
-          return null;
-        }
+                    {/* [แก้ไข] เพิ่ม Logic ตรวจสอบค่าว่าง */}
+                    <td className="details-cell">
+                      {booking.details?.trim() ? (
+                        <strong>{booking.details}</strong>
+                      ) : (
+                        <span style={{ color: '#888', fontStyle: 'italic' }}>
+                          (ยังไม่ได้ใส่รายละเอียด)
+                        </span>
+                      )}
+                    </td>
 
-        return (
-          <div key={dateKey} className="summary-section">
-            <h2>วันที่ {displayDate}</h2>
-            <div className="table-wrapper">
-              <table className="summary-table">
-                <thead>
-                  <tr>
-                    <th>อาคาร/ห้อง</th>
-                    <th>เวลา</th>
-                    <th>รายการแข่งขัน (รายละเอียด)</th>
-                    <th>ผู้จอง</th>
+                    <td>
+                      {booking.bookedBy?.name?.trim() ||
+                        booking.bookedBy?.username ||
+                        '-'}
+                    </td>
                   </tr>
-                </thead>
-                <tbody>
-                  {dateBookings.map((booking) => (
-                    <tr key={booking._id}>
-                      <td>{booking.roomId}</td>
-                      <td>{booking.slot === 'am' ? 'ช่วงเช้า' : 'ช่วงบ่าย'}</td>
-                      <td className="details-cell">
-                        {booking.details?.trim() ? (
-                          <strong>{booking.details}</strong>
-                        ) : (
-                          <span style={{ color: '#888', fontStyle: 'italic' }}>
-                            (ยังไม่ได้ใส่รายละเอียด)
-                          </span>
-                        )}
-                      </td>
-                      <td>
-                        {booking.bookedBy?.name?.trim() ||
-                          booking.bookedBy?.username ||
-                          '-'}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        );
-      })}
+                ))}
 
+                {bookingsByDate[date].length === 0 && (
+                  <tr>
+                    <td colSpan={4} style={{ textAlign: 'center' }}>
+                      - ไม่มีการจองในวันนี้ -
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      ))}
     </div>
   );
 };
-
